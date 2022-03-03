@@ -8,4 +8,9 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="DisCatSharp" Version="9.9.0"/>
+        <PackageReference Include="DisCatSharp.ApplicationCommands" Version="9.9.0"/>
+        <PackageReference Include="DisCatSharp.CommandsNext" Version="9.9.0"/>
+    </ItemGroup>
 </Project>
