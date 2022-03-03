@@ -9,8 +9,8 @@ namespace Hammer.Configuration;
 internal sealed class MuteConfiguration
 {
     /// <summary>
-    ///     Gets the duration of a gag.
+    ///     Gets or sets the duration of a gag.
     /// </summary>
     /// <value>The duration of a gag, in milliseconds.</value>
-    public long GagDuration { get; private set; } = (long) TimeSpan.FromMinutes(5).TotalMilliseconds;
+    public long GagDuration { get; set; } = (long) TimeSpan.FromMinutes(5).TotalMilliseconds;
 }

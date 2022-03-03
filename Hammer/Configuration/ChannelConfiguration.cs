@@ -12,5 +12,5 @@ internal sealed class ChannelConfiguration
     ///     Gets or sets the ID of the staff log channel.
     /// </summary>
     /// <value>The ID of the staff log channel.</value>
-    public ulong LogChannelId { get; private set; }
+    public ulong LogChannelId { get; set; }
 }
