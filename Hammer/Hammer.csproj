@@ -12,5 +12,7 @@
         <PackageReference Include="DisCatSharp" Version="9.9.0"/>
         <PackageReference Include="DisCatSharp.ApplicationCommands" Version="9.9.0"/>
         <PackageReference Include="DisCatSharp.CommandsNext" Version="9.9.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2"/>
     </ItemGroup>
 </Project>
