@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Hammer.Data.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +31,12 @@ internal sealed class HammerContext : DbContext
     /// <value>The set of infractions.</value>
     public DbSet<Infraction> Infractions { get; set; } = null!; // assigned when context is created
 
+    /// <summary>
+    ///     Gets or sets the set of rules.
+    /// </summary>
+    /// <value>The set of rules.</value>
+    public DbSet<Rule> Rules { get; set; } = null!; // assigned when context is created
+
     /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -44,5 +50,6 @@ internal sealed class HammerContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration());
+        modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }
 }
