@@ -29,6 +29,11 @@ internal enum InfractionType
     ///     Specifies that the infraction is an indefinite mute.
     /// </summary>
     Mute,
+    
+    /// <summary>
+    ///     Specifies that the infraction is a kick.
+    /// </summary>
+    Kick,
 
     /// <summary>
     ///     Specifies that the infraction is a temporary ban.
