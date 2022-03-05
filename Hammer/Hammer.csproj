@@ -15,5 +15,8 @@
         <PackageReference Include="DisCatSharp.Interactivity" Version="9.9.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.2"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1"/>
+        <PackageReference Include="NLog" Version="4.7.14"/>
+        <PackageReference Include="NLog.Extensions.Logging" Version="1.7.4"/>
     </ItemGroup>
 </Project>
