@@ -108,7 +108,7 @@ internal sealed class DiscordLogService : BackgroundService
         if (logChannelId != 0)
         {
             if (e.Guild.GetChannel(logChannelId) is { } channel)
-                Logger.Warn(LoggerMessages.LogChannelFound.FormatSmart(new {channel, guild = e.Guild}));
+                Logger.Info(LoggerMessages.LogChannelFound.FormatSmart(new {channel, guild = e.Guild}));
             else
                 Logger.Warn(LoggerMessages.LogChannelNotFound.FormatSmart(new {guild = e.Guild}));
         }
