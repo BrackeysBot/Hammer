@@ -1,4 +1,4 @@
-﻿using DisCatSharp;
+using DisCatSharp;
 using DisCatSharp.Entities;
 
 namespace Hammer.Extensions;
@@ -63,17 +63,13 @@ internal static class DiscordEmbedExtensions
     /// <param name="addThumbnail">
     ///     <see langword="true" /> to include the guild icon as a thumbnail; otherwise, <see langword="false" />.
     /// </param>
-    /// <returns>The <see cref="DiscordEmbedBuilder" /> with the footer and thumbnail assigned the guild's branding.</returns>
+    /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
     public static DiscordEmbedBuilder AddGuildInfo(this DiscordEmbedBuilder embedBuilder, DiscordGuild guild,
         bool addThumbnail = true)
     {
-        embedBuilder.WithFooter(guild.Name, iconUrl: guild.IconUrl);
+        embedBuilder.WithFooter(guild.Name, guild.IconUrl);
 
-        if (addThumbnail)
-        {
-            embedBuilder.WithThumbnail(guild.IconUrl);
-        }
-
+        if (addThumbnail) embedBuilder.WithThumbnail(guild.IconUrl);
         return embedBuilder;
     }
 }
