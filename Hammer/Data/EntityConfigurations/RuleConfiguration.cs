@@ -11,6 +11,6 @@ internal sealed class RuleConfiguration : IEntityTypeConfiguration<Rule>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Rule> builder)
     {
-        builder.HasNoKey();
+        builder.HasKey(e => new {e.Id, e.GuildId});
     }
 }
