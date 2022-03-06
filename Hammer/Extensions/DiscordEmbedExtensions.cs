@@ -26,6 +26,23 @@ internal static class DiscordEmbedExtensions
     }
 
     /// <summary>
+    ///     Conditionally adds a field to an embed, lazily.
+    /// </summary>
+    /// <param name="embedBuilder">The <see cref="DiscordEmbedBuilder" /> to modify.</param>
+    /// <param name="condition"><see langword="true" /> if the field should be added; otherwise, <see langword="false" />.</param>
+    /// <param name="name">The field name.</param>
+    /// <param name="valueEvaluator">The delegate to execute if <paramref name="condition" /> is <see langword="true" />.</param>
+    /// <param name="inline"><see langword="true" /> to display the field inline; otherwise, <see langword="false" />.</param>
+    /// <typeparam name="T">The value type of the field.</typeparam>
+    /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
+    public static DiscordEmbedBuilder AddFieldIf<T>(this DiscordEmbedBuilder embedBuilder, bool condition, string name,
+        Func<T> valueEvaluator, bool inline = false)
+    {
+        if (!condition) return embedBuilder;
+        return embedBuilder.AddField(name, valueEvaluator(), inline);
+    }
+
+    /// <summary>
     ///     Adds a field of any value to an embed.
     /// </summary>
     /// <param name="embedBuilder">The <see cref="DiscordEmbedBuilder" /> to modify.</param>
