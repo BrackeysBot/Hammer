@@ -1,4 +1,4 @@
-using DisCatSharp;
+﻿using DisCatSharp;
 using DisCatSharp.Entities;
 
 namespace Hammer.Extensions;
@@ -88,5 +88,16 @@ internal static class DiscordEmbedExtensions
 
         if (addThumbnail) embedBuilder.WithThumbnail(guild.IconUrl);
         return embedBuilder;
+    }
+
+    /// <summary>
+    ///     Sets the embed's author to a specified <see cref="DiscordUser" />.
+    /// </summary>
+    /// <param name="embedBuilder">The embed builder to modify.</param>
+    /// <param name="author">The author.</param>
+    /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
+    public static DiscordEmbedBuilder WithAuthor(this DiscordEmbedBuilder embedBuilder, DiscordUser author)
+    {
+        return embedBuilder.WithAuthor(author.UsernameWithDiscriminator, iconUrl: author.GetAvatarUrl(ImageFormat.Png));
     }
 }
