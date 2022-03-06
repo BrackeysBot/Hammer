@@ -1,12 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Hammer.Configuration;
+﻿namespace Hammer.Configuration;
 
 /// <summary>
-///     Represents a bot configuration.
+///     Represents a guild configuration.
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Immutability. Setter accessible via DI")]
-internal sealed class BotConfiguration
+internal sealed class GuildConfiguration
 {
     /// <summary>
     ///     Gets or sets the channel configuration.
@@ -33,8 +30,8 @@ internal sealed class BotConfiguration
     public RoleConfiguration RoleConfiguration { get; set; } = new();
 
     /// <summary>
-    ///     Gets or sets the command prefix.
+    ///     Gets or sets the guild's primary color.
     /// </summary>
-    /// <value>The command prefix.</value>
-    public string Prefix { get; set; } = "h[]";
+    /// <value>The guild's primary color, in 24-bit RGB format.</value>
+    public int PrimaryColor { get; set; } = 0x7837FF;
 }
