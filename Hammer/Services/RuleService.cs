@@ -1,5 +1,6 @@
 ﻿using DisCatSharp.Entities;
 using Hammer.Data;
+using Hammer.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,6 +46,21 @@ internal sealed class RuleService : BackgroundService
 
         await context.SaveChangesAsync();
         return rule;
+    }
+
+    /// <summary>
+    ///     Creates a "Rule Not Found" embed.
+    /// </summary>
+    /// <param name="guild">The guild whose branding to display.</param>
+    /// <param name="ruleId">The ID of the rule which wasn't found.</param>
+    /// <returns>A <see cref="DiscordEmbed" /> stating the rule cannot be found.</returns>
+    public DiscordEmbed CreateRuleNotFoundEmbed(DiscordGuild guild, int ruleId)
+    {
+        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
+        embed.WithColor(0xFF0000);
+        embed.WithTitle("Rule Not Found");
+        embed.WithDescription($"A rule with ID {ruleId} could not be found.");
+        return embed;
     }
 
     /// <summary>

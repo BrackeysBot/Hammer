@@ -22,7 +22,7 @@ internal sealed partial class RulesModule
         if (rules.Count == 0)
         {
             embed.WithColor(0xFF0000);
-            embed.WithTitle("No rules found");
+            embed.WithTitle("No Rules Found");
             embed.WithDescription($"No rules could be found for {Formatter.Bold(guild.Name)}.");
         }
         else
