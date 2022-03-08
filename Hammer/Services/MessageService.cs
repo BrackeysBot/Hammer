@@ -14,7 +14,7 @@ using SmartFormat;
 namespace Hammer.Services;
 
 /// <summary>
-///     Represents a service which logs and relays messages from staff members. 
+///     Represents a service which logs and relays messages from staff members.
 /// </summary>
 internal sealed class MessageService
 {
@@ -111,7 +111,7 @@ internal sealed class MessageService
             Content = message,
             GuildId = staffMember.Guild.Id,
             StaffMemberId = staffMember.Id,
-            RecipientId = recipient.Id,
+            RecipientId = recipient.Id
         };
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
