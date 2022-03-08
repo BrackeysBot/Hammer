@@ -34,4 +34,16 @@ internal sealed class GuildConfiguration
     /// </summary>
     /// <value>The guild's primary color, in 24-bit RGB format.</value>
     public int PrimaryColor { get; set; } = 0x7837FF;
+
+    /// <summary>
+    ///     Gets or sets the guild's secondary color.
+    /// </summary>
+    /// <value>The guild's secondary color, in 24-bit RGB format.</value>
+    public int SecondaryColor { get; set; } = 0xE33C6C;
+
+    /// <summary>
+    ///     Gets or sets the guild's tertiary color.
+    /// </summary>
+    /// <value>The guild's tertiary color, in 24-bit RGB format.</value>
+    public int TertiaryColor { get; set; } = 0xFFE056;
 }
