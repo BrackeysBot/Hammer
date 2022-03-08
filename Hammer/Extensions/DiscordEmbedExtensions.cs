@@ -1,6 +1,7 @@
 ﻿using System;
 using DisCatSharp;
 using DisCatSharp.Entities;
+using Hammer.Resources;
 
 namespace Hammer.Extensions;
 
@@ -88,6 +89,18 @@ internal static class DiscordEmbedExtensions
         embedBuilder.WithFooter(guild.Name, guild.IconUrl);
 
         if (addThumbnail) embedBuilder.WithThumbnail(guild.IconUrl);
+        return embedBuilder;
+    }
+
+    /// <summary>
+    ///     Adds a notice to the end of the embed description notifying that the user should DM ModMail to discuss something with
+    ///     staff.
+    /// </summary>
+    /// <param name="embedBuilder">The embed builder to modify.</param>
+    /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
+    public static DiscordEmbedBuilder AddModMailNotice(this DiscordEmbedBuilder embedBuilder)
+    {
+        embedBuilder.Description = $"{embedBuilder.Description}\n\n{EmbedMessages.DmModMail}";
         return embedBuilder;
     }
 

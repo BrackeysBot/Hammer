@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.Entities;
@@ -99,6 +99,7 @@ internal sealed class MessageService
         embedBuilder.WithTitle(EmbedTitles.Message);
         embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new {user, guild}));
         embedBuilder.AddField(EmbedFieldNames.Message, message);
+        embedBuilder.AddModMailNotice();
 
         return embedBuilder;
     }

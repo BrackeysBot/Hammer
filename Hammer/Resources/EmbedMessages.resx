@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -23,6 +23,9 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="DmModMail" xml:space="preserve">
+        <value>If you wish to discuss this with staff, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
     <data name="MessageFromStaff" xml:space="preserve">
         <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
     </data>
