@@ -23,22 +23,16 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="NoMutedRoleToRevoke" xml:space="preserve">
-        <value>Unable to revoke role! Muted role not found for {guild}</value>
+    <data name="MessageFromStaff" xml:space="preserve">
+        <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
     </data>
-    <data name="TemporaryMuteExpired" xml:space="preserve">
-        <value>Temporary mute for {user} expired in {guild}</value>
+    <data name="NoSuchUser" xml:space="preserve">
+        <value>No user with the ID {id} could be found.</value>
     </data>
-    <data name="LogChannelNotFound" xml:space="preserve">
-        <value>Log channel for {guild} was not found. Actions for this guild will NOT be logged in Discord!</value>
+    <data name="NotInGuild" xml:space="preserve">
+        <value>User {user.Id} ({user.Mention}) was found, but is not in this guild.</value>
     </data>
-    <data name="LogChannelNotDefined" xml:space="preserve">
-        <value>No log channel defined for {guild}. Actions for this guild will NOT be logged in Discord!</value>
-    </data>
-    <data name="LogChannelFound" xml:space="preserve">
-        <value>Log channel {channel} was found for {guild}</value>
-    </data>
-    <data name="StaffMessagedMember" xml:space="preserve">
-        <value>{staffMember} sent a message to {recipient} from {guild}. Contents: {message}</value>
+    <data name="StaffSentMessage" xml:space="preserve">
+        <value>Staff member {staffMember.Mention} sent a message to {user.Mention}.</value>
     </data>
 </root>
