@@ -83,7 +83,7 @@ internal sealed class MessageService
         embedBuilder.WithAuthor($"Message #{staffMember.Id}");
         embedBuilder.WithTitle(EmbedTitles.MessageSent);
         embedBuilder.WithDescription(EmbedMessages.StaffSentMessage.FormatSmart(new {staffMember, user}));
-        embedBuilder.AddField(EmbedFieldNames.Message, message);
+        embedBuilder.AddField(EmbedFieldNames.Message, message.Content);
 
         return embedBuilder;
     }
@@ -98,7 +98,7 @@ internal sealed class MessageService
 
         embedBuilder.WithTitle(EmbedTitles.Message);
         embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new {user, guild}));
-        embedBuilder.AddField(EmbedFieldNames.Message, message);
+        embedBuilder.AddField(EmbedFieldNames.Message, message.Content);
         embedBuilder.AddModMailNotice();
 
         return embedBuilder;
