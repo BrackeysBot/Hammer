@@ -66,7 +66,8 @@ internal sealed class MessageService
 
         StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message);
 
-        Logger.Info(LoggerMessages.StaffMessagedMember.FormatSmart(new {staffMember, recipient, staffMember.Guild, message}));
+        Logger.Info(LoggerMessages.StaffMessagedMember.FormatSmart(new
+            {staffMember, recipient, guild = staffMember.Guild, message}));
         await recipient.SendMessageAsync(await CreateUserEmbedAsync(staffMessage));
         await _logService.LogAsync(recipient.Guild, await CreateStaffLogEmbedAsync(staffMessage));
     }
