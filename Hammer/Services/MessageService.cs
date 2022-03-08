@@ -80,7 +80,7 @@ internal sealed class MessageService
         GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
         DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
 
-        embedBuilder.WithAuthor($"Message #{staffMember.Id}");
+        embedBuilder.WithAuthor($"Message #{message.Id}");
         embedBuilder.WithTitle(EmbedTitles.MessageSent);
         embedBuilder.WithDescription(EmbedMessages.StaffSentMessage.FormatSmart(new {staffMember, user}));
         embedBuilder.AddField(EmbedFieldNames.Message, message.Content);
