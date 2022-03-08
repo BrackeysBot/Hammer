@@ -5,7 +5,6 @@ using Hammer.Configuration;
 using Hammer.Extensions;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
 using PermissionLevel = Hammer.Data.PermissionLevel;
 
 namespace Hammer.Attributes;
@@ -15,7 +14,6 @@ namespace Hammer.Attributes;
 /// </summary>
 internal sealed class RequirePermissionLevelAttribute : CheckBaseAttribute
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly PermissionLevel _permissionLevel;
 
     /// <summary>
@@ -30,7 +28,6 @@ internal sealed class RequirePermissionLevelAttribute : CheckBaseAttribute
     /// <inheritdoc />
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        Logger.Info($"{ctx.Member} attempted to run command \"{ctx.Command.Name}\"");
         if (ctx.Guild is null) return Task.FromResult(false);
 
         var configurationService = ctx.Services.GetRequiredService<ConfigurationService>();
