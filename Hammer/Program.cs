@@ -31,7 +31,13 @@ await Host.CreateDefaultBuilder(args)
         });
 
         services.AddSingleton<ConfigurationService>();
+        services.AddSingleton<DiscordLogService>();
+        services.AddSingleton<MessageService>();
+        services.AddSingleton<RuleService>();
 
+        services.AddSingleton<IHostedService, DiscordLogService>(provider => provider.GetRequiredService<DiscordLogService>());
+
+        services.AddHostedService<LoggingService>();
         services.AddHostedService<StartupService>();
     })
     .UseConsoleLifetime()

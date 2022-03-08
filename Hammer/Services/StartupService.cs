@@ -57,6 +57,10 @@ internal sealed class StartupService : BackgroundService
                 ServiceProvider = _serviceProvider,
             });
 
+        Logger.Info("Registering command modules");
+        commandsNext.RegisterCommands<RulesModule>();
+        commandsNext.RegisterCommands<StaffModule>();
+
         Logger.Info("Registering InteractivityExtension");
         _discordClient.UseInteractivity(new InteractivityConfiguration());
 
