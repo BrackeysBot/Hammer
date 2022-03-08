@@ -31,6 +31,12 @@ internal sealed class HammerContext : DbContext
     /// <value>The set of rules.</value>
     public DbSet<Rule> Rules { get; set; } = null!; // assigned when context is created
 
+    /// <summary>
+    ///     Gets or sets the set of staff messages.
+    /// </summary>
+    /// <value>The set of staff messages.</value>
+    public DbSet<StaffMessage> StaffMessages { get; set; } = null!; // assigned when context is created
+
     /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
