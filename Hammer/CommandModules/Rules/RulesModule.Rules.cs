@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
@@ -16,6 +16,7 @@ internal sealed partial class RulesModule
     [RequireGuild]
     public async Task RulesCommandAsync(CommandContext context)
     {
+        await context.AcknowledgeAsync();
         DiscordGuild guild = context.Guild;
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
         

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
@@ -17,7 +17,7 @@ internal sealed partial class RulesModule
     public async Task AddRuleCommandAsync(CommandContext context,
         [Description("The new rule context."), RemainingText] string ruleContent)
     {
-        await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("✅"));
+        await context.AcknowledgeAsync();
 
         DiscordGuild guild = context.Guild;
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
