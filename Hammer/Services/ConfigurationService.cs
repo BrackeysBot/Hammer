@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using DisCatSharp.Entities;
 using Hammer.Configuration;
 using Microsoft.Extensions.Configuration;

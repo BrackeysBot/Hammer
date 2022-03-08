@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.CommandsNext;

@@ -1,4 +1,6 @@
-﻿namespace Hammer.Data;
+﻿using System;
+
+namespace Hammer.Data;
 
 /// <summary>
 ///     An enumeration of possible states for a <see cref="TrackedMessage" /> to be in.

@@ -1,4 +1,5 @@
-﻿using DisCatSharp.Entities;
+﻿using System.Threading.Tasks;
+using DisCatSharp.Entities;
 
 namespace Hammer.Extensions;
 

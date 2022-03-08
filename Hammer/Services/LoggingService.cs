@@ -1,4 +1,8 @@
-﻿using System.IO.Compression;
+﻿using System;
+using System.IO;
+using System.IO.Compression;
+using System.Threading;
+using System.Threading.Tasks;
 using Hammer.Logging;
 using Microsoft.Extensions.Hosting;
 using NLog;

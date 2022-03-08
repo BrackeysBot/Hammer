@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Hammer.Data.v3_compat;
 

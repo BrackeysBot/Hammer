@@ -1,4 +1,6 @@
-﻿using DisCatSharp;
+﻿using System;
+using System.Threading.Tasks;
+using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
 using DisCatSharp.Interactivity;

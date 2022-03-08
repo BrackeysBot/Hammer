@@ -1,4 +1,5 @@
-﻿using DisCatSharp;
+﻿using System;
+using DisCatSharp;
 using DisCatSharp.Entities;
 
 namespace Hammer.Extensions;

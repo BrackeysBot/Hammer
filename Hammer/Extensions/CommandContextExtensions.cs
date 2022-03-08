@@ -1,4 +1,5 @@
-﻿using DisCatSharp.CommandsNext;
+﻿using System.Threading.Tasks;
+using DisCatSharp.CommandsNext;
 
 namespace Hammer.Extensions;
 

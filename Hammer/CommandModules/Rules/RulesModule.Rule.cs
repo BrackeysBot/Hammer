@@ -1,4 +1,5 @@
-﻿using DisCatSharp.CommandsNext;
+﻿using System.Threading.Tasks;
+using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
 using Hammer.Data;

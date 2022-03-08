@@ -1,4 +1,6 @@
-﻿using DisCatSharp;
+﻿using System.Collections.Generic;
+using System.Linq;
+using DisCatSharp;
 using DisCatSharp.Entities;
 using Hammer.Configuration;
 using PermissionLevel = Hammer.Data.PermissionLevel;
