@@ -18,7 +18,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     ///     Gets or sets the attachments in this message.
     /// </summary>
     /// <value>The attachments.</value>
-    [Column("attachments", Order = 7)]
+    [Column("attachments", Order = 9)]
     public IReadOnlyList<Uri> Attachments { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
@@ -39,8 +39,22 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     ///     Gets or sets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    [Column("content", Order = 6)]
+    [Column("content", Order = 8)]
     public string? Content { get; set; }
+    
+    /// <summary>
+    ///     Gets or sets the date and time at which this message was originally sent.
+    /// </summary>
+    /// <value>The creation timestamp.</value>
+    [Column("creationTimestamp", Order = 6)]
+    public DateTimeOffset CreationTimestamp { get; set; }
+    
+    /// <summary>
+    ///     Gets or sets the date and time at which this message was deleted.
+    /// </summary>
+    /// <value>The deletion timestamp, or <see langword="null" /> if the message has not been deleted.</value>
+    [Column("deletionTimestamp", Order = 7)]
+    public DateTimeOffset? DeletionTimestamp { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the message.
@@ -82,6 +96,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
             ChannelId = message.Channel.Id,
             GuildId = message.Channel.Guild.Id,
             Content = message.Content,
+            CreationTimestamp = message.CreationTimestamp,
             Attachments = message.Attachments.Select(a => new Uri(a.Url)).ToArray()
         };
     }

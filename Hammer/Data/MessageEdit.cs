@@ -25,14 +25,14 @@ internal sealed class MessageEdit : IEquatable<MessageEdit>
     ///     Gets or sets the list of attachment URLs after the edit.
     /// </summary>
     /// <value>The post-edit attachment list.</value>
-    [Column("attachmentsAfter", Order = 9)]
+    [Column("attachmentsAfter", Order = 11)]
     public IReadOnlyList<Uri> AttachmentsAfter { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets or sets the list of attachment URLs prior to the edit.
     /// </summary>
     /// <value>The pre-edit attachment list.</value>
-    [Column("attachmentsBefore", Order = 8)]
+    [Column("attachmentsBefore", Order = 10)]
     public IReadOnlyList<Uri> AttachmentsBefore { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
@@ -46,15 +46,29 @@ internal sealed class MessageEdit : IEquatable<MessageEdit>
     ///     Gets or sets the content of the message after the edit.
     /// </summary>
     /// <value>The post-edit content.</value>
-    [Column("contentAfter", Order = 7)]
+    [Column("contentAfter", Order = 9)]
     public string? ContentAfter { get; set; }
 
     /// <summary>
     ///     Gets or sets the content of the message before the edit.
     /// </summary>
     /// <value>The pre-edit content.</value>
-    [Column("contentBefore", Order = 6)]
+    [Column("contentBefore", Order = 8)]
     public string? ContentBefore { get; set; }
+    
+    /// <summary>
+    ///     Gets or sets the date and time at which this message was originally sent.
+    /// </summary>
+    /// <value>The creation timestamp.</value>
+    [Column("creationTimestamp", Order = 6)]
+    public DateTimeOffset CreationTimestamp { get; set; }
+    
+    /// <summary>
+    ///     Gets or sets the date and time at which this message was edited.
+    /// </summary>
+    /// <value>The edit timestamp.</value>
+    [Column("editTimestamp", Order = 7)]
+    public DateTimeOffset EditTimestamp { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
     ///     Gets or sets the tracking ID.
@@ -96,6 +110,7 @@ internal sealed class MessageEdit : IEquatable<MessageEdit>
             ChannelId = args.Channel.Id,
             ContentAfter = args.Message.Content,
             ContentBefore = args.MessageBefore.Content,
+            CreationTimestamp = args.Message.CreationTimestamp,
             GuildId = args.Guild.Id,
             MessageId = args.Message.Id
         };

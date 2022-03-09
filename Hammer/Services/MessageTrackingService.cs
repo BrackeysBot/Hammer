@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,6 +120,7 @@ internal sealed class MessageTrackingService : BackgroundService
 
         TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message);
         trackedMessage.IsDeleted = true;
+        trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
