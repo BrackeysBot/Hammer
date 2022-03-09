@@ -8,6 +8,7 @@ using DisCatSharp;
 using DisCatSharp.Entities;
 using Hammer.Data;
 using Hammer.Resources;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
@@ -99,7 +100,12 @@ internal sealed class UserTrackingService : BackgroundService
         trackedUser = entry.Entity;
         trackedUsers.Add(trackedUser);
 
-        Logger.Info(LoggerMessages.TrackingEnabledForUser.FormatSmart(new {user, guild}));
+        Logger.Info(LoggerMessages.TrackingEnabledForUser.FormatSmart(new
+        {
+            user,
+            guild,
+            duration = expirationTime.HasValue ? (expirationTime.Value - DateTimeOffset.UtcNow).Humanize() : "indefinite"
+        }));
     }
 
     /// <summary>

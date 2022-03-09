@@ -106,7 +106,7 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Tracking enabled for {user} in {guild}.
+        ///   Looks up a localized string similar to Tracking enabled for {user} in {guild}. Duration: {duration}.
         /// </summary>
         internal static string TrackingEnabledForUser {
             get {

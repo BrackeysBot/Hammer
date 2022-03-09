@@ -45,6 +45,6 @@
         <value>Tracking disabled for {user} in {guild}</value>
     </data>
     <data name="TrackingEnabledForUser" xml:space="preserve">
-        <value>Tracking enabled for {user} in {guild}</value>
+        <value>Tracking enabled for {user} in {guild}. Duration: {duration}</value>
     </data>
 </root>
