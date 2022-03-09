@@ -6,8 +6,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Hammer.Data.EntityConfigurations;
 
+/// <summary>
+///     Represents a class which defines the database configuration for <see cref="TrackedMessage" />.
+/// </summary>
 internal sealed class TrackedMessageConfiguration : IEntityTypeConfiguration<TrackedMessage>
 {
+    /// <inheritdoc />
     public void Configure(EntityTypeBuilder<TrackedMessage> builder)
     {
         builder.Property(e => e.Attachments)
