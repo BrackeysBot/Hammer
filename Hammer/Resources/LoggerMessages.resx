@@ -41,4 +41,10 @@
     <data name="StaffMessagedMember" xml:space="preserve">
         <value>{staffMember} sent a message to {recipient} from {guild}. Contents: {message}</value>
     </data>
+    <data name="TrackingDisabledForUser" xml:space="preserve">
+        <value>Tracking disabled for {user} in {guild}</value>
+    </data>
+    <data name="TrackingEnabledForUser" xml:space="preserve">
+        <value>Tracking enabled for {user} in {guild}</value>
+    </data>
 </root>

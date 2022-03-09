@@ -57,6 +57,10 @@ internal sealed class StartupService : BackgroundService
                 ServiceProvider = _serviceProvider,
             });
 
+        Logger.Info("Registering command converters");
+        commandsNext.UnregisterConverter<TimeSpanConverter>(); // default converter does not support weeks/months/years...
+        commandsNext.RegisterConverter(new TimeSpanArgumentConverter()); // but my one does!
+
         Logger.Info("Registering command modules");
         commandsNext.RegisterCommands<RulesModule>();
         commandsNext.RegisterCommands<StaffModule>();

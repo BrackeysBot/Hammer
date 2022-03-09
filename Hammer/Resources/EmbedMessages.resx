@@ -38,4 +38,10 @@
     <data name="StaffSentMessage" xml:space="preserve">
         <value>Staff member {staffMember.Mention} sent a message to {user.Mention}.</value>
     </data>
+    <data name="TrackingDisabled" xml:space="preserve">
+        <value>Tracking disabled for {user.Mention}.</value>
+    </data>
+    <data name="TrackingEnabled" xml:space="preserve">
+        <value>Tracking enabled for {user.Mention}.</value>
+    </data>
 </root>

@@ -33,9 +33,13 @@ await Host.CreateDefaultBuilder(args)
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<DiscordLogService>();
         services.AddSingleton<MessageService>();
+        services.AddSingleton<MessageWatchdogService>();
         services.AddSingleton<RuleService>();
+        services.AddSingleton<UserTrackingService>();
 
         services.AddSingleton<IHostedService, DiscordLogService>(provider => provider.GetRequiredService<DiscordLogService>());
+        services.AddSingleton<IHostedService, MessageWatchdogService>(provider => provider.GetRequiredService<MessageWatchdogService>());
+        services.AddSingleton<IHostedService, UserTrackingService>(provider => provider.GetRequiredService<UserTrackingService>());
 
         services.AddHostedService<LoggingService>();
         services.AddHostedService<StartupService>();

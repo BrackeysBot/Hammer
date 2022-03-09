@@ -104,5 +104,23 @@ namespace Hammer.Resources {
                 return ResourceManager.GetString("StaffSentMessage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracking disabled for {user.Mention}..
+        /// </summary>
+        internal static string TrackingDisabled {
+            get {
+                return ResourceManager.GetString("TrackingDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracking enabled for {user.Mention}..
+        /// </summary>
+        internal static string TrackingEnabled {
+            get {
+                return ResourceManager.GetString("TrackingEnabled", resourceCulture);
+            }
+        }
     }
 }

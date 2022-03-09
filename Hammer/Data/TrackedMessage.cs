@@ -19,7 +19,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     /// </summary>
     /// <value>The attachments.</value>
     [Column("attachments", Order = 7)]
-    public List<Uri> Attachments { get; set; } = new();
+    public IReadOnlyList<Uri> Attachments { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets or sets the ID of the user which sent this message.
@@ -39,7 +39,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     ///     Gets or sets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    [Column("content", Order = 5)]
+    [Column("content", Order = 6)]
     public string? Content { get; set; }
 
     /// <summary>
@@ -53,7 +53,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     ///     Gets or sets a value indicating whether this message has been deleted.
     /// </summary>
     /// <value><see langword="true" /> if this message has been deleted; otherwise, <see langword="false" />.</value>
-    [Column("isDeleted", Order = 6)]
+    [Column("isDeleted", Order = 5)]
     public bool IsDeleted { get; set; }
 
     /// <summary>
@@ -82,7 +82,7 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
             ChannelId = message.Channel.Id,
             GuildId = message.Channel.Guild.Id,
             Content = message.Content,
-            Attachments = message.Attachments.Select(a => new Uri(a.Url)).ToList()
+            Attachments = message.Attachments.Select(a => new Uri(a.Url)).ToArray()
         };
     }
 

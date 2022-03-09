@@ -6,6 +6,7 @@ using DisCatSharp;
 using DisCatSharp.Entities;
 using DisCatSharp.EventArgs;
 using Hammer.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -43,15 +44,9 @@ internal sealed class MessageTrackingService : BackgroundService
                                                                     && m.ChannelId == channelId
                                                                     && m.GuildId == guildId);
 
-        if (trackedMessage is null)
-        {
-            return MessageTrackState.NotTracked;
-        }
+        if (trackedMessage is null) return MessageTrackState.NotTracked;
 
-        if (trackedMessage.IsDeleted)
-        {
-            return MessageTrackState.Tracked | MessageTrackState.Deleted;
-        }
+        if (trackedMessage.IsDeleted) return MessageTrackState.Tracked | MessageTrackState.Deleted;
 
         return MessageTrackState.Tracked;
     }
@@ -79,14 +74,20 @@ internal sealed class MessageTrackingService : BackgroundService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        
+
         TrackedMessage? trackedMessage = _trackedMessages.Find(m => m == message);
 
         if (trackedMessage is null)
         {
-            trackedMessage = TrackedMessage.FromDiscordMessage(message);
-            EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage);
-            trackedMessage = entry.Entity;
+            trackedMessage = await context.TrackedMessages.FirstOrDefaultAsync(m => m.Id == message.Id);
+
+            if (trackedMessage is null)
+            {
+                trackedMessage = TrackedMessage.FromDiscordMessage(message);
+                EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage);
+                trackedMessage = entry.Entity;
+            }
+
             _trackedMessages.Add(trackedMessage);
         }
 
@@ -118,7 +119,7 @@ internal sealed class MessageTrackingService : BackgroundService
 
         TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message);
         trackedMessage.IsDeleted = true;
-        
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(trackedMessage);
@@ -129,10 +130,10 @@ internal sealed class MessageTrackingService : BackgroundService
     {
         if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked)
             return;
-        
+
         TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message);
         trackedMessage.Content = e.Message.Content;
-        
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(trackedMessage);
@@ -147,15 +148,12 @@ internal sealed class MessageTrackingService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         IQueryable<TrackedMessage> messages = context.TrackedMessages.Where(m => m.GuildId == guildId);
 
-        foreach (var channelGroups in messages.GroupBy(m => m.ChannelId))
+        foreach (IGrouping<ulong, TrackedMessage> channelGroups in messages.GroupBy(m => m.ChannelId))
         {
             DiscordChannel channel = guild.GetChannel(channelGroups.Key);
             if (channel is null)
             {
-                foreach (TrackedMessage trackedMessage in channelGroups)
-                {
-                    trackedMessage.IsDeleted = true;
-                }
+                foreach (TrackedMessage trackedMessage in channelGroups) trackedMessage.IsDeleted = true;
 
                 context.UpdateRange(channelGroups);
                 continue;
@@ -165,13 +163,9 @@ internal sealed class MessageTrackingService : BackgroundService
             {
                 DiscordMessage message = await channel.GetMessageAsync(trackedMessage.Id);
                 if (message is null)
-                {
                     trackedMessage.IsDeleted = true;
-                }
                 else
-                {
                     _trackedMessages.Add(trackedMessage);
-                }
             }
 
             context.UpdateRange(channelGroups);

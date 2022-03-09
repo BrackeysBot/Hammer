@@ -9,12 +9,14 @@ namespace Hammer.CommandModules.Staff;
 internal sealed partial class StaffModule : BaseCommandModule
 {
     private readonly MessageService _messageService;
+    private readonly UserTrackingService _userTrackingService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="StaffModule" /> class.
     /// </summary>
-    public StaffModule(MessageService messageService)
+    public StaffModule(MessageService messageService, UserTrackingService userTrackingService)
     {
         _messageService = messageService;
+        _userTrackingService = userTrackingService;
     }
 }

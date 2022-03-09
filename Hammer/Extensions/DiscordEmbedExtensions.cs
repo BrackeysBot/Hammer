@@ -11,6 +11,28 @@ namespace Hammer.Extensions;
 internal static class DiscordEmbedExtensions
 {
     /// <summary>
+    ///     Adds a field to an embed.
+    /// </summary>
+    /// <param name="embedBuilder">The <see cref="DiscordEmbedBuilder" /> to modify.</param>
+    /// <param name="condition"><see langword="true" /> if the field should be added; otherwise, <see langword="false" />.</param>
+    /// <param name="name">The field name.</param>
+    /// <param name="valueEvaluatorIfTrue">
+    ///     The delegate whose return value is used if <paramref name="condition" /> is <see langword="true" />.
+    /// </param>
+    /// <param name="valueEvaluatorIfFalse">
+    ///     The delegate whose return value is used if <paramref name="condition" /> is <see langword="false" />.
+    /// </param>
+    /// <param name="inline"><see langword="true" /> to display the field inline; otherwise, <see langword="false" />.</param>
+    /// <typeparam name="T">The value type of the field.</typeparam>
+    /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
+    public static DiscordEmbedBuilder AddFieldOrElse<T>(this DiscordEmbedBuilder embedBuilder, bool condition, string name,
+        Func<T> valueEvaluatorIfTrue, Func<T> valueEvaluatorIfFalse, bool inline = false)
+    {
+        T value = condition ? valueEvaluatorIfTrue() : valueEvaluatorIfFalse();
+        return embedBuilder.AddField(name, value, inline);
+    }
+
+    /// <summary>
     ///     Conditionally adds a field to an embed.
     /// </summary>
     /// <param name="embedBuilder">The <see cref="DiscordEmbedBuilder" /> to modify.</param>

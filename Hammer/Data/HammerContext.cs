@@ -18,6 +18,12 @@ internal sealed class HammerContext : DbContext
     /// </summary>
     /// <value>The set of infractions.</value>
     public DbSet<Infraction> Infractions { get; set; } = null!; // assigned when context is created
+    
+    /// <summary>
+    ///     Gets or sets the set of message edits.
+    /// </summary>
+    /// <value>The set of message edits.</value>
+    public DbSet<MessageEdit> MessageEdits { get; set; } = null!; // assigned when context is created
 
     /// <summary>
     ///     Gets or sets the set of tracked messages.
@@ -36,6 +42,12 @@ internal sealed class HammerContext : DbContext
     /// </summary>
     /// <value>The set of staff messages.</value>
     public DbSet<StaffMessage> StaffMessages { get; set; } = null!; // assigned when context is created
+    
+    /// <summary>
+    ///     Gets or sets the set of tracked users.
+    /// </summary>
+    /// <value>The set of tracked users.</value>
+    public DbSet<TrackedUser> TrackedUsers { get; set; } = null!; // assigned when context is created
 
     /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -49,7 +61,9 @@ internal sealed class HammerContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new InfractionConfiguration());
+        modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new TrackedUserConfiguration());
         modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }
 }
