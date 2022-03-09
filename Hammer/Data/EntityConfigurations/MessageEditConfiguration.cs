@@ -1,6 +1,7 @@
 ﻿using Hammer.Data.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Hammer.Data.EntityConfigurations;
 
@@ -14,5 +15,7 @@ internal sealed class MessageEditConfiguration : IEntityTypeConfiguration<Messag
     {
         builder.Property(e => e.AttachmentsAfter).HasConversion<UriListToBytesConverter>();
         builder.Property(e => e.AttachmentsBefore).HasConversion<UriListToBytesConverter>();
+        builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+        builder.Property(e => e.EditTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
     }
 }
