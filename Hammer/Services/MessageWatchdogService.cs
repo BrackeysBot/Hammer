@@ -15,19 +15,17 @@ internal sealed class MessageWatchdogService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly DiscordClient _discordClient;
-    private readonly DiscordLogService _logService;
     private readonly MessageTrackingService _messageTrackingService;
     private readonly UserTrackingService _userTrackingService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageWatchdogService" /> class.
     /// </summary>
-    public MessageWatchdogService(IServiceScopeFactory scopeFactory, DiscordClient discordClient, DiscordLogService logService,
+    public MessageWatchdogService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
         MessageTrackingService messageTrackingService, UserTrackingService userTrackingService)
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
-        _logService = logService;
         _messageTrackingService = messageTrackingService;
         _userTrackingService = userTrackingService;
     }
