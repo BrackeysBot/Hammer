@@ -168,7 +168,8 @@ internal sealed class UserTrackingService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         foreach (IGrouping<ulong, TrackedUser> trackedUsers in
-                 context.TrackedUsers.Where(u => u.ExpirationTime == null || u.ExpirationTime > DateTimeOffset.UtcNow)
+                 context.TrackedUsers.AsEnumerable()
+                     .Where(u => u.ExpirationTime == null || u.ExpirationTime > DateTimeOffset.UtcNow)
                      .GroupBy(u => u.GuildId))
         {
             DiscordGuild guild = await _discordClient.GetGuildAsync(trackedUsers.Key);
