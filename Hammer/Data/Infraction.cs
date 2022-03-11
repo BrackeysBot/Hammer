@@ -8,7 +8,7 @@ namespace Hammer.Data;
 ///     Represents an infraction.
 /// </summary>
 [Table("Infractions")]
-internal record Infraction
+public record Infraction
 {
     /// <summary>
     ///     Gets or sets the ID of the infraction.

@@ -3,7 +3,7 @@
 /// <summary>
 ///     An enumeration of infraction types.
 /// </summary>
-internal enum InfractionType
+public enum InfractionType
 {
     /// <summary>
     ///     Specifies that the infraction is a warning.
