@@ -1,4 +1,6 @@
-﻿namespace Hammer.Configuration;
+﻿using System.Text.Json.Serialization;
+
+namespace Hammer.Configuration;
 
 /// <summary>
 ///     Represents a guild configuration.
@@ -9,5 +11,6 @@ internal sealed class GlobalConfiguration
     ///     Gets or sets the command prefix.
     /// </summary>
     /// <value>The command prefix.</value>
+    [JsonPropertyName("prefix")]
     public string Prefix { get; set; } = "h[]";
 }
