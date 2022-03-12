@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DisCatSharp.EventArgs;
@@ -11,84 +9,72 @@ namespace Hammer.Data;
 /// <summary>
 ///     Represents an instance of a message edit.
 /// </summary>
-[Table("MessageEdits")]
 internal sealed class MessageEdit : IEquatable<MessageEdit>
 {
     /// <summary>
     ///     Gets or sets the ID of the user who originally sent the message.
     /// </summary>
     /// <value>The author's user ID.</value>
-    [Column("authorId", Order = 2)]
     public ulong AuthorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the list of attachment URLs after the edit.
     /// </summary>
     /// <value>The post-edit attachment list.</value>
-    [Column("attachmentsAfter", Order = 11)]
     public IReadOnlyList<Uri> AttachmentsAfter { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets or sets the list of attachment URLs prior to the edit.
     /// </summary>
     /// <value>The pre-edit attachment list.</value>
-    [Column("attachmentsBefore", Order = 10)]
     public IReadOnlyList<Uri> AttachmentsBefore { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets or sets the ID of the channel in which the message was edited.
     /// </summary>
     /// <value>The channel ID.</value>
-    [Column("channelId", Order = 4)]
     public ulong ChannelId { get; set; }
 
     /// <summary>
     ///     Gets or sets the content of the message after the edit.
     /// </summary>
     /// <value>The post-edit content.</value>
-    [Column("contentAfter", Order = 9)]
     public string? ContentAfter { get; set; }
 
     /// <summary>
     ///     Gets or sets the content of the message before the edit.
     /// </summary>
     /// <value>The pre-edit content.</value>
-    [Column("contentBefore", Order = 8)]
     public string? ContentBefore { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the date and time at which this message was originally sent.
     /// </summary>
     /// <value>The creation timestamp.</value>
-    [Column("creationTimestamp", Order = 6)]
     public DateTimeOffset CreationTimestamp { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the date and time at which this message was edited.
     /// </summary>
     /// <value>The edit timestamp.</value>
-    [Column("editTimestamp", Order = 7)]
     public DateTimeOffset EditTimestamp { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>
     ///     Gets or sets the tracking ID.
     /// </summary>
     /// <value>The tracking ID</value>
-    [Key, Column("id", Order = 1)]
     public long Id { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the guild in which the message was edited.
     /// </summary>
     /// <value>The guild ID.</value>
-    [Column("guildId", Order = 3)]
     public ulong GuildId { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the message which was edited.
     /// </summary>
     /// <value>The message ID.</value>
-    [Column("messageId", Order = 5)]
     public ulong MessageId { get; set; }
 
     /// <summary>

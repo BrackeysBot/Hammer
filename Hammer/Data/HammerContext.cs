@@ -62,6 +62,7 @@ internal sealed class HammerContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new InfractionConfiguration());
         modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
+        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedUserConfiguration());
         modelBuilder.ApplyConfiguration(new RuleConfiguration());

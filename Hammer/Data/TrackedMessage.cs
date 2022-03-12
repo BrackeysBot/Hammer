@@ -1,7 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using DisCatSharp.Entities;
@@ -11,70 +9,60 @@ namespace Hammer.Data;
 /// <summary>
 ///     Represents a message being tracked by the bot's database.
 /// </summary>
-[Table("TrackedMessages")]
 internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMessage>
 {
     /// <summary>
     ///     Gets or sets the attachments in this message.
     /// </summary>
     /// <value>The attachments.</value>
-    [Column("attachments", Order = 9)]
     public IReadOnlyList<Uri> Attachments { get; set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets or sets the ID of the user which sent this message.
     /// </summary>
     /// <value>The author's user ID.</value>
-    [Column("authorId", Order = 4)]
     public ulong AuthorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the channel in which this message was sent.
     /// </summary>
     /// <value>The channel ID.</value>
-    [Column("channelId", Order = 3)]
     public ulong ChannelId { get; set; }
 
     /// <summary>
     ///     Gets or sets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    [Column("content", Order = 8)]
     public string? Content { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the date and time at which this message was originally sent.
     /// </summary>
     /// <value>The creation timestamp.</value>
-    [Column("creationTimestamp", Order = 6)]
     public DateTimeOffset CreationTimestamp { get; set; }
-    
+
     /// <summary>
     ///     Gets or sets the date and time at which this message was deleted.
     /// </summary>
     /// <value>The deletion timestamp, or <see langword="null" /> if the message has not been deleted.</value>
-    [Column("deletionTimestamp", Order = 7)]
     public DateTimeOffset? DeletionTimestamp { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the message.
     /// </summary>
     /// <value>The message ID.</value>
-    [Key, Column("id", Order = 1)]
     public ulong Id { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this message has been deleted.
     /// </summary>
     /// <value><see langword="true" /> if this message has been deleted; otherwise, <see langword="false" />.</value>
-    [Column("isDeleted", Order = 5)]
     public bool IsDeleted { get; set; }
 
     /// <summary>
     ///     Gets or sets the ID of the guild in which this message was sent.
     /// </summary>
     /// <value>The guild ID.</value>
-    [Column("guildId", Order = 2)]
     public ulong GuildId { get; set; }
 
     public static bool operator ==(TrackedMessage left, DiscordMessage right) => left.Equals(right);
