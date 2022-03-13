@@ -12,7 +12,7 @@ Hammer is a plugin for [BrackeysBot](https://github.com/oliverbooth/BrackeysBot)
 
 ## Features
 ### Notes
-Leave staff-only notes on users so that staff can
+Leave staff-only notes on users so that staff can keep shared notes on users without informing the user of the action.
 
 ### Warnings
 Issue an infraction against a user by providing them with a warning about their behaviour.
