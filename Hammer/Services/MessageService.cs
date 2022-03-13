@@ -27,12 +27,8 @@ internal sealed class MessageService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageService" /> class.
     /// </summary>
-    public MessageService(
-        IServiceScopeFactory scopeFactory,
-        DiscordClient discordClient,
-        ConfigurationService configurationService,
-        DiscordLogService logService
-    )
+    public MessageService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
+        ConfigurationService configurationService, DiscordLogService logService)
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
