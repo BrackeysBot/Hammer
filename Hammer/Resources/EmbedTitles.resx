@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -25,6 +25,9 @@
     </resheader>
     <data name="Message" xml:space="preserve">
         <value>Message</value>
+    </data>
+    <data name="MessageReported" xml:space="preserve">
+        <value>Message Reported</value>
     </data>
     <data name="MessageSent" xml:space="preserve">
         <value>Message Sent</value>

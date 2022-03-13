@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -52,5 +52,8 @@
     </data>
     <data name="Reporter" xml:space="preserve">
         <value>__Reporter__</value>
+    </data>
+    <data name="TotalInfractions" xml:space="preserve">
+        <value>__Total Infractions__</value>
     </data>
 </root>
