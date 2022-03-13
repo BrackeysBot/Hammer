@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Hammer.Data.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +6,6 @@ namespace Hammer.Data;
 /// <summary>
 ///     Represents a session with the <c>hammer.db</c> database.
 /// </summary>
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "Instantiated by DI")]
-[SuppressMessage("ReSharper", "InheritdocConsiderUsage", Justification = "Unnecessary")]
 internal sealed class HammerContext : DbContext
 {
     private const string DataSource = "hammer.db";

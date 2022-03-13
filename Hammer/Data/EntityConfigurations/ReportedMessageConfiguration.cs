@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hammer.Data.EntityConfigurations;
@@ -7,7 +6,6 @@ namespace Hammer.Data.EntityConfigurations;
 /// <summary>
 ///     Represents a class which defines the database configuration for <see cref="ReportedMessage" />.
 /// </summary>
-[SuppressMessage("ReSharper", "InheritdocConsiderUsage", Justification = "Unnecessary")]
 internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedMessage>
 {
     /// <inheritdoc />
