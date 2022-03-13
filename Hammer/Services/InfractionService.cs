@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -568,6 +568,8 @@ internal sealed class InfractionService : BackgroundService
             cache = new List<Infraction>();
             _infractionCache.Add(guild, cache);
         }
+
+        cache.Clear();
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
