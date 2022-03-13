@@ -3,9 +3,10 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <Version>1.0.0</Version>
-        <FileVersion>1.0.0</FileVersion>
+        <Version>1.0.0-prerelease.1</Version>
+        <FileVersion>1.0.0-prerelease.1</FileVersion>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <PackageVersion>1.0.0-prerelease.1</PackageVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <RepositoryUrl>https://github.com/oliverbooth/Hammer</RepositoryUrl>
     </PropertyGroup>
