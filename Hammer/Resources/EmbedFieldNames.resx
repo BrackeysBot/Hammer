@@ -23,10 +23,34 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="Attachments" xml:space="preserve">
+        <value>__Attachments__</value>
+    </data>
+    <data name="Author" xml:space="preserve">
+        <value>__Author__</value>
+    </data>
+    <data name="Channel" xml:space="preserve">
+        <value>__Channel__</value>
+    </data>
+    <data name="Content" xml:space="preserve">
+        <value>__Content__</value>
+    </data>
     <data name="Duration" xml:space="preserve">
         <value>__Duration__</value>
     </data>
     <data name="Message" xml:space="preserve">
         <value>__Message__</value>
+    </data>
+    <data name="MessageID" xml:space="preserve">
+        <value>__Message ID__</value>
+    </data>
+    <data name="MessageTime" xml:space="preserve">
+        <value>__Message Time__</value>
+    </data>
+    <data name="Reason" xml:space="preserve">
+        <value>__Reason__</value>
+    </data>
+    <data name="Reporter" xml:space="preserve">
+        <value>__Reporter__</value>
     </data>
 </root>

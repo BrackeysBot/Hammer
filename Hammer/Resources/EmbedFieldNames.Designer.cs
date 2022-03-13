@@ -61,6 +61,42 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Attachments__.
+        /// </summary>
+        internal static string Attachments {
+            get {
+                return ResourceManager.GetString("Attachments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Author__.
+        /// </summary>
+        internal static string Author {
+            get {
+                return ResourceManager.GetString("Author", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Channel__.
+        /// </summary>
+        internal static string Channel {
+            get {
+                return ResourceManager.GetString("Channel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Content__.
+        /// </summary>
+        internal static string Content {
+            get {
+                return ResourceManager.GetString("Content", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __Duration__.
         /// </summary>
         internal static string Duration {
@@ -75,6 +111,42 @@ namespace Hammer.Resources {
         internal static string Message {
             get {
                 return ResourceManager.GetString("Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Message ID__.
+        /// </summary>
+        internal static string MessageID {
+            get {
+                return ResourceManager.GetString("MessageID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Message Time__.
+        /// </summary>
+        internal static string MessageTime {
+            get {
+                return ResourceManager.GetString("MessageTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Reason__.
+        /// </summary>
+        internal static string Reason {
+            get {
+                return ResourceManager.GetString("Reason", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Reporter__.
+        /// </summary>
+        internal static string Reporter {
+            get {
+                return ResourceManager.GetString("Reporter", resourceCulture);
             }
         }
     }
