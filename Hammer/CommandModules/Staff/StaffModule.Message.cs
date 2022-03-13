@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
+using BrackeysBot.API.Extensions;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
 using Hammer.Attributes;
 using Hammer.Data;
-using Hammer.Extensions;
 using Hammer.Resources;
 using SmartFormat;
 

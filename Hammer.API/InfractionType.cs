@@ -1,4 +1,4 @@
-﻿namespace Hammer.Data;
+﻿namespace Hammer.API;
 
 /// <summary>
 ///     An enumeration of infraction types.

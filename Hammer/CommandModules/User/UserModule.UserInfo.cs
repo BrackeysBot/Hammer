@@ -1,4 +1,5 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BrackeysBot.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
@@ -32,7 +33,7 @@ internal sealed partial class UserModule
             user = context.Member;
 
         bool isMember = context.Guild.Members.TryGetValue(user.Id, out DiscordMember? member);
-        int infractionCount = await _infractionService.GetInfractionCountForUserAsync(user, context.Guild);
+        int infractionCount = _infractionService.GetInfractionCount(user, context.Guild);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithAuthor(user);

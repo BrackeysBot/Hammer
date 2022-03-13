@@ -23,11 +23,22 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="BanDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **indefinitely banned** from **{guild.Name}**.</value>
+    </data>
     <data name="DmModMail" xml:space="preserve">
-        <value>If you wish to discuss this with staff, please DM ModMail instead of posting about it in a public channel.</value>
+        <value>If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
+    <data name="KickDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
+
+Please take some time to reflect on the reason for this action, and return when you feel you are ready.</value>
     </data>
     <data name="MessageFromStaff" xml:space="preserve">
         <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
+    </data>
+    <data name="MuteDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **indefinitely muted** from **{guild.Name}**.</value>
     </data>
     <data name="NoSuchUser" xml:space="preserve">
         <value>No user with the ID {id} could be found.</value>
@@ -38,10 +49,21 @@
     <data name="StaffSentMessage" xml:space="preserve">
         <value>Staff member {staffMember.Mention} sent a message to {user.Mention}.</value>
     </data>
+    <data name="TemporaryBanDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **temporarily banned** from **{guild.Name}**.</value>
+    </data>
+    <data name="TemporaryMuteDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **temporarily muted** from **{guild.Name}**. A temporary mute is a way for staff to let you cool off and reflect on your behaviour.
+Failing to follow the rules in future will result in further infractions. Accumulating too many infractions may lead to an indefinite removal from the server.</value>
+    </data>
     <data name="TrackingDisabled" xml:space="preserve">
         <value>Tracking disabled for {user.Mention}.</value>
     </data>
     <data name="TrackingEnabled" xml:space="preserve">
         <value>Tracking enabled for {user.Mention}.</value>
+    </data>
+    <data name="WarningDescription" xml:space="preserve">
+        <value>{user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.
+Accumulating too many infractions may lead to an indefinite removal from the server.</value>
     </data>
 </root>

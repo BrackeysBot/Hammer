@@ -61,11 +61,31 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If you wish to discuss this with staff, please DM ModMail instead of posting about it in a public channel..
+        ///   Looks up a localized string similar to {user.Mention}, you have been **indefinitely banned** from **{guild.Name}**..
+        /// </summary>
+        internal static string BanDescription {
+            get {
+                return ResourceManager.GetString("BanDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel..
         /// </summary>
         internal static string DmModMail {
             get {
                 return ResourceManager.GetString("DmModMail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
+        ///
+        ///Please take some time to reflect on the reason for this action, and return when you feel you are ready..
+        /// </summary>
+        internal static string KickDescription {
+            get {
+                return ResourceManager.GetString("KickDescription", resourceCulture);
             }
         }
         
@@ -75,6 +95,15 @@ namespace Hammer.Resources {
         internal static string MessageFromStaff {
             get {
                 return ResourceManager.GetString("MessageFromStaff", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, you have been **indefinitely muted** from **{guild.Name}**..
+        /// </summary>
+        internal static string MuteDescription {
+            get {
+                return ResourceManager.GetString("MuteDescription", resourceCulture);
             }
         }
         
@@ -106,6 +135,25 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, you have been **temporarily banned** from **{guild.Name}**..
+        /// </summary>
+        internal static string TemporaryBanDescription {
+            get {
+                return ResourceManager.GetString("TemporaryBanDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, you have been **temporarily muted** from **{guild.Name}**. A temporary mute is a way for staff to let you cool off and reflect on your behaviour.
+        ///Failing to follow the rules in future will result in further infractions. Accumulating too many infractions may lead to an indefinite removal from the server..
+        /// </summary>
+        internal static string TemporaryMuteDescription {
+            get {
+                return ResourceManager.GetString("TemporaryMuteDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tracking disabled for {user.Mention}..
         /// </summary>
         internal static string TrackingDisabled {
@@ -120,6 +168,16 @@ namespace Hammer.Resources {
         internal static string TrackingEnabled {
             get {
                 return ResourceManager.GetString("TrackingEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.
+        ///Accumulating too many infractions may lead to an indefinite removal from the server..
+        /// </summary>
+        internal static string WarningDescription {
+            get {
+                return ResourceManager.GetString("WarningDescription", resourceCulture);
             }
         }
     }

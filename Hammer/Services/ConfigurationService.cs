@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Globalization;
+using BrackeysBot.API.Configuration;
 using DisCatSharp.Entities;
 using Hammer.Configuration;
-using Microsoft.Extensions.Configuration;
 
 namespace Hammer.Services;
 
@@ -28,7 +27,7 @@ internal sealed class ConfigurationService
     /// <returns>The global configuration.</returns>
     public GlobalConfiguration GetGlobalConfiguration()
     {
-        return _configuration.Get<GlobalConfiguration>();
+        return _configuration.Get<GlobalConfiguration>("bot") ?? new GlobalConfiguration();
     }
 
     /// <summary>
@@ -41,10 +40,9 @@ internal sealed class ConfigurationService
     /// </returns>
     public GuildConfiguration GetGuildConfiguration(ulong guildId)
     {
-        IConfigurationSection section = _configuration.GetSection(guildId.ToString(CultureInfo.InvariantCulture));
-        return section.Exists() ? section.Get<GuildConfiguration>() : new GuildConfiguration();
+        return _configuration.Get<GuildConfiguration>($"guilds.{guildId}") ?? new GuildConfiguration();
     }
-    
+
     /// <summary>
     ///     Returns the configuration for a specified guild.
     /// </summary>
