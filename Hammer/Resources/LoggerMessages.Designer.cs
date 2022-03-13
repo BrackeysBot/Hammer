@@ -61,6 +61,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user} is not in {guild} - this mute will take effect if they rejoin the server..
+        /// </summary>
+        internal static string CantMuteNonMember {
+            get {
+                return ResourceManager.GetString("CantMuteNonMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Log channel {channel} was found for {guild}.
         /// </summary>
         internal static string LogChannelFound {
@@ -88,11 +97,38 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user} was muted by {staffMember} in {guild}.
+        /// </summary>
+        internal static string MemberMuted {
+            get {
+                return ResourceManager.GetString("MemberMuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to grant role! Muted role not found for {guild}.
+        /// </summary>
+        internal static string NoMutedRoleToGrant {
+            get {
+                return ResourceManager.GetString("NoMutedRoleToGrant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {staffMember} sent a message to {recipient} from {guild}. Contents: {message}.
         /// </summary>
         internal static string StaffMessagedMember {
             get {
                 return ResourceManager.GetString("StaffMessagedMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Temporary mute for {user} expired in {guild}.
+        /// </summary>
+        internal static string TemporaryMuteExpired {
+            get {
+                return ResourceManager.GetString("TemporaryMuteExpired", resourceCulture);
             }
         }
         
@@ -111,6 +147,15 @@ namespace Hammer.Resources {
         internal static string TrackingEnabledForUser {
             get {
                 return ResourceManager.GetString("TrackingEnabledForUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {reporter} attempted to report {message} but the message is deleted!.
+        /// </summary>
+        internal static string UserReportedDeletedMessage {
+            get {
+                return ResourceManager.GetString("UserReportedDeletedMessage", resourceCulture);
             }
         }
     }

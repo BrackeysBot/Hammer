@@ -23,11 +23,8 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="NoMutedRoleToRevoke" xml:space="preserve">
-        <value>Unable to revoke role! Muted role not found for {guild}</value>
-    </data>
-    <data name="TemporaryMuteExpired" xml:space="preserve">
-        <value>Temporary mute for {user} expired in {guild}</value>
+    <data name="CantMuteNonMember" xml:space="preserve">
+        <value>{user} is not in {guild} - this mute will take effect if they rejoin the server.</value>
     </data>
     <data name="LogChannelNotFound" xml:space="preserve">
         <value>Log channel for {guild} was not found. Actions for this guild will NOT be logged in Discord!</value>
@@ -38,13 +35,25 @@
     <data name="LogChannelFound" xml:space="preserve">
         <value>Log channel {channel} was found for {guild}</value>
     </data>
+    <data name="NoMutedRoleToGrant" xml:space="preserve">
+        <value>Unable to grant role! Muted role not found for {guild}</value>
+    </data>
+    <data name="MemberMuted" xml:space="preserve">
+        <value>{user} was muted by {staffMember} in {guild}</value>
+    </data>
     <data name="StaffMessagedMember" xml:space="preserve">
         <value>{staffMember} sent a message to {recipient} from {guild}. Contents: {message}</value>
+    </data>
+    <data name="TemporaryMuteExpired" xml:space="preserve">
+        <value>Temporary mute for {user} expired in {guild}</value>
     </data>
     <data name="TrackingDisabledForUser" xml:space="preserve">
         <value>Tracking disabled for {user} in {guild}</value>
     </data>
     <data name="TrackingEnabledForUser" xml:space="preserve">
         <value>Tracking enabled for {user} in {guild}. Duration: {duration}</value>
+    </data>
+    <data name="UserReportedDeletedMessage" xml:space="preserve">
+        <value>{reporter} attempted to report {message} but the message is deleted!</value>
     </data>
 </root>

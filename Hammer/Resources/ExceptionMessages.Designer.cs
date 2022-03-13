@@ -61,6 +61,33 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An embed cannot be built for a Gag infraction..
+        /// </summary>
+        internal static string NoEmbedForGag {
+            get {
+                return ResourceManager.GetString("NoEmbedForGag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The duration of an infraction cannot be negative..
+        /// </summary>
+        internal static string NoNegativeDuration {
+            get {
+                return ResourceManager.GetString("NoNegativeDuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified staff member do not belong to the specified guild..
+        /// </summary>
+        internal static string StaffMemberGuildMismatch {
+            get {
+                return ResourceManager.GetString("StaffMemberGuildMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The specified staff member and recipient do not belong to the same guild..
         /// </summary>
         internal static string StaffMemberRecipientGuildMismatch {

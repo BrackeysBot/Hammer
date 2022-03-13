@@ -23,7 +23,16 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="NoEmbedForGag" xml:space="preserve">
+        <value>An embed cannot be built for a Gag infraction.</value>
+    </data>
+    <data name="StaffMemberGuildMismatch" xml:space="preserve">
+        <value>The specified staff member do not belong to the specified guild.</value>
+    </data>
     <data name="StaffMemberRecipientGuildMismatch" xml:space="preserve">
         <value>The specified staff member and recipient do not belong to the same guild.</value>
+    </data>
+    <data name="NoNegativeDuration" xml:space="preserve">
+        <value>The duration of an infraction cannot be negative.</value>
     </data>
 </root>
