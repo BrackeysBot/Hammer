@@ -42,6 +42,9 @@ internal sealed class MessageService
     /// <param name="recipient">The member to message.</param>
     /// <param name="staffMember">The staff member which sent the message.</param>
     /// <param name="message">The message to send.</param>
+    /// <exception cref="ArgumentException">
+    ///     <paramref name="recipient" /> and <paramref name="staffMember" /> do not belong to the same guild.
+    /// </exception>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="recipient" /> is <see langword="null" />.</para>
     ///     -or-
