@@ -71,12 +71,20 @@ internal sealed class InfractionService : BackgroundService
     /// <seealso cref="KickAsync" />
     /// <seealso cref="WarnAsync" />
     /// <seealso cref="TemporaryMuteService" />
-    public async Task<Infraction> AddInfractionAsync(Infraction infraction)
+    public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild guild)
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         infraction = (await context.AddAsync(infraction)).Entity;
         await context.SaveChangesAsync();
+
+        if (!_infractionCache.TryGetValue(guild, out List<Infraction>? infractions))
+        {
+            infractions = new List<Infraction>();
+            _infractionCache.Add(guild, infractions);
+        }
+
+        infractions.Add(infraction);
         return infraction;
     }
 
@@ -135,7 +143,7 @@ internal sealed class InfractionService : BackgroundService
             Reason = reason,
             Type = type,
             ExpirationTime = expirationTime
-        });
+        }, guild);
 
         var logMessageBuilder = new StringBuilder();
         logMessageBuilder.AppendLine($"{type.ToString("G")} issued to {user} by {staffMember} in {guild}");
