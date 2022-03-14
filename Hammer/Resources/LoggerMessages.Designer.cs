@@ -106,6 +106,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user} reported a message, but is blocked from doing so.
+        /// </summary>
+        internal static string MessageReportBlocked {
+            get {
+                return ResourceManager.GetString("MessageReportBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to grant role! Muted role not found for {guild}.
         /// </summary>
         internal static string NoMutedRoleToGrant {

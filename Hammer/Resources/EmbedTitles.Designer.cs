@@ -122,5 +122,41 @@ namespace Hammer.Resources {
                 return ResourceManager.GetString("TrackingEnabled", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Already Blocked.
+        /// </summary>
+        internal static string UserAlreadyBlocked {
+            get {
+                return ResourceManager.GetString("UserAlreadyBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reports Blocked.
+        /// </summary>
+        internal static string UserBlocked {
+            get {
+                return ResourceManager.GetString("UserBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Not Blocked.
+        /// </summary>
+        internal static string UserNotBlocked {
+            get {
+                return ResourceManager.GetString("UserNotBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unblocked.
+        /// </summary>
+        internal static string UserUnblocked {
+            get {
+                return ResourceManager.GetString("UserUnblocked", resourceCulture);
+            }
+        }
     }
 }

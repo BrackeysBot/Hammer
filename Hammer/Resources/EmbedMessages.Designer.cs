@@ -194,6 +194,42 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user.Mention} is already blocked from reporting messages..
+        /// </summary>
+        internal static string UserAlreadyBlocked {
+            get {
+                return ResourceManager.GetString("UserAlreadyBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention} will no longer be able to make message reports..
+        /// </summary>
+        internal static string UserBlocked {
+            get {
+                return ResourceManager.GetString("UserBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention} was not previously blocked from reporting messages..
+        /// </summary>
+        internal static string UserNotBlocked {
+            get {
+                return ResourceManager.GetString("UserNotBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.Mention} has been unblocked. Their message reports will now be acknowledged..
+        /// </summary>
+        internal static string UserUnblocked {
+            get {
+                return ResourceManager.GetString("UserUnblocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.
         ///Accumulating too many infractions may lead to an indefinite removal from the server..
         /// </summary>

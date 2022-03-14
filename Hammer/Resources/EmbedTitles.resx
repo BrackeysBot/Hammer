@@ -44,4 +44,16 @@
     <data name="TrackingEnabled" xml:space="preserve">
         <value>Tracking Enabled</value>
     </data>
+    <data name="UserAlreadyBlocked" xml:space="preserve">
+        <value>Already Blocked</value>
+    </data>
+    <data name="UserBlocked" xml:space="preserve">
+        <value>Reports Blocked</value>
+    </data>
+    <data name="UserNotBlocked" xml:space="preserve">
+        <value>Not Blocked</value>
+    </data>
+    <data name="UserUnblocked" xml:space="preserve">
+        <value>Unblocked</value>
+    </data>
 </root>

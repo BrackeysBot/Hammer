@@ -72,6 +72,18 @@ Failing to follow the rules in future will result in further infractions. Accumu
     <data name="TrackingEnabled" xml:space="preserve">
         <value>Tracking enabled for {user.Mention}.</value>
     </data>
+    <data name="UserAlreadyBlocked" xml:space="preserve">
+        <value>{user.Mention} is already blocked from reporting messages.</value>
+    </data>
+    <data name="UserBlocked" xml:space="preserve">
+        <value>{user.Mention} will no longer be able to make message reports.</value>
+    </data>
+    <data name="UserNotBlocked" xml:space="preserve">
+        <value>{user.Mention} was not previously blocked from reporting messages.</value>
+    </data>
+    <data name="UserUnblocked" xml:space="preserve">
+        <value>{user.Mention} has been unblocked. Their message reports will now be acknowledged.</value>
+    </data>
     <data name="WarningDescription" xml:space="preserve">
         <value>{user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.
 Accumulating too many infractions may lead to an indefinite removal from the server.</value>

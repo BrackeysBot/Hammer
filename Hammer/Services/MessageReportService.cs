@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,11 +25,12 @@ namespace Hammer.Services;
 internal sealed class MessageReportService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly MessageTrackingService _messageTrackingService;
+    private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly MessageTrackingService _messageTrackingService;
     private readonly List<ReportedMessage> _reportedMessages = new();
+    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
@@ -40,6 +42,32 @@ internal sealed class MessageReportService : BackgroundService
         _configurationService = configurationService;
         _logService = logService;
         _messageTrackingService = messageTrackingService;
+    }
+
+    /// <summary>
+    ///     Blocks a user from making reports in a specified guild.
+    /// </summary>
+    /// <param name="user">The user whose reports to block.</param>
+    /// <param name="staffMember">The staff member who issued the block.</param>
+    public async Task BlockUserAsync(DiscordUser user, DiscordMember staffMember)
+    {
+        if (IsUserBlocked(user, staffMember.Guild)) return;
+
+        var blockedReporter = new BlockedReporter
+        {
+            UserId = user.Id,
+            GuildId = staffMember.Guild.Id,
+            StaffMemberId = staffMember.Id,
+            BlockedAt = DateTimeOffset.UtcNow
+        };
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        blockedReporter = (await context.AddAsync(blockedReporter)).Entity;
+        await context.SaveChangesAsync();
+
+        _blockedReporters.Add(blockedReporter);
     }
 
     /// <summary>
@@ -73,10 +101,25 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="reporter">The user issuing the report.</param>
     /// <returns>
     ///     <see langword="true" /> if <paramref name="reporter" /> has already reported <paramref name="message" />; otherwise,
-    ///     <see langword="false" />.</returns>
+    ///     <see langword="false" />.
+    /// </returns>
     public bool HasUserReportedMessage(DiscordMessage message, DiscordMember reporter)
     {
         return _reportedMessages.Exists(m => m.MessageId == message.Id && m.ReporterId == reporter.Id);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the user is blocked from making reports in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose block status to retrieve.</param>
+    /// <param name="guild">The guild whose blocked users by which to filter.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="user" /> is blocked from making reports in <paramref name="guild" />;
+    ///     otherwise, <see langword="false" />.
+    /// </returns>
+    public bool IsUserBlocked(DiscordUser user, DiscordGuild guild)
+    {
+        return _blockedReporters.Exists(r => r.UserId == user.Id && r.GuildId == guild.Id);
     }
 
     /// <summary>
@@ -109,12 +152,39 @@ internal sealed class MessageReportService : BackgroundService
         await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), StaffNotificationOptions.Here);
     }
 
+    /// <summary>
+    ///     Unblocks a user from making reports in a specified guild, allowing them to report again.
+    /// </summary>
+    /// <param name="user">The user whose reports to unblock.</param>
+    /// <param name="guild">The guild in which to unblock the user.</param>
+    public async Task UnblockUserAsync(DiscordUser user, DiscordGuild guild)
+    {
+        if (!IsUserBlocked(user, guild)) return;
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        BlockedReporter? blockedReporter =
+            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == guild.Id);
+
+        if (blockedReporter is null)
+            Logger.Warn($"Could not unblock {user}: was allegedly blocked, but dind't find BlockedReporter entity!");
+        else
+        {
+            context.Remove(blockedReporter);
+            await context.SaveChangesAsync();
+        }
+    }
+
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         await context.Database.EnsureCreatedAsync(stoppingToken);
+
+        _blockedReporters.Clear();
+        _blockedReporters.AddRange(context.BlockedReporters);
 
         _reportedMessages.Clear();
         _reportedMessages.AddRange(context.ReportedMessages.Include(m => m.Message).Where(m => !m.Message.IsDeleted));

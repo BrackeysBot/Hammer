@@ -41,6 +41,9 @@
     <data name="MemberMuted" xml:space="preserve">
         <value>{user} was muted by {staffMember} in {guild}</value>
     </data>
+    <data name="MessageReportBlocked" xml:space="preserve">
+        <value>{user} reported a message, but is blocked from doing so</value>
+    </data>
     <data name="StaffMessagedMember" xml:space="preserve">
         <value>{staffMember} sent a message to {recipient} from {guild}. Contents: {message}</value>
     </data>
