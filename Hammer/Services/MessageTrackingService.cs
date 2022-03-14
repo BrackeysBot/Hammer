@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 
 namespace Hammer.Services;
 
@@ -19,8 +20,9 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageTrackingService : BackgroundService
 {
-    private readonly IServiceScopeFactory _scopeFactory;
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly DiscordClient _discordClient;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly List<TrackedMessage> _trackedMessages = new();
 
     /// <summary>
@@ -73,10 +75,10 @@ internal sealed class MessageTrackingService : BackgroundService
     /// </returns>
     public async Task<TrackedMessage> GetTrackedMessageAsync(DiscordMessage message, bool deleted = false)
     {
+        TrackedMessage? trackedMessage = _trackedMessages.Find(m => m == message);
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-
-        TrackedMessage? trackedMessage = _trackedMessages.Find(m => m == message);
 
         if (trackedMessage is null)
         {
@@ -85,16 +87,28 @@ internal sealed class MessageTrackingService : BackgroundService
             if (trackedMessage is null)
             {
                 trackedMessage = TrackedMessage.FromDiscordMessage(message);
+                trackedMessage.IsDeleted = deleted;
                 EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage);
                 trackedMessage = entry.Entity;
+            }
+            else
+            {
+                trackedMessage.IsDeleted = deleted;
+                context.Update(trackedMessage);
             }
 
             _trackedMessages.Add(trackedMessage);
         }
 
-        trackedMessage.IsDeleted = deleted;
-        context.Update(trackedMessage);
-        await context.SaveChangesAsync();
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (Exception exception)
+        {
+            Logger.Error(exception, "An exception was thrown when saving TrackedMessage to the database");
+        }
+
         return trackedMessage;
     }
 
