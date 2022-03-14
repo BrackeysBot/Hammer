@@ -17,7 +17,7 @@ internal sealed class RequirePermissionLevelAttribute : CheckBaseAttribute
     private readonly PermissionLevel _permissionLevel;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="RequireContextMenuPermissionLevelAttribute" /> class.
+    ///     Initializes a new instance of the <see cref="RequirePermissionLevelAttribute" /> class.
     /// </summary>
     /// <param name="permissionLevel">The minimum permission level.</param>
     public RequirePermissionLevelAttribute(PermissionLevel permissionLevel)
