@@ -97,7 +97,6 @@ internal sealed class MessageReportService : BackgroundService
         }
 
         bool duplicateReport = HasUserReportedMessage(message, reporter);
-        Logger.Debug(duplicateReport);
         if (duplicateReport)
         {
             Logger.Info(LogMessages.DuplicateMessageReport.FormatSmart(new {user = reporter, message}));
