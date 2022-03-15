@@ -34,6 +34,16 @@ internal class TrackedUser : IEquatable<TrackedUser>
         return GuildId == other.GuildId && UserId == other.UserId;
     }
 
+    public static bool operator ==(TrackedUser left, TrackedUser right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(TrackedUser left, TrackedUser right)
+    {
+        return !(left == right);
+    }
+
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
