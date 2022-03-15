@@ -15,13 +15,8 @@ internal sealed partial class StaffModule
     [Command("message")]
     [Description("Sends a private message to a member.")]
     [RequirePermissionLevel(PermissionLevel.Moderator)]
-    public async Task MessageCommandAsync(
-        CommandContext context,
-        [Description("The ID of the member to kick.")]
-        ulong memberId,
-        [Description("The message content.")] [RemainingText]
-        string message
-    )
+    public async Task MessageCommandAsync(CommandContext context, [Description("The ID of the member to kick.")] ulong memberId,
+        [Description("The message content.")] [RemainingText] string message)
     {
         DiscordMember member = await context.Guild.GetMemberAsync(memberId);
 
@@ -52,13 +47,9 @@ internal sealed partial class StaffModule
     [Command("message")]
     [Description("Sends a private message to a member.")]
     [RequirePermissionLevel(PermissionLevel.Moderator)]
-    public async Task MessageCommandAsync(
-        CommandContext context,
-        [Description("The member to message.")]
-        DiscordMember member,
+    public async Task MessageCommandAsync(CommandContext context, [Description("The member to message.")] DiscordMember member,
         [Description("The message content.")] [RemainingText]
-        string message
-    )
+        string message)
     {
         await context.AcknowledgeAsync();
         await _messageService.MessageMemberAsync(member, context.Member, message);
