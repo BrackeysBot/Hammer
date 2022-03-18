@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.Entities;
-using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
@@ -76,9 +76,7 @@ internal sealed class MessageService
         DiscordGuild guild = await _discordClient.GetGuildAsync(message.GuildId);
         DiscordUser user = await _discordClient.GetUserAsync(message.RecipientId);
         DiscordUser staffMember = await _discordClient.GetUserAsync(message.RecipientId);
-
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
-        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
+        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed();
 
         embedBuilder.WithAuthor($"Message #{message.Id}");
         embedBuilder.WithTitle(EmbedTitles.MessageSent);
@@ -92,9 +90,7 @@ internal sealed class MessageService
     {
         DiscordGuild guild = await _discordClient.GetGuildAsync(message.GuildId);
         DiscordUser user = await _discordClient.GetUserAsync(message.RecipientId);
-
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
-        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
+        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed();
 
         embedBuilder.WithTitle(EmbedTitles.Message);
         embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new {user, guild}));

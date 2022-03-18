@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Plugins;
@@ -22,6 +22,7 @@ namespace Hammer;
 ///     Represents a <see cref="BrackeysBot" /> plugin which handles moderation.
 /// </summary>
 [Plugin("Hammer", "1.0.0")]
+[PluginDependencies("BrackeysBot.Core")]
 [PluginDescription("A BrackeysBot plugin for managing infractions against misbehaving users.")]
 [PluginIntents(DiscordIntents.All)]
 public sealed class HammerPlugin : MonoPlugin, IHammerPlugin

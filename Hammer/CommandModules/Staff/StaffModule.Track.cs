@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API;
+using BrackeysBot.Core.API.Attributes;
+using BrackeysBot.Core.API.Extensions;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
-using Hammer.Attributes;
-using Hammer.Data;
-using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using SmartFormat;

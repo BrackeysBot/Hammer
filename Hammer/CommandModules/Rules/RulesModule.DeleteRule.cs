@@ -1,11 +1,11 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API;
+using BrackeysBot.Core.API.Attributes;
+using BrackeysBot.Core.API.Extensions;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
-using Hammer.Attributes;
-using Hammer.Data;
-using Hammer.Extensions;
 
 namespace Hammer.CommandModules.Rules;
 

@@ -1,12 +1,11 @@
 ﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.CommandsNext.Attributes;
 using DisCatSharp.Entities;
-using Hammer.Configuration;
-using Hammer.Extensions;
-using PermissionLevel = Hammer.Data.PermissionLevel;
+using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
 
 namespace Hammer.CommandModules.User;
 
@@ -27,8 +26,7 @@ internal sealed partial class UserModule
     {
         await context.AcknowledgeAsync();
 
-        RoleConfiguration roleConfiguration = _configurationService.GetGuildConfiguration(context.Guild).RoleConfiguration;
-        if (user is null || context.Member.GetPermissionLevel(roleConfiguration) < PermissionLevel.Guru)
+        if (user is null || context.Member.GetPermissionLevel(context.Guild) < PermissionLevel.Guru)
             // community members under Guru cannot view info about other members, only themselves
             user = context.Member;
 
@@ -45,7 +43,7 @@ internal sealed partial class UserModule
         embed.AddField("User Created", Formatter.Timestamp(user.CreationTimestamp, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(isMember, "Join Date", () => Formatter.Timestamp(member!.JoinedAt, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(infractionCount > 0, "Infractions", infractionCount, true);
-        embed.AddFieldIf(isMember, "Permission Level", () => member!.GetPermissionLevel(roleConfiguration).ToString("G"), true);
+        embed.AddFieldIf(isMember, "Permission Level", () => member!.GetPermissionLevel(context.Guild).ToString("G"), true);
 
         if (!isMember) embed.WithFooter("⚠️ This user is not currently in this server!");
 
