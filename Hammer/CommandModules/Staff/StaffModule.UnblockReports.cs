@@ -56,7 +56,7 @@ internal sealed partial class StaffModule
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.UserUnblocked);
-            embed.WithTitle(EmbedMessages.UserUnblocked.FormatSmart(new {user}));
+            embed.WithDescription(EmbedMessages.UserUnblocked.FormatSmart(new {user}));
             await _reportService.UnblockUserAsync(user, guild);
         }
 
