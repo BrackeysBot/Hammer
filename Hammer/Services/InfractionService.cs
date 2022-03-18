@@ -219,9 +219,7 @@ internal sealed class InfractionService : BackgroundService
             embed.AddField(underlinedFieldName, string.Join("\n\n", infractionList));
         }
         else
-        {
             embed.AddField(underlinedFieldName, "✅ No infractions on record");
-        }
 
         return embed;
 
@@ -256,9 +254,7 @@ internal sealed class InfractionService : BackgroundService
     public async Task<DiscordEmbed> CreatePrivateInfractionEmbedAsync(Infraction infraction)
     {
         if (infraction.Type == InfractionType.Gag)
-        {
             throw new ArgumentException(ExceptionMessages.NoEmbedForGag, nameof(infraction));
-        }
 
         DiscordGuild? guild = await _discordClient.GetGuildAsync(infraction.GuildId);
         DiscordUser? user = await _discordClient.GetUserAsync(infraction.UserId);
@@ -437,9 +433,7 @@ internal sealed class InfractionService : BackgroundService
         {
             DiscordRole? mutedRole = _temporaryMuteService.GetMutedRole(guild);
             if (mutedRole is null)
-            {
                 Logger.Warn(LoggerMessages.NoMutedRoleToGrant.FormatSmart(new {guild}));
-            }
             else
             {
                 Logger.Info(LoggerMessages.MemberMuted.FormatSmart(new {user, staffMember, guild}));
@@ -447,9 +441,7 @@ internal sealed class InfractionService : BackgroundService
             }
         }
         else
-        {
             Logger.Warn(LoggerMessages.CantMuteNonMember.FormatSmart(new {user, guild}));
-        }
 
         if (duration.HasValue)
             _temporaryMuteService.CreateTemporaryMute(user, guild, duration.Value);
@@ -527,9 +519,7 @@ internal sealed class InfractionService : BackgroundService
                 {
                     DiscordRole? mutedRole = _temporaryMuteService.GetMutedRole(guild);
                     if (mutedRole is null)
-                    {
                         Logger.Warn(LoggerMessages.NoMutedRoleToGrant.FormatSmart(new {guild}));
-                    }
                     else
                     {
                         Logger.Info(LoggerMessages.MemberMuted.FormatSmart(new {user, staffMember, guild}));
@@ -537,9 +527,7 @@ internal sealed class InfractionService : BackgroundService
                     }
                 }
                 else
-                {
                     Logger.Warn(LoggerMessages.CantMuteNonMember.FormatSmart(new {user, guild}));
-                }
             }
         }
 

@@ -18,8 +18,8 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class RuleService : BackgroundService
 {
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly Dictionary<ulong, List<Rule>> _guildRules = new();
+    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuleService" /> class.
@@ -97,7 +97,7 @@ internal sealed class RuleService : BackgroundService
             rule.Id = index + 1;
             await context.AddAsync(rule);
         }
-        
+
         await context.SaveChangesAsync();
     }
 
@@ -129,9 +129,7 @@ internal sealed class RuleService : BackgroundService
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
         if (!_guildRules.TryGetValue(guild.Id, out List<Rule>? rules))
-        {
             return ArraySegment<Rule>.Empty;
-        }
 
         return rules.OrderBy(r => r.Id).ToArray();
     }
@@ -151,9 +149,7 @@ internal sealed class RuleService : BackgroundService
         if (id < 1) return false;
 
         if (!_guildRules.TryGetValue(guild.Id, out List<Rule>? rules))
-        {
             return false;
-        }
 
         return id <= rules.Count && rules.Exists(r => r.Id == id);
     }
@@ -201,9 +197,7 @@ internal sealed class RuleService : BackgroundService
         foreach (IGrouping<ulong, Rule> guildRules in context.Rules.AsEnumerable().GroupBy(r => r.GuildId))
         {
             if (!_guildRules.TryGetValue(guildRules.Key, out List<Rule>? rules))
-            {
                 _guildRules.Add(guildRules.Key, rules = new List<Rule>());
-            }
 
             rules.AddRange(guildRules.OrderBy(r => r.Id));
         }

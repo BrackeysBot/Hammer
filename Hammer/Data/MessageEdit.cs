@@ -77,6 +77,14 @@ internal sealed class MessageEdit : IEquatable<MessageEdit>
     /// <value>The message ID.</value>
     public ulong MessageId { get; set; }
 
+    /// <inheritdoc />
+    public bool Equals(MessageEdit? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id == other.Id;
+    }
+
     /// <summary>
     ///     Constructs a new <see cref="MessageEdit" /> by extracting values from an instance of
     ///     <see cref="MessageUpdateEventArgs" />.
@@ -103,17 +111,9 @@ internal sealed class MessageEdit : IEquatable<MessageEdit>
     }
 
     /// <inheritdoc />
-    public bool Equals(MessageEdit? other)
-    {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return Id == other.Id;
-    }
-
-    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || obj is MessageEdit other && Equals(other);
+        return ReferenceEquals(this, obj) || (obj is MessageEdit other && Equals(other));
     }
 
     /// <inheritdoc />

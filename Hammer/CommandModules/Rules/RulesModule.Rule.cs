@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
 using DisCatSharp.CommandsNext;
@@ -25,7 +25,7 @@ internal sealed partial class RulesModule
         }
 
         Rule rule = _ruleService.GetRuleById(guild, ruleId)!;
-        
+
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
         embed.WithColor(DiscordColor.Orange);
         embed.WithTitle(string.IsNullOrWhiteSpace(rule.Brief) ? $"Rule #{rule.Id}" : $"Rule #{rule.Id}. {rule.Brief}");

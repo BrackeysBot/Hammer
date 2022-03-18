@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
@@ -20,9 +20,9 @@ internal sealed partial class RulesModule
         await context.AcknowledgeAsync();
         DiscordGuild guild = context.Guild;
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
-        
+
         IReadOnlyList<Rule> rules = _ruleService.GetGuildRules(guild);
-        
+
         if (rules.Count == 0)
         {
             embed.WithColor(0xFF0000);

@@ -32,15 +32,11 @@ internal class ReportedMessage : IEquatable<ReportedMessage>, IEquatable<Discord
     /// </summary>
     public TrackedMessage Message { get; set; } = null!;
 
-    public static bool operator ==(ReportedMessage left, DiscordMessage right) => left.Equals(right);
-    public static bool operator !=(ReportedMessage left, DiscordMessage right) => !(left == right);
-    public static bool operator ==(DiscordMessage left, ReportedMessage right) => right == left;
-    public static bool operator !=(DiscordMessage left, ReportedMessage right) => !(left == right);
-
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public bool Equals(DiscordMessage? other)
     {
-        return (obj is ReportedMessage reported && Equals(reported)) || (obj is DiscordMessage message && Equals(message));
+        if (ReferenceEquals(null, other)) return false;
+        return MessageId == other.Id && Message.ChannelId == other.Channel.Id && Message.GuildId == other.Channel.Guild.Id;
     }
 
     /// <inheritdoc />
@@ -51,11 +47,30 @@ internal class ReportedMessage : IEquatable<ReportedMessage>, IEquatable<Discord
         return Id == other.Id;
     }
 
-    /// <inheritdoc />
-    public bool Equals(DiscordMessage? other)
+    public static bool operator ==(ReportedMessage left, DiscordMessage right)
     {
-        if (ReferenceEquals(null, other)) return false;
-        return MessageId == other.Id && Message.ChannelId == other.Channel.Id && Message.GuildId == other.Channel.Guild.Id;
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(ReportedMessage left, DiscordMessage right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator ==(DiscordMessage left, ReportedMessage right)
+    {
+        return right == left;
+    }
+
+    public static bool operator !=(DiscordMessage left, ReportedMessage right)
+    {
+        return !(left == right);
+    }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+    {
+        return (obj is ReportedMessage reported && Equals(reported)) || (obj is DiscordMessage message && Equals(message));
     }
 
     /// <inheritdoc />

@@ -17,7 +17,7 @@ internal sealed class UriListToBytesConverter : ValueConverter<IReadOnlyList<Uri
         : this(null)
     {
     }
-    
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="UriListToBytesConverter" /> class.
     /// </summary>

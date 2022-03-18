@@ -15,7 +15,7 @@ internal sealed class HammerContext : DbContext
     /// </summary>
     /// <value>The set of infractions.</value>
     public DbSet<Infraction> Infractions { get; set; } = null!; // assigned when context is created
-    
+
     /// <summary>
     ///     Gets or sets the set of message edits.
     /// </summary>
@@ -45,7 +45,7 @@ internal sealed class HammerContext : DbContext
     /// </summary>
     /// <value>The set of staff messages.</value>
     public DbSet<StaffMessage> StaffMessages { get; set; } = null!; // assigned when context is created
-    
+
     /// <summary>
     ///     Gets or sets the set of tracked users.
     /// </summary>

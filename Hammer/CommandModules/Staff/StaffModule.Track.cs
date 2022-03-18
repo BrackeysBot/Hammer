@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
@@ -39,7 +39,8 @@ internal sealed partial class StaffModule
     [Description("Starts tracking a user and their actions.")]
     [RequirePermissionLevel(PermissionLevel.Moderator)]
     public async Task TrackCommandAsync(CommandContext context, [Description("The user to track.")] DiscordUser user,
-        [Description("The duration of the track. Defaults to indefinite tracking.")] TimeSpan? duration = null)
+        [Description("The duration of the track. Defaults to indefinite tracking.")]
+        TimeSpan? duration = null)
     {
         await context.AcknowledgeAsync();
 

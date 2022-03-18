@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -65,10 +65,25 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     /// <value>The guild ID.</value>
     public ulong GuildId { get; set; }
 
-    public static bool operator ==(TrackedMessage left, DiscordMessage right) => left.Equals(right);
-    public static bool operator !=(TrackedMessage left, DiscordMessage right) => !(left == right);
-    public static bool operator ==(DiscordMessage left, TrackedMessage right) => right == left;
-    public static bool operator !=(DiscordMessage left, TrackedMessage right) => !(left == right);
+    public static bool operator ==(TrackedMessage left, DiscordMessage right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(TrackedMessage left, DiscordMessage right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator ==(DiscordMessage left, TrackedMessage right)
+    {
+        return right == left;
+    }
+
+    public static bool operator !=(DiscordMessage left, TrackedMessage right)
+    {
+        return !(left == right);
+    }
 
     /// <summary>
     ///     Constructs a <see cref="TrackedMessage" /> by extracting data from a <see cref="DiscordMessage" />.
@@ -90,9 +105,10 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
+    public bool Equals(DiscordMessage? other)
     {
-        return (obj is TrackedMessage tracked && Equals(tracked)) || (obj is DiscordMessage message && Equals(message));
+        if (ReferenceEquals(null, other)) return false;
+        return Id == other.Id && ChannelId == other.Channel.Id && GuildId == other.Channel.Guild.Id;
     }
 
     /// <inheritdoc />
@@ -104,10 +120,9 @@ internal class TrackedMessage : IEquatable<TrackedMessage>, IEquatable<DiscordMe
     }
 
     /// <inheritdoc />
-    public bool Equals(DiscordMessage? other)
+    public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, other)) return false;
-        return Id == other.Id && ChannelId == other.Channel.Id && GuildId == other.Channel.Guild.Id;
+        return (obj is TrackedMessage tracked && Equals(tracked)) || (obj is DiscordMessage message && Equals(message));
     }
 
     /// <inheritdoc />

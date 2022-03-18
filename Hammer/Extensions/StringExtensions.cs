@@ -53,11 +53,7 @@ internal static class StringExtensions
     /// <exception cref="ArgumentNullException"><paramref name="alternative" /> is <see langword="null" />.</exception>
     public static string WithEmptyAlternative(this string? value, string alternative)
     {
-        if (alternative is null)
-        {
-            throw new ArgumentNullException(nameof(alternative));
-        }
-        
+        if (alternative is null) throw new ArgumentNullException(nameof(alternative));
         return string.IsNullOrEmpty(value) ? alternative : value;
     }
 
@@ -74,11 +70,7 @@ internal static class StringExtensions
     /// <exception cref="ArgumentNullException"><paramref name="alternative" /> is <see langword="null" />.</exception>
     public static string WithWhiteSpaceAlternative(this string? value, string alternative)
     {
-        if (alternative is null)
-        {
-            throw new ArgumentNullException(nameof(alternative));
-        }
-
+        if (alternative is null) throw new ArgumentNullException(nameof(alternative));
         return string.IsNullOrWhiteSpace(value) ? alternative : value;
     }
 }

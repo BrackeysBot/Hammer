@@ -32,9 +32,6 @@ internal sealed class Rule : IEquatable<Rule>
     /// <value>The rule ID.</value>
     public int Id { get; set; }
 
-    public static bool operator ==(Rule? left, Rule? right) => (bool) left?.Equals(right);
-    public static bool operator !=(Rule? left, Rule? right) => !(left == right);
-
     /// <inheritdoc />
     public bool Equals(Rule? other)
     {
@@ -43,10 +40,20 @@ internal sealed class Rule : IEquatable<Rule>
         return Id == other.Id && GuildId == other.GuildId;
     }
 
+    public static bool operator ==(Rule? left, Rule? right)
+    {
+        return (bool) left?.Equals(right);
+    }
+
+    public static bool operator !=(Rule? left, Rule? right)
+    {
+        return !(left == right);
+    }
+
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || obj is Rule other && Equals(other);
+        return ReferenceEquals(this, obj) || (obj is Rule other && Equals(other));
     }
 
     /// <inheritdoc />

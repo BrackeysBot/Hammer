@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Attributes;
@@ -25,7 +25,7 @@ internal sealed partial class RulesModule
             await context.RespondAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId));
             return;
         }
-        
+
         await _ruleService.DeleteRuleAsync(guild, ruleId);
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);

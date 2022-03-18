@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Attributes;
@@ -16,7 +16,8 @@ internal sealed partial class StaffModule
     [Description("Sends a private message to a member.")]
     [RequirePermissionLevel(PermissionLevel.Moderator)]
     public async Task MessageCommandAsync(CommandContext context, [Description("The ID of the member to kick.")] ulong memberId,
-        [Description("The message content.")] [RemainingText] string message)
+        [Description("The message content.")] [RemainingText]
+        string message)
     {
         DiscordMember member = await context.Guild.GetMemberAsync(memberId);
 

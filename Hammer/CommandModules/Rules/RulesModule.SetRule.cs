@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Attributes;
@@ -16,8 +16,10 @@ internal sealed partial class RulesModule
     [Description("Modifies a rule text.")]
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task SetRuleCommandAsync(CommandContext context,
-        [Description("The ID of the rule to remove.")] int ruleId,
-        [Description("The new rule text"), RemainingText] string ruleContent)
+        [Description("The ID of the rule to remove.")]
+        int ruleId,
+        [Description("The new rule text")] [RemainingText]
+        string ruleContent)
     {
         await context.AcknowledgeAsync();
         DiscordGuild guild = context.Guild;
@@ -27,9 +29,9 @@ internal sealed partial class RulesModule
             await context.RespondAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId));
             return;
         }
-        
+
         await _ruleService.SetRuleContentAsync(guild, ruleId, ruleContent);
-        
+
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
         embed.WithColor(0x4CAF50);
         embed.WithTitle($"Rule {ruleId} updated");

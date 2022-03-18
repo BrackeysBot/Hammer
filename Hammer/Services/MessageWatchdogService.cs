@@ -13,9 +13,9 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageWatchdogService : BackgroundService
 {
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly DiscordClient _discordClient;
     private readonly MessageTrackingService _messageTrackingService;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly UserTrackingService _userTrackingService;
 
     /// <summary>

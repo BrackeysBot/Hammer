@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Attributes;
@@ -17,7 +17,8 @@ internal sealed partial class StaffModule
     [Description("Stops tracking a user.")]
     [RequirePermissionLevel(PermissionLevel.Moderator)]
     public async Task UntrackCommandAsync(CommandContext context,
-        [Description("The ID of the user to stop tracking.")] ulong userId)
+        [Description("The ID of the user to stop tracking.")]
+        ulong userId)
     {
         DiscordUser user = await context.Client.GetUserAsync(userId);
 
