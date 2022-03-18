@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.Entities;
@@ -32,25 +33,25 @@ namespace Hammer.Services;
 internal sealed class InfractionService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly Dictionary<DiscordGuild, List<Infraction>> _infractionCache = new();
-    private readonly Timer _gagTimer = new();
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
-    private readonly DiscordLogService _logService;
+    private readonly ICorePlugin _corePlugin;
+    private readonly DiscordClient _discordClient;
+    private readonly Timer _gagTimer = new();
+    private readonly Dictionary<DiscordGuild, List<Infraction>> _infractionCache = new();
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly TemporaryMuteService _temporaryMuteService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InfractionService" /> class.
     /// </summary>
-    public InfractionService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
-        ConfigurationService configurationService, DiscordLogService logService, TemporaryMuteService temporaryMuteService)
+    public InfractionService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
+        ConfigurationService configurationService, TemporaryMuteService temporaryMuteService)
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
-        _logService = logService;
         _temporaryMuteService = temporaryMuteService;
+        _corePlugin = corePlugin;
 
         _gagTimer.Interval = 1000;
         _gagTimer.Start();
@@ -499,7 +500,7 @@ internal sealed class InfractionService : BackgroundService
         StaffNotificationOptions notificationOptions = StaffNotificationOptions.None)
     {
         DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction);
-        await _logService.LogAsync(guild, embed, notificationOptions);
+        await _corePlugin.LogAsync(guild, embed, notificationOptions);
     }
 
     public async Task UnmuteAsync(DiscordUser user, DiscordMember staffMember)

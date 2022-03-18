@@ -8,13 +8,6 @@ namespace Hammer.Configuration;
 internal sealed class GuildConfiguration
 {
     /// <summary>
-    ///     Gets or sets the channel configuration.
-    /// </summary>
-    /// <value>The channel configuration.</value>
-    [JsonPropertyName("channels")]
-    public ChannelConfiguration ChannelConfiguration { get; set; } = new();
-
-    /// <summary>
     ///     Gets or sets the mute configuration.
     /// </summary>
     /// <value>The mute configuration.</value>

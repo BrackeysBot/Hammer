@@ -22,15 +22,6 @@ internal sealed class ConfigurationService
     }
 
     /// <summary>
-    ///     Gets the global configuration.
-    /// </summary>
-    /// <returns>The global configuration.</returns>
-    public GlobalConfiguration GetGlobalConfiguration()
-    {
-        return _configuration.Get<GlobalConfiguration>("bot") ?? new GlobalConfiguration();
-    }
-
-    /// <summary>
     ///     Returns the configuration for a specified guild.
     /// </summary>
     /// <param name="guildId">The ID of the guild whose configuration to retrieve.</param>

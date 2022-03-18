@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.Entities;
@@ -19,21 +20,18 @@ namespace Hammer.Services;
 internal sealed class MessageService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ICorePlugin _corePlugin;
     private readonly DiscordClient _discordClient;
-    private readonly ConfigurationService _configurationService;
-    private readonly DiscordLogService _logService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageService" /> class.
     /// </summary>
-    public MessageService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
-        ConfigurationService configurationService, DiscordLogService logService)
+    public MessageService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient)
     {
         _scopeFactory = scopeFactory;
+        _corePlugin = corePlugin;
         _discordClient = discordClient;
-        _configurationService = configurationService;
-        _logService = logService;
     }
 
     /// <summary>
@@ -68,7 +66,7 @@ internal sealed class MessageService
         Logger.Info(LoggerMessages.StaffMessagedMember.FormatSmart(new
             {staffMember, recipient, guild = staffMember.Guild, message}));
         await recipient.SendMessageAsync(await CreateUserEmbedAsync(staffMessage));
-        await _logService.LogAsync(recipient.Guild, await CreateStaffLogEmbedAsync(staffMessage));
+        await _corePlugin.LogAsync(recipient.Guild, await CreateStaffLogEmbedAsync(staffMessage));
     }
 
     private async Task<DiscordEmbed> CreateStaffLogEmbedAsync(StaffMessage message)

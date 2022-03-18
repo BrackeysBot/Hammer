@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.Entities;
@@ -27,7 +28,7 @@ internal sealed class MessageReportService : BackgroundService
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
-    private readonly DiscordLogService _logService;
+    private readonly ICorePlugin _corePlugin;
     private readonly MessageTrackingService _messageTrackingService;
     private readonly List<ReportedMessage> _reportedMessages = new();
     private readonly IServiceScopeFactory _scopeFactory;
@@ -35,12 +36,12 @@ internal sealed class MessageReportService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageReportService(IServiceScopeFactory scopeFactory, ConfigurationService configurationService,
-        DiscordLogService logService, MessageTrackingService messageTrackingService)
+    public MessageReportService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin,
+        ConfigurationService configurationService, MessageTrackingService messageTrackingService)
     {
         _scopeFactory = scopeFactory;
         _configurationService = configurationService;
-        _logService = logService;
+        _corePlugin = corePlugin;
         _messageTrackingService = messageTrackingService;
     }
 
@@ -149,7 +150,7 @@ internal sealed class MessageReportService : BackgroundService
         Logger.Info(LogMessages.MessageReported.FormatSmart(new {user = reporter, message}));
         await CreateNewMessageReportAsync(message, reporter);
         await reporter.SendMessageAsync(CreateUserReportEmbed(message, reporter));
-        await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), StaffNotificationOptions.Here);
+        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), StaffNotificationOptions.Here);
     }
 
     /// <summary>
