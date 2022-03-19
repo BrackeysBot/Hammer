@@ -35,12 +35,6 @@ internal sealed class HammerContext : DbContext
     public DbSet<MessageEdit> MessageEdits { get; set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of tracked messages.
-    /// </summary>
-    /// <value>The set of tracked messages.</value>
-    public DbSet<TrackedMessage> TrackedMessages { get; set; } = null!; // assigned when context is created
-
-    /// <summary>
     ///     Gets or sets the set of reported messages.
     /// </summary>
     /// <value>The set of reported messages.</value>
@@ -57,6 +51,12 @@ internal sealed class HammerContext : DbContext
     /// </summary>
     /// <value>The set of staff messages.</value>
     public DbSet<StaffMessage> StaffMessages { get; set; } = null!; // assigned when context is created
+
+    /// <summary>
+    ///     Gets or sets the set of tracked messages.
+    /// </summary>
+    /// <value>The set of tracked messages.</value>
+    public DbSet<TrackedMessage> TrackedMessages { get; set; } = null!; // assigned when context is created
 
     /// <summary>
     ///     Gets or sets the set of tracked users.
