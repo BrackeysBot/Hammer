@@ -35,22 +35,18 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
             .HasColumnName("type")
             .HasColumnOrder(5);
 
-        builder.Property(e => e.Time)
-            .HasColumnName("time")
+        builder.Property(e => e.IssuedAt)
+            .HasColumnName("issuedAt")
             .HasColumnOrder(6)
             .HasConversion<DateTimeOffsetToBytesConverter>();
 
-        builder.Property(e => e.RuleBroken)
-            .HasColumnName("ruleBroken")
-            .HasColumnOrder(7);
-
         builder.Property(e => e.Reason)
             .HasColumnName("reason")
-            .HasColumnOrder(8);
+            .HasColumnOrder(7);
 
         builder.Property(e => e.ExpirationTime)
             .HasColumnName("expirationTime")
-            .HasColumnOrder(9)
+            .HasColumnOrder(8)
             .HasConversion<DateTimeOffsetToBytesConverter>();
     }
 }
