@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using DisCatSharp;
 using DisCatSharp.Entities;
+using DisCatSharp.EventArgs;
 using Hammer.Data;
 using Hammer.Resources;
 using Humanizer;
@@ -171,6 +172,19 @@ internal sealed class UserTrackingService : BackgroundService
         _timer.Enabled = true;
         _timer.Elapsed += TimerOnElapsed;
         _timer.Start();
+
+        _discordClient.GuildMemberAdded += DiscordClientOnGuildMemberAdded;
+        _discordClient.GuildMemberRemoved += DiscordClientOnGuildMemberRemoved;
+    }
+
+    private Task DiscordClientOnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
+    {
+        return TrackUserLeave(e);
+    }
+
+    private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
+    {
+        return TrackUserJoin(e);
     }
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
@@ -197,6 +211,40 @@ internal sealed class UserTrackingService : BackgroundService
 
         if (untrackCache.Count > 0)
             await Task.WhenAll(untrackCache.Select(u => UntrackUserAsync(u.User, u.Guild)));
+    }
+
+    private async Task TrackUserJoin(GuildMemberAddEventArgs args)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        var trackedJoin = new TrackedJoinLeave
+        {
+            GuildId = args.Guild.Id,
+            UserId = args.Member.Id,
+            OccuredAt = DateTimeOffset.UtcNow,
+            Type = TrackedJoinLeave.JoinLeaveType.Join
+        };
+
+        await context.AddAsync(trackedJoin);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task TrackUserLeave(GuildMemberRemoveEventArgs args)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        var trackedJoin = new TrackedJoinLeave
+        {
+            GuildId = args.Guild.Id,
+            UserId = args.Member.Id,
+            OccuredAt = DateTimeOffset.UtcNow,
+            Type = TrackedJoinLeave.JoinLeaveType.Leave
+        };
+
+        await context.AddAsync(trackedJoin);
+        await context.SaveChangesAsync();
     }
 
     private async Task UpdateFromDatabaseAsync()

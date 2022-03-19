@@ -17,6 +17,12 @@ internal sealed class HammerContext : DbContext
     public DbSet<Infraction> Infractions { get; set; } = null!; // assigned when context is created
 
     /// <summary>
+    ///     Gets or sets the set of join/leave events for a tracked user.
+    /// </summary>
+    /// <value>The set of join/leave events.</value>
+    public DbSet<TrackedJoinLeave> JoinLeaves { get; set; } = null!; // assigned when context is created
+
+    /// <summary>
     ///     Gets or sets the set of message edits.
     /// </summary>
     /// <value>The set of message edits.</value>
@@ -67,6 +73,7 @@ internal sealed class HammerContext : DbContext
         modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
         modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
         modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new TrackedJoinLeaveConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedUserConfiguration());
         modelBuilder.ApplyConfiguration(new RuleConfiguration());
