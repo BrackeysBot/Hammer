@@ -11,6 +11,12 @@ internal sealed class HammerContext : DbContext
     private const string DataSource = "hammer.db";
 
     /// <summary>
+    ///     Gets or sets the set of users who are blocked from making reports.
+    /// </summary>
+    /// <value>The set of blocked reporters.</value>
+    public DbSet<BlockedReporter> BlockedReporters { get; set; } = null!; // assigned when context is created
+
+    /// <summary>
     ///     Gets or sets the set of infractions.
     /// </summary>
     /// <value>The set of infractions.</value>
@@ -69,6 +75,7 @@ internal sealed class HammerContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration());
         modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
         modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
