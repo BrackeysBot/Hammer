@@ -1,3 +1,4 @@
+﻿using System.IO;
 using Hammer.Data.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,16 @@ namespace Hammer.Data;
 /// </summary>
 internal sealed class HammerContext : DbContext
 {
-    private const string DataSource = "hammer.db";
+    private readonly string _dataSource;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="HammerContext" /> class.
+    /// </summary>
+    /// <param name="plugin">The owning plugin.</param>
+    public HammerContext(HammerPlugin plugin)
+    {
+        _dataSource = Path.Combine(plugin.DataDirectory.FullName, "hammer.db");
+    }
 
     /// <summary>
     ///     Gets or sets the set of users who are blocked from making reports.
@@ -68,7 +78,7 @@ internal sealed class HammerContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        optionsBuilder.UseSqlite($"Data Source={DataSource}");
+        optionsBuilder.UseSqlite($"Data Source={_dataSource}");
     }
 
     /// <inheritdoc />
