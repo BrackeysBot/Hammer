@@ -172,6 +172,7 @@ internal sealed class MessageReportService : BackgroundService
             Logger.Warn($"Could not unblock {user}: was allegedly blocked, but dind't find BlockedReporter entity!");
         else
         {
+            _blockedReporters.Remove(blockedReporter);
             context.Remove(blockedReporter);
             await context.SaveChangesAsync();
         }
