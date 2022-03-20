@@ -6,6 +6,7 @@ using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DisCatSharp;
 using DisCatSharp.Entities;
+using Hammer.Extensions;
 using Hammer.Resources;
 using NLog;
 using SmartFormat;
@@ -92,7 +93,7 @@ internal sealed class MessageDeletionService
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)
     {
         var formatObject = new {user = message.Author, channel = message.Channel};
-        string description = OldEmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
+        string description = EmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
 
         DiscordGuild guild = message.Channel.Guild;
 
@@ -107,7 +108,8 @@ internal sealed class MessageDeletionService
             .WithTitle(EmbedTitles.MessageDeleted)
             .WithDescription(description)
             .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
-            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
+            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments)
+            .AddModMailNotice();
     }
 
     private static DiscordEmbed CreateMessageDeletionToStaffLogEmbed(DiscordMessage message, DiscordMember staffMember)

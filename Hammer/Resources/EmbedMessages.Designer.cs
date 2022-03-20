@@ -99,6 +99,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user.Mention}, your message was deleted from {channel.Mention} as it was deemed either off-topic or violated our server rules..
+        /// </summary>
+        internal static string MessageDeletionDescription {
+            get {
+                return ResourceManager.GetString("MessageDeletionDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__..
         /// </summary>
         internal static string MessageFromStaff {
