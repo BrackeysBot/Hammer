@@ -34,6 +34,9 @@
 
 Please take some time to reflect on the reason for this action, and return when you feel you are ready.</value>
     </data>
+    <data name="MessageDeleted" xml:space="preserve">
+        <value>A message in {channel.Mention} was deleted by a staff member.</value>
+    </data>
     <data name="MessageFromStaff" xml:space="preserve">
         <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
     </data>

@@ -53,6 +53,9 @@
     <data name="Reporter" xml:space="preserve">
         <value>__Reporter__</value>
     </data>
+    <data name="StaffMember" xml:space="preserve">
+        <value>__Staff Member__</value>
+    </data>
     <data name="TotalInfractions" xml:space="preserve">
         <value>__Total Infractions__</value>
     </data>

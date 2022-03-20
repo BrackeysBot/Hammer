@@ -151,6 +151,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Staff Member__.
+        /// </summary>
+        internal static string StaffMember {
+            get {
+                return ResourceManager.GetString("StaffMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __Total Infractions__.
         /// </summary>
         internal static string TotalInfractions {

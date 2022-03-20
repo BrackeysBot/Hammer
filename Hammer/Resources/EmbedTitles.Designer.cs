@@ -70,6 +70,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Message Deleted.
+        /// </summary>
+        internal static string MessageDeleted {
+            get {
+                return ResourceManager.GetString("MessageDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message Reported.
         /// </summary>
         internal static string MessageReported {

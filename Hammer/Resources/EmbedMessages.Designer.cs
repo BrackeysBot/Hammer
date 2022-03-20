@@ -90,6 +90,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A message in {channel.Mention} was deleted by a staff member..
+        /// </summary>
+        internal static string MessageDeleted {
+            get {
+                return ResourceManager.GetString("MessageDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__..
         /// </summary>
         internal static string MessageFromStaff {

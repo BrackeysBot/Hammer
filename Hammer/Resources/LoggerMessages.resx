@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -26,20 +26,20 @@
     <data name="CantMuteNonMember" xml:space="preserve">
         <value>{user} is not in {guild} - this mute will take effect if they rejoin the server.</value>
     </data>
-    <data name="LogChannelNotFound" xml:space="preserve">
-        <value>Log channel for {guild} was not found. Actions for this guild will NOT be logged in Discord!</value>
-    </data>
-    <data name="LogChannelNotDefined" xml:space="preserve">
-        <value>No log channel defined for {guild}. Actions for this guild will NOT be logged in Discord!</value>
-    </data>
-    <data name="LogChannelFound" xml:space="preserve">
-        <value>Log channel {channel} was found for {guild}</value>
+    <data name="CantUnmuteNonMember" xml:space="preserve">
+        <value>{user} is not in {guild} - the Muted role will not be reapplied if they rejoin the server.</value>
     </data>
     <data name="NoMutedRoleToGrant" xml:space="preserve">
         <value>Unable to grant role! Muted role not found for {guild}</value>
     </data>
+    <data name="NoMutedRoleToRevoke" xml:space="preserve">
+        <value>Unable to revoke role! Muted role not found for {guild}</value>
+    </data>
     <data name="MemberMuted" xml:space="preserve">
         <value>{user} was muted by {staffMember} in {guild}</value>
+    </data>
+    <data name="MessageDeleted" xml:space="preserve">
+        {message} in channel {message.Channel} was deleted by {staffMember}
     </data>
     <data name="MessageReportBlocked" xml:space="preserve">
         <value>{user} reported a message, but is blocked from doing so</value>

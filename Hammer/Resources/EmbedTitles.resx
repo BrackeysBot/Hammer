@@ -26,6 +26,9 @@
     <data name="Message" xml:space="preserve">
         <value>Message</value>
     </data>
+    <data name="MessageDeleted" xml:space="preserve">
+        <value>Message Deleted</value>
+    </data>
     <data name="MessageReported" xml:space="preserve">
         <value>Message Reported</value>
     </data>

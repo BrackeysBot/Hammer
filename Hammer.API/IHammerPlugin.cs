@@ -76,6 +76,25 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration);
 
     /// <summary>
+    ///     Deletes a specified message, logging the deletion in the staff log and optionally notifying the author.
+    /// </summary>
+    /// <param name="message">The message to delete.</param>
+    /// <param name="staffMember">The staff member responsible for the deletion.</param>
+    /// <param name="notifyAuthor">
+    ///     <see langword="true" /> to notify the author of the deletion; otherwise, <see langword="false" />.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="message" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    /// <exception cref="NotSupportedException">The message does not belong to a guild.</exception>
+    /// <exception cref="ArgumentException">
+    ///     The guild in which the message appears does not match the guild of <paramref name="staffMember" />.
+    /// </exception>
+    Task DeleteMessageAsync(DiscordMessage message, DiscordMember staffMember, bool notifyAuthor = true);
+
+    /// <summary>
     ///     Returns an enumerable collection of the infractions in a specified guild.
     /// </summary>
     /// <param name="guild">The guild whose infractions to search.</param>

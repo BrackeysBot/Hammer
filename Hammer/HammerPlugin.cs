@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Plugins;
+using BrackeysBot.Core.API;
 using DisCatSharp;
 using DisCatSharp.CommandsNext;
 using DisCatSharp.Entities;
@@ -28,7 +29,7 @@ namespace Hammer;
 public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 {
     private InfractionService _infractionService = null!;
-
+    private MessageDeletionService _messageDeletionService = null!;
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember)
@@ -52,6 +53,12 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
         return await _infractionService.BanAsync(user, staffMember, reason, duration);
+    }
+
+    /// <inheritdoc />
+    public Task DeleteMessageAsync(DiscordMessage message, DiscordMember staffMember, bool notifyAuthor = true)
+    {
+        return _messageDeletionService.DeleteMessageAsync(message, staffMember, notifyAuthor);
     }
 
     /// <inheritdoc />
@@ -131,6 +138,32 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     {
         return await _infractionService.WarnAsync(user, staffMember, reason);
     }
+
+    /// <inheritdoc />
+    protected override void ConfigureServices(IServiceCollection services)
+    {
+        services.AddSingleton(PluginManager.GetPlugin<ICorePlugin>()!);
+
+        services.AddSingleton<ConfigurationService>();
+        services.AddSingleton<InfractionService>();
+        services.AddSingleton<MessageService>();
+        services.AddSingleton<MessageDeletionService>();
+        services.AddSingleton<MessageReportService>();
+        services.AddSingleton<MessageTrackingService>();
+        services.AddSingleton<RuleService>();
+        services.AddSingleton<UserTrackingService>();
+        services.AddSingleton<UserReactionService>();
+
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<InfractionService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageTrackingService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageReportService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<RuleService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<UserTrackingService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<UserReactionService>());
+
+        services.AddDbContext<HammerContext>();
+    }
+
     /// <inheritdoc />
     protected override async Task OnLoad()
     {
@@ -159,5 +192,6 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     private void FetchServices()
     {
         _infractionService = ServiceProvider.GetRequiredService<InfractionService>();
+        _messageDeletionService = ServiceProvider.GetRequiredService<MessageDeletionService>();
     }
 }
