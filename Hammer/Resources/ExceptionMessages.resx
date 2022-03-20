@@ -23,8 +23,20 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="CannotDeleteNonGuildMessage" xml:space="preserve">
+        <value>Cannot delete non-guild message.</value>
+    </data>
+    <data name="MessageStaffMemberGuildMismatch" xml:space="preserve">
+        <value>Message does not appear in the same guild as the staff member.</value>
+    </data>
     <data name="NoEmbedForGag" xml:space="preserve">
         <value>An embed cannot be built for a Gag infraction.</value>
+    </data>
+    <data name="NotAStaffMember" xml:space="preserve">
+        {user.UsernameWithDiscriminator} is not a staff member of {guild.Name}.
+    </data>
+    <data name="StaffIsHigherLevel" xml:space="preserve">
+        {higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}.
     </data>
     <data name="StaffMemberGuildMismatch" xml:space="preserve">
         <value>The specified staff member do not belong to the specified guild.</value>

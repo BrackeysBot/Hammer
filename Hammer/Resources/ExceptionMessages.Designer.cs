@@ -61,6 +61,24 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot delete non-guild message..
+        /// </summary>
+        internal static string CannotDeleteNonGuildMessage {
+            get {
+                return ResourceManager.GetString("CannotDeleteNonGuildMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Message does not appear in the same guild as the staff member..
+        /// </summary>
+        internal static string MessageStaffMemberGuildMismatch {
+            get {
+                return ResourceManager.GetString("MessageStaffMemberGuildMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An embed cannot be built for a Gag infraction..
         /// </summary>
         internal static string NoEmbedForGag {
@@ -75,6 +93,24 @@ namespace Hammer.Resources {
         internal static string NoNegativeDuration {
             get {
                 return ResourceManager.GetString("NoNegativeDuration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user.UsernameWithDiscriminator} is not a staff member of {guild.Name}..
+        /// </summary>
+        internal static string NotAStaffMember {
+            get {
+                return ResourceManager.GetString("NotAStaffMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}..
+        /// </summary>
+        internal static string StaffIsHigherLevel {
+            get {
+                return ResourceManager.GetString("StaffIsHigherLevel", resourceCulture);
             }
         }
         
