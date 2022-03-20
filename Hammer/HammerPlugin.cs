@@ -29,34 +29,6 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 {
     private InfractionService _infractionService = null!;
 
-    /// <inheritdoc />
-    protected override Task OnLoad()
-    {
-        FetchServices();
-
-        string prefix = Configuration.Get<string>("discord.prefix") ?? "h[]";
-        Logger.Info($"Registering CommandsNextExtension with prefix {prefix}");
-        CommandsNextExtension commandsNext = DiscordClient.UseCommandsNext(new CommandsNextConfiguration
-        {
-            ServiceProvider = ServiceProvider,
-            StringPrefixes = new[] {prefix}
-        });
-
-        Logger.Info("Registering command modules");
-        commandsNext.RegisterCommands<RulesModule>();
-        commandsNext.RegisterCommands<StaffModule>();
-        commandsNext.RegisterCommands<UserModule>();
-
-        Logger.Info("Registering InteractivityExtension");
-        DiscordClient.UseInteractivity(new InteractivityConfiguration());
-
-        return base.OnLoad();
-    }
-
-    private void FetchServices()
-    {
-        _infractionService = ServiceProvider.GetRequiredService<InfractionService>();
-    }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember)
@@ -158,5 +130,34 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     public async Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
         return await _infractionService.WarnAsync(user, staffMember, reason);
+    }
+    /// <inheritdoc />
+    protected override async Task OnLoad()
+    {
+        FetchServices();
+
+        Logger.Info("Creating database");
+        var scopeFactory = ServiceProvider.GetRequiredService<IServiceScopeFactory>();
+        await using (AsyncServiceScope scope = scopeFactory.CreateAsyncScope())
+        {
+            await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+            await context.Database.EnsureCreatedAsync();
+        }
+
+        Logger.Info("Registering command modules");
+        CommandsNextExtension commandsNext = DiscordClient.GetCommandsNext();
+        commandsNext.RegisterCommands<RulesModule>();
+        commandsNext.RegisterCommands<StaffModule>();
+        commandsNext.RegisterCommands<UserModule>();
+
+        Logger.Info("Registering InteractivityExtension");
+        DiscordClient.UseInteractivity(new InteractivityConfiguration());
+
+        await base.OnLoad();
+    }
+
+    private void FetchServices()
+    {
+        _infractionService = ServiceProvider.GetRequiredService<InfractionService>();
     }
 }
