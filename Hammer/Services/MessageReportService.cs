@@ -143,11 +143,11 @@ internal sealed class MessageReportService : BackgroundService
         bool duplicateReport = HasUserReportedMessage(message, reporter);
         if (duplicateReport)
         {
-            Logger.Info(LogMessages.DuplicateMessageReport.FormatSmart(new {user = reporter, message}));
+            Logger.Info(LoggerMessages.DuplicateMessageReport.FormatSmart(new {user = reporter, message}));
             return;
         }
 
-        Logger.Info(LogMessages.MessageReported.FormatSmart(new {user = reporter, message}));
+        Logger.Info(LoggerMessages.MessageReported.FormatSmart(new {user = reporter, message}));
         await CreateNewMessageReportAsync(message, reporter);
         await reporter.SendMessageAsync(CreateUserReportEmbed(message, reporter));
         await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), StaffNotificationOptions.Here);

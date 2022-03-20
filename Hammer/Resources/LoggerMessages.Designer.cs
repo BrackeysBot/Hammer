@@ -79,6 +79,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user} attempted to create a duplicate report on {message} by {message.Author} in {message.Channel} - this report will not be logged in Discord..
+        /// </summary>
+        internal static string DuplicateMessageReport {
+            get {
+                return ResourceManager.GetString("DuplicateMessageReport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user} was muted by {staffMember} in {guild}.
         /// </summary>
         internal static string MemberMuted {
@@ -102,6 +111,15 @@ namespace Hammer.Resources {
         internal static string MessageReportBlocked {
             get {
                 return ResourceManager.GetString("MessageReportBlocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {user} reported {message} by {message.Author} in {message.Channel}.
+        /// </summary>
+        internal static string MessageReported {
+            get {
+                return ResourceManager.GetString("MessageReported", resourceCulture);
             }
         }
         
