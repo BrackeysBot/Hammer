@@ -34,4 +34,11 @@ internal sealed class ReactionConfiguration
     /// <value>The report reaction.</value>
     [JsonPropertyName("reportReaction")]
     public string ReportReaction { get; set; } = ":triangular_flag_on_post:";
+
+    /// <summary>
+    ///     Gets or sets the track reaction.
+    /// </summary>
+    /// <value>The track reaction.</value>
+    [JsonPropertyName("trackReaction")]
+    public string TrackReaction { get; set; } = ":mag:";
 }
