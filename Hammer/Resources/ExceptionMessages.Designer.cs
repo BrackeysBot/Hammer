@@ -70,6 +70,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified guild is invalid..
+        /// </summary>
+        internal static string InvalidGuild {
+            get {
+                return ResourceManager.GetString("InvalidGuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message does not appear in the same guild as the staff member..
         /// </summary>
         internal static string MessageStaffMemberGuildMismatch {

@@ -61,20 +61,28 @@ internal sealed class InfractionService : BackgroundService
     ///     Adds an infraction to the database.
     /// </summary>
     /// <param name="infraction">The infraction to add.</param>
+    /// <param name="guild">
+    ///     The guild to which this infraction belongs. If <see langword="null" /> is passed, this method will attempt to retrieve
+    ///     the guild specified by the infraction from the client.
+    /// </param>
     /// <returns>The infraction entity.</returns>
     /// <remarks>
     ///     Do NOT use this method to issue infractions to users. Use an appropriate user-targeted method such as
     ///     <see cref="BanAsync" />, <see cref="GagAsync" />, <see cref="KickAsync" />, <see cref="WarnAsync" />, or a silencing
     ///     action from <see cref="TemporaryMuteService" />.
     /// </remarks>
+    /// <exception cref="InvalidOperationException">The infraction belongs to a guild that this client cannot access.</exception>
     /// <seealso cref="CreateInfractionAsync" />
     /// <seealso cref="BanAsync" />
     /// <seealso cref="GagAsync" />
     /// <seealso cref="KickAsync" />
     /// <seealso cref="WarnAsync" />
     /// <seealso cref="TemporaryMuteService" />
-    public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild guild)
+    public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild? guild = null)
     {
+        guild ??= await _discordClient.GetGuildAsync(infraction.GuildId);
+        if (guild is null) throw new InvalidOperationException(ExceptionMessages.InvalidGuild);
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         infraction = (await context.AddAsync(infraction)).Entity;

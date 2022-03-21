@@ -26,11 +26,17 @@
     <data name="CannotDeleteNonGuildMessage" xml:space="preserve">
         <value>Cannot delete non-guild message.</value>
     </data>
+    <data name="InvalidGuild" xml:space="preserve">
+        <value>The specified guild is invalid.</value>
+    </data>
     <data name="MessageStaffMemberGuildMismatch" xml:space="preserve">
         <value>Message does not appear in the same guild as the staff member.</value>
     </data>
     <data name="NoEmbedForGag" xml:space="preserve">
         <value>An embed cannot be built for a Gag infraction.</value>
+    </data>
+    <data name="NoNegativeDuration" xml:space="preserve">
+        <value>The duration of an infraction cannot be negative.</value>
     </data>
     <data name="NotAStaffMember" xml:space="preserve">
         {user.UsernameWithDiscriminator} is not a staff member of {guild.Name}.
@@ -43,8 +49,5 @@
     </data>
     <data name="StaffMemberRecipientGuildMismatch" xml:space="preserve">
         <value>The specified staff member and recipient do not belong to the same guild.</value>
-    </data>
-    <data name="NoNegativeDuration" xml:space="preserve">
-        <value>The duration of an infraction cannot be negative.</value>
     </data>
 </root>
