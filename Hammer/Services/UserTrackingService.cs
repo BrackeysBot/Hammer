@@ -178,17 +178,17 @@ internal sealed class UserTrackingService : BackgroundService
     }
 
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await UpdateFromDatabaseAsync();
-
         _timer.Interval = 1000;
         _timer.Enabled = true;
         _timer.Elapsed += TimerOnElapsed;
         _timer.Start();
 
+        _discordClient.GuildAvailable += DiscordClientOnGuildAvailable;
         _discordClient.GuildMemberAdded += DiscordClientOnGuildMemberAdded;
         _discordClient.GuildMemberRemoved += DiscordClientOnGuildMemberRemoved;
+        return Task.CompletedTask;
     }
 
     private Task DiscordClientOnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
@@ -261,22 +261,25 @@ internal sealed class UserTrackingService : BackgroundService
         await context.SaveChangesAsync();
     }
 
-    private async Task UpdateFromDatabaseAsync()
+    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    {
+        return UpdateFromDatabaseAsync(e.Guild);
+    }
+
+    private async Task UpdateFromDatabaseAsync(DiscordGuild guild)
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        foreach (IGrouping<ulong, TrackedUser> trackedUsers in context.TrackedUsers.GroupBy(u => u.GuildId))
+        if (!_trackedUsers.TryGetValue(guild, out List<TrackedUser>? trackedUsers))
         {
-            DiscordGuild guild = await _discordClient.GetGuildAsync(trackedUsers.Key);
-
-            if (!_trackedUsers.TryGetValue(guild, out List<TrackedUser>? list))
-            {
-                list = new List<TrackedUser>();
-                _trackedUsers.Add(guild, list);
-            }
-
-            list.AddRange(trackedUsers);
+            trackedUsers = new List<TrackedUser>();
+            _trackedUsers.Add(guild, trackedUsers);
         }
+
+        trackedUsers.Clear();
+        trackedUsers.AddRange(context.TrackedUsers.Where(u => u.GuildId == guild.Id));
+
+        Logger.Info(LoggerMessages.TrackedUsersRetrieved.FormatSmart(new {count = trackedUsers.Count, guild}));
     }
 }
