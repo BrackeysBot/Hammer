@@ -99,6 +99,11 @@ internal sealed class MessageTrackingService : BackgroundService
 
             _trackedMessages.Add(trackedMessage);
         }
+        else
+        {
+            trackedMessage.IsDeleted = deleted;
+            context.Update(trackedMessage);
+        }
 
         try
         {
