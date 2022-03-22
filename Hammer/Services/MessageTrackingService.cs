@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,6 +32,21 @@ internal sealed class MessageTrackingService : BackgroundService
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
+    }
+
+    /// <summary>
+    ///     Enumerates the tracked messages written by a user in a specified guild.
+    /// </summary>
+    /// <param name="user">The user whose tracked messages to retrieve.</param>
+    /// <param name="guild">The guild whose messages to search.</param>
+    /// <returns>An enumerable collection of <see cref="TrackedMessage" /> instances.</returns>
+    public async IAsyncEnumerable<TrackedMessage> EnumerateTrackedMessagesAsync(DiscordUser user, DiscordGuild guild)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (TrackedMessage message in context.TrackedMessages.Where(m => m.AuthorId == user.Id && m.GuildId == guild.Id))
+            yield return message;
     }
 
     /// <summary>
