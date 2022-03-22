@@ -103,12 +103,15 @@ internal sealed class MessageTrackingService : BackgroundService
             {
                 trackedMessage = TrackedMessage.FromDiscordMessage(message);
                 trackedMessage.IsDeleted = deleted;
+                if (deleted) trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
+
                 EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage);
                 trackedMessage = entry.Entity;
             }
             else
             {
                 trackedMessage.IsDeleted = deleted;
+                if (deleted) trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
                 context.Update(trackedMessage);
             }
 
@@ -117,6 +120,7 @@ internal sealed class MessageTrackingService : BackgroundService
         else
         {
             trackedMessage.IsDeleted = deleted;
+            if (deleted) trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
             context.Update(trackedMessage);
         }
 
