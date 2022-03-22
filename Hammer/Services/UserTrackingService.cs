@@ -172,6 +172,8 @@ internal sealed class UserTrackingService : BackgroundService
             trackedUser.ExpirationTime = DateTimeOffset.UtcNow;
             context.Update(trackedUser);
             await context.SaveChangesAsync();
+
+            _trackedUsers[guild].Remove(trackedUser);
         }
 
         Logger.Info(LoggerMessages.TrackingDisabledForUser.FormatSmart(new {user, guild}));
