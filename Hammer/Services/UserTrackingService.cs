@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -27,6 +27,7 @@ internal sealed class UserTrackingService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly DiscordClient _discordClient;
+    private readonly MessageTrackingService _messageTrackingService;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly Timer _timer = new();
     private readonly Dictionary<DiscordGuild, List<TrackedUser>> _trackedUsers = new();
@@ -34,10 +35,12 @@ internal sealed class UserTrackingService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="UserTrackingService" /> class.
     /// </summary>
-    public UserTrackingService(IServiceScopeFactory scopeFactory, DiscordClient discordClient)
+    public UserTrackingService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
+        MessageTrackingService messageTrackingService)
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
+        _messageTrackingService = messageTrackingService;
     }
 
     /// <summary>
@@ -190,17 +193,32 @@ internal sealed class UserTrackingService : BackgroundService
         _discordClient.GuildAvailable += DiscordClientOnGuildAvailable;
         _discordClient.GuildMemberAdded += DiscordClientOnGuildMemberAdded;
         _discordClient.GuildMemberRemoved += DiscordClientOnGuildMemberRemoved;
+        _discordClient.MessageDeleted += DiscordClientOnMessageDeleted;
+
         return Task.CompletedTask;
     }
 
-    private Task DiscordClientOnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
+    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
-        return TrackUserLeave(e);
+        return UpdateFromDatabaseAsync(e.Guild);
     }
 
     private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
     {
+        if (!IsUserTracked(e.Member, e.Guild)) return Task.CompletedTask;
         return TrackUserJoin(e);
+    }
+
+    private Task DiscordClientOnGuildMemberRemoved(DiscordClient sender, GuildMemberRemoveEventArgs e)
+    {
+        if (!IsUserTracked(e.Member, e.Guild)) return Task.CompletedTask;
+        return TrackUserLeave(e);
+    }
+
+    private Task DiscordClientOnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
+    {
+        if (!IsUserTracked(e.Message.Author, e.Guild)) return Task.CompletedTask;
+        return TrackMessageDeletion(e);
     }
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
@@ -229,8 +247,16 @@ internal sealed class UserTrackingService : BackgroundService
             await Task.WhenAll(untrackCache.Select(u => UntrackUserAsync(u.User, u.Guild)));
     }
 
+    private async Task TrackMessageDeletion(MessageDeleteEventArgs args)
+    {
+        Logger.Info(LoggerMessages.TrackedMessageDeleted.FormatSmart(new {user = args.Message.Author, message = args.Message}));
+        await _messageTrackingService.GetTrackedMessageAsync(args.Message, true);
+    }
+
     private async Task TrackUserJoin(GuildMemberAddEventArgs args)
     {
+        Logger.Info(LoggerMessages.TrackedUserJoinedGuild.FormatSmart(new {user = args.Member, guild = args.Guild}));
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
@@ -248,6 +274,8 @@ internal sealed class UserTrackingService : BackgroundService
 
     private async Task TrackUserLeave(GuildMemberRemoveEventArgs args)
     {
+        Logger.Info(LoggerMessages.TrackedUserLeftGuild.FormatSmart(new {user = args.Member, guild = args.Guild}));
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
@@ -261,11 +289,6 @@ internal sealed class UserTrackingService : BackgroundService
 
         await context.AddAsync(trackedJoin);
         await context.SaveChangesAsync();
-    }
-
-    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
-    {
-        return UpdateFromDatabaseAsync(e.Guild);
     }
 
     private async Task UpdateFromDatabaseAsync(DiscordGuild guild)

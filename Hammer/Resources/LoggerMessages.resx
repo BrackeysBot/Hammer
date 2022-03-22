@@ -56,6 +56,18 @@
     <data name="TemporaryMuteExpired" xml:space="preserve">
         <value>Temporary mute for {user} expired in {guild}</value>
     </data>
+    <data name="TrackedMessageDeleted" xml:space="preserve">
+        <value>Message by tracked user {user} was deleted: {message}</value>
+    </data>
+    <data name="TrackedUserJoinedGuild" xml:space="preserve">
+        <value>Tracked user {user} joined {guild}</value>
+    </data>
+    <data name="TrackedUserLeftGuild" xml:space="preserve">
+        <value>Tracked user {user} left {guild}</value>
+    </data>
+    <data name="TrackedUsersRetrieved" xml:space="preserve">
+        <value>Retrieved {count} tracked users for {guild}</value>
+    </data>
     <data name="TrackingDisabledForUser" xml:space="preserve">
         <value>Tracking disabled for {user} in {guild}</value>
     </data>

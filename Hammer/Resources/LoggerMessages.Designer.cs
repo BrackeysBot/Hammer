@@ -160,6 +160,42 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Message by tracked user {user} was deleted: {message}.
+        /// </summary>
+        internal static string TrackedMessageDeleted {
+            get {
+                return ResourceManager.GetString("TrackedMessageDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracked user {user} joined {guild}.
+        /// </summary>
+        internal static string TrackedUserJoinedGuild {
+            get {
+                return ResourceManager.GetString("TrackedUserJoinedGuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tracked user {user} left {guild}.
+        /// </summary>
+        internal static string TrackedUserLeftGuild {
+            get {
+                return ResourceManager.GetString("TrackedUserLeftGuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Retrieved {count} tracked users for {guild}.
+        /// </summary>
+        internal static string TrackedUsersRetrieved {
+            get {
+                return ResourceManager.GetString("TrackedUsersRetrieved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Tracking disabled for {user} in {guild}.
         /// </summary>
         internal static string TrackingDisabledForUser {
