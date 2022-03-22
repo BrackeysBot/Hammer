@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,6 +38,20 @@ internal sealed class UserTrackingService : BackgroundService
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
+    }
+
+    /// <summary>
+    ///     Enumerates the join/leave events of a user in a specified guild.
+    /// </summary>
+    /// <param name="user">The user whose join/leave events to retrieve.</param>
+    /// <param name="guild">The guild whose join/leave events to search.</param>
+    /// <returns>An enumerable collection of <see cref="TrackedJoinLeave" /> instances.</returns>
+    public async IAsyncEnumerable<TrackedJoinLeave> EnumerateJoinLeavesAsync(DiscordUser user, DiscordGuild guild)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        foreach (TrackedJoinLeave joinLeave in context.JoinLeaves.Where(e => e.UserId == user.Id && e.GuildId == guild.Id))
+            yield return joinLeave;
     }
 
     /// <summary>
