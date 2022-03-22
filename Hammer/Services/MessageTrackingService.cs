@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -75,7 +75,7 @@ internal sealed class MessageTrackingService : BackgroundService
     /// </returns>
     public async Task<TrackedMessage> GetTrackedMessageAsync(DiscordMessage message, bool deleted = false)
     {
-        TrackedMessage? trackedMessage = _trackedMessages.Find(m => m == message);
+        TrackedMessage? trackedMessage = _trackedMessages.Find(m => m.Id == message.Id);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
