@@ -20,14 +20,17 @@ internal sealed class MessageDeletionService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly ICorePlugin _corePlugin;
+    private readonly DiscordClient _discordClient;
     private readonly MessageTrackingService _messageTrackingService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageDeletionService" /> class.
     /// </summary>
-    public MessageDeletionService(ICorePlugin corePlugin, MessageTrackingService messageTrackingService)
+    public MessageDeletionService(ICorePlugin corePlugin, DiscordClient discordClient,
+        MessageTrackingService messageTrackingService)
     {
         _corePlugin = corePlugin;
+        _discordClient = discordClient;
         _messageTrackingService = messageTrackingService;
     }
 
@@ -58,19 +61,24 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
+        message = await message.NormalizeClientAsync(_discordClient);
+        staffMember = await staffMember.NormalizeClientAsync(_discordClient);
+
+        DiscordGuild guild = message.Channel.Guild;
+
+        if (guild != staffMember.Guild)
+            throw new ArgumentException(ExceptionMessages.MessageStaffMemberGuildMismatch);
+
         if (message.Author is not DiscordMember author)
             throw new NotSupportedException(ExceptionMessages.CannotDeleteNonGuildMessage);
 
-        if (message.Channel.Guild != staffMember.Guild)
-            throw new ArgumentException(ExceptionMessages.MessageStaffMemberGuildMismatch);
-
-        if (!staffMember.IsStaffMember(message.Channel.Guild))
+        if (!staffMember.IsStaffMember(guild))
         {
             throw new InvalidOperationException(
-                ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild = message.Channel.Guild}));
+                ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild}));
         }
 
-        if (author.IsHigherLevelThan(staffMember, message.Channel.Guild))
+        if (author.IsHigherLevelThan(staffMember, guild))
         {
             throw new InvalidOperationException(
                 ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
@@ -81,7 +89,7 @@ internal sealed class MessageDeletionService
 
         Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
-        await _corePlugin.LogAsync(staffMember.Guild, staffLogEmbed);
+        await _corePlugin.LogAsync(guild, staffLogEmbed);
 
         if (notifyAuthor)
         {
@@ -95,15 +103,13 @@ internal sealed class MessageDeletionService
         var formatObject = new {user = message.Author, channel = message.Channel};
         string description = EmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
 
-        DiscordGuild guild = message.Channel.Guild;
-
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
 
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return guild.CreateDefaultEmbed()
+        return message.Channel.Guild.CreateDefaultEmbed()
             .WithColor(0xFF0000)
             .WithTitle(EmbedTitles.MessageDeleted)
             .WithDescription(description)
@@ -114,15 +120,13 @@ internal sealed class MessageDeletionService
 
     private static DiscordEmbed CreateMessageDeletionToStaffLogEmbed(DiscordMessage message, DiscordMember staffMember)
     {
-        DiscordGuild guild = message.Channel.Guild;
-
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
 
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return guild.CreateDefaultEmbed()
+        return message.Channel.Guild.CreateDefaultEmbed()
             .WithColor(0xFF0000)
             .WithTitle(EmbedTitles.MessageDeleted)
             .WithDescription(EmbedMessages.MessageDeleted.FormatSmart(new {channel = message.Channel}))
