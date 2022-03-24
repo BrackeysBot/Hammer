@@ -146,6 +146,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<InfractionService>();
+        services.AddSingleton<MemberNoteService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
         services.AddSingleton<MessageReportService>();
@@ -155,6 +156,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         services.AddSingleton<UserReactionService>();
 
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<InfractionService>());
+        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MemberNoteService>());
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageTrackingService>());
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageReportService>());
         services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<RuleService>());

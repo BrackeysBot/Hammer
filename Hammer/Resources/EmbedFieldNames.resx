@@ -4,7 +4,7 @@
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                 xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
         <xsd:element name="root" msdata:IsDataSet="true">
-            
+
         </xsd:element>
     </xsd:schema>
     <resheader name="resmimetype">
@@ -35,6 +35,9 @@
     <data name="Content" xml:space="preserve">
         <value>__Content__</value>
     </data>
+    <data name="CreationTime" xml:space="preserve">
+        <value>__Creation Time__</value>
+    </data>
     <data name="Duration" xml:space="preserve">
         <value>__Duration__</value>
     </data>
@@ -43,6 +46,9 @@
     </data>
     <data name="MessageID" xml:space="preserve">
         <value>__Message ID__</value>
+    </data>
+    <data name="NoteID" xml:space="preserve">
+        <value>__Note ID__</value>
     </data>
     <data name="MessageTime" xml:space="preserve">
         <value>__Message Time__</value>
@@ -58,5 +64,8 @@
     </data>
     <data name="TotalInfractions" xml:space="preserve">
         <value>__Total Infractions__</value>
+    </data>
+    <data name="User" xml:space="preserve">
+        <value>__User__</value>
     </data>
 </root>
