@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -42,10 +42,10 @@
         <value>No note with the ID {id} could be found.</value>
     </data>
     <data name="NotAStaffMember" xml:space="preserve">
-        {user.UsernameWithDiscriminator} is not a staff member of {guild.Name}.
+        <value>{user.UsernameWithDiscriminator} is not a staff member of {guild.Name}.</value>
     </data>
     <data name="StaffIsHigherLevel" xml:space="preserve">
-        {higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}.
+        <value>{higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}.</value>
     </data>
     <data name="StaffMemberGuildMismatch" xml:space="preserve">
         <value>The specified staff member do not belong to the specified guild.</value>

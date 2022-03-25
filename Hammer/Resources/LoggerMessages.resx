@@ -42,7 +42,7 @@
         <value>{user} was muted by {staffMember} in {guild}</value>
     </data>
     <data name="MessageDeleted" xml:space="preserve">
-        {message} in channel {message.Channel} was deleted by {staffMember}
+        <value>{message} in channel {message.Channel} was deleted by {staffMember}</value>
     </data>
     <data name="MessageReportBlocked" xml:space="preserve">
         <value>{user} reported a message, but is blocked from doing so</value>
