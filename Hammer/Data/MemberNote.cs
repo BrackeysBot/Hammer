@@ -12,6 +12,35 @@ public sealed class MemberNote : IEquatable<MemberNote>
     ///     Initializes a new instance of the <see cref="MemberNote" /> class.
     /// </summary>
     /// <param name="type">The note type.</param>
+    /// <param name="targetUserId">The user to which this note applies.</param>
+    /// <param name="authorId">The author of the note.</param>
+    /// <param name="guildId">The guild in which this note was created.</param>
+    /// <param name="content">The content of the note.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     <paramref name="type" /> is not a value defined in <see cref="MemberNoteType" />.
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="content" /> is <see langword="null" />, empty, or consists of only whitespace..</para>
+    /// </exception>
+    public MemberNote(MemberNoteType type, ulong targetUserId, ulong authorId, ulong guildId, string content)
+    {
+        string? trimmedContent = content?.Trim();
+
+        if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
+        if (string.IsNullOrWhiteSpace(trimmedContent)) throw new ArgumentNullException(nameof(content));
+
+        Type = type;
+        UserId = targetUserId;
+        AuthorId = authorId;
+        GuildId = guildId;
+        Content = trimmedContent;
+        CreationTimestamp = DateTimeOffset.UtcNow;
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MemberNote" /> class.
+    /// </summary>
+    /// <param name="type">The note type.</param>
     /// <param name="targetUser">The user to which this note applies.</param>
     /// <param name="author">The author of the note.</param>
     /// <param name="guild">The guild in which this note was created.</param>
@@ -60,7 +89,7 @@ public sealed class MemberNote : IEquatable<MemberNote>
     ///     Gets the ID of the guild in which this note was created.
     /// </summary>
     /// <value>The guild ID.</value>
-    public string Content { get; private set; } = string.Empty;
+    public string Content { get; internal set; } = string.Empty;
 
     /// <summary>
     ///     Gets the date and time at which this note was created.
@@ -84,7 +113,7 @@ public sealed class MemberNote : IEquatable<MemberNote>
     ///     Gets the type of this note.
     /// </summary>
     /// <value>The type of this note.</value>
-    public MemberNoteType Type { get; private set; }
+    public MemberNoteType Type { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the user to which this note applies.
@@ -103,7 +132,7 @@ public sealed class MemberNote : IEquatable<MemberNote>
     /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        return ReferenceEquals(this, obj) || obj is MemberNote other && Equals(other);
+        return ReferenceEquals(this, obj) || (obj is MemberNote other && Equals(other));
     }
 
     /// <inheritdoc />

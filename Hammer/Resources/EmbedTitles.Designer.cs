@@ -115,6 +115,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Note Updated.
+        /// </summary>
+        internal static string NoteUpdated {
+            get {
+                return ResourceManager.GetString("NoteUpdated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Not In Guild.
         /// </summary>
         internal static string NotInGuild {

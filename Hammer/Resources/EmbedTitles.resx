@@ -41,6 +41,9 @@
     <data name="NoSuchUser" xml:space="preserve">
         <value>No Such User</value>
     </data>
+    <data name="NoteUpdated" xml:space="preserve">
+        <value>Note Updated</value>
+    </data>
     <data name="NotInGuild" xml:space="preserve">
         <value>Not In Guild</value>
     </data>

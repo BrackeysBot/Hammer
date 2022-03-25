@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -93,6 +93,35 @@ internal sealed class MemberNoteService : BackgroundService
 
         await _corePlugin.LogAsync(guild, embed);
         return note;
+    }
+
+    /// <summary>
+    ///     Modifies a note's content and/or type.
+    /// </summary>
+    /// <param name="id">The ID of the note to modify.</param>
+    /// <param name="content">The new content of the note.</param>
+    /// <param name="type">The new type of the note.</param>
+    /// <exception cref="ArgumentException"><paramref name="id" /> refers to a non-existing note.</exception>
+    public async Task EditNoteAsync(long id, string? content = null, MemberNoteType? type = null)
+    {
+        if (string.IsNullOrWhiteSpace(content) && type is null)
+            return;
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
+        if (note is null)
+            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
+
+        if (!string.IsNullOrWhiteSpace(content))
+            note.Content = content;
+
+        if (type is not null)
+            note.Type = type.Value;
+
+        context.Update(note);
+        await context.SaveChangesAsync();
     }
 
     /// <summary>
