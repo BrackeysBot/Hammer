@@ -21,64 +21,64 @@ internal sealed class HammerContext : DbContext
     }
 
     /// <summary>
-    ///     Gets or sets the set of users who are blocked from making reports.
+    ///     Gets the set of users who are blocked from making reports.
     /// </summary>
     /// <value>The set of blocked reporters.</value>
-    public DbSet<BlockedReporter> BlockedReporters { get; set; } = null!; // assigned when context is created
+    public DbSet<BlockedReporter> BlockedReporters { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of infractions.
+    ///     Gets the set of infractions.
     /// </summary>
     /// <value>The set of infractions.</value>
-    public DbSet<Infraction> Infractions { get; set; } = null!; // assigned when context is created
+    public DbSet<Infraction> Infractions { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of join/leave events for a tracked user.
+    ///     Gets the set of join/leave events for a tracked user.
     /// </summary>
     /// <value>The set of join/leave events.</value>
-    public DbSet<TrackedJoinLeave> JoinLeaves { get; set; } = null!; // assigned when context is created
+    public DbSet<TrackedJoinLeave> JoinLeaves { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
     ///     Gets the set of member notes.
     /// </summary>
     /// <value>The set of member notes.</value>
-    public DbSet<MemberNote> MemberNotes { get; } = null!; // assigned when context is created
+    public DbSet<MemberNote> MemberNotes { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of message edits.
+    ///     Gets the set of message edits.
     /// </summary>
     /// <value>The set of message edits.</value>
-    public DbSet<MessageEdit> MessageEdits { get; set; } = null!; // assigned when context is created
+    public DbSet<MessageEdit> MessageEdits { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of reported messages.
+    ///     Gets the set of reported messages.
     /// </summary>
     /// <value>The set of reported messages.</value>
-    public DbSet<ReportedMessage> ReportedMessages { get; set; } = null!; // assigned when context is created
+    public DbSet<ReportedMessage> ReportedMessages { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of rules.
+    ///     Gets the set of rules.
     /// </summary>
     /// <value>The set of rules.</value>
-    public DbSet<Rule> Rules { get; set; } = null!; // assigned when context is created
+    public DbSet<Rule> Rules { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of staff messages.
+    ///     Gets the set of staff messages.
     /// </summary>
     /// <value>The set of staff messages.</value>
-    public DbSet<StaffMessage> StaffMessages { get; set; } = null!; // assigned when context is created
+    public DbSet<StaffMessage> StaffMessages { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of tracked messages.
+    ///     Gets the set of tracked messages.
     /// </summary>
     /// <value>The set of tracked messages.</value>
-    public DbSet<TrackedMessage> TrackedMessages { get; set; } = null!; // assigned when context is created
+    public DbSet<TrackedMessage> TrackedMessages { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets or sets the set of tracked users.
+    ///     Gets the set of tracked users.
     /// </summary>
     /// <value>The set of tracked users.</value>
-    public DbSet<TrackedUser> TrackedUsers { get; set; } = null!; // assigned when context is created
+    public DbSet<TrackedUser> TrackedUsers { get; private set; } = null!; // assigned when context is created
 
     /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
