@@ -15,7 +15,7 @@ internal sealed partial class StaffModule
 {
     [Command("editnote")]
     [Description("Modifies a note's content.")]
-    [RequirePermissionLevel(PermissionLevel.Guru)]
+    [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task EditNoteCommandAsync(CommandContext context,
         [Description("The ID of the note to modify.")]
         long noteId,
