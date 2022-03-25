@@ -50,6 +50,9 @@
     <data name="NoteID" xml:space="preserve">
         <value>__Note ID__</value>
     </data>
+    <data name="NoteType" xml:space="preserve">
+        <value>__Note Type__</value>
+    </data>
     <data name="MessageTime" xml:space="preserve">
         <value>__Message Time__</value>
     </data>

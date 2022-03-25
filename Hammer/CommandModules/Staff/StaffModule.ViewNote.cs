@@ -51,6 +51,8 @@ internal sealed partial class StaffModule
             string timestamp = Formatter.Timestamp(note.CreationTimestamp, TimestampFormat.ShortDateTime);
 
             embed.WithAuthor(user);
+            embed.AddField(EmbedFieldNames.NoteID, note.Id, true);
+            embed.AddField(EmbedFieldNames.NoteType, note.Type.ToString("G"), true);
             embed.AddField(EmbedFieldNames.Author, author.Mention, true);
             embed.AddField(EmbedFieldNames.CreationTime, timestamp, true);
             embed.AddField(EmbedFieldNames.Content, note.Content);

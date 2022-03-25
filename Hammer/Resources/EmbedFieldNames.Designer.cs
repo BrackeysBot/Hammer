@@ -151,6 +151,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Note Type__.
+        /// </summary>
+        internal static string NoteType {
+            get {
+                return ResourceManager.GetString("NoteType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __Reason__.
         /// </summary>
         internal static string Reason {

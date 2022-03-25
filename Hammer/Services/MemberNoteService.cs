@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SmartFormat;
 using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
 
 namespace Hammer.Services;
@@ -87,6 +88,7 @@ internal sealed class MemberNoteService : BackgroundService
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
         embed.WithTitle("Note Created");
         embed.AddField(EmbedFieldNames.NoteID, note.Id, true);
+        embed.AddField(EmbedFieldNames.NoteType, note.Type.ToString("G"), true);
         embed.AddField(EmbedFieldNames.User, user.Mention, true);
         embed.AddField(EmbedFieldNames.Author, author.Mention, true);
         embed.AddField(EmbedFieldNames.Content, note.Content);
