@@ -98,6 +98,24 @@ internal sealed class MemberNoteService : BackgroundService
     }
 
     /// <summary>
+    ///     Deletes the note with a specified ID.
+    /// </summary>
+    /// <param name="id">The ID of the note to delete.</param>
+    /// <exception cref="ArgumentException"><paramref name="id" /> refers to a non-existing note.</exception>
+    public async Task DeleteNoteAsync(long id)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
+        if (note is null)
+            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
+
+        context.Remove(note);
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
     ///     Modifies a note's content and/or type.
     /// </summary>
     /// <param name="id">The ID of the note to modify.</param>
