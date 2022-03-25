@@ -27,9 +27,7 @@ internal sealed partial class StaffModule
         var embed = new DiscordEmbedBuilder();
 
         if (string.IsNullOrWhiteSpace(content))
-        {
             return;
-        }
 
         MemberNote? note = await _memberNoteService.GetNoteAsync(noteId);
 
