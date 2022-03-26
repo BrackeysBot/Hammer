@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -98,6 +98,16 @@ internal sealed class MessageReportService : BackgroundService
     }
 
     /// <summary>
+    ///     Returns the count of reports on a specified message.
+    /// </summary>
+    /// <param name="message">The message whose report count to retrieve.</param>
+    /// <returns>The number of reports made on <paramref name="message" />.</returns>
+    public int GetReportCount(DiscordMessage message)
+    {
+        return _reportedMessages.Count(m => m.MessageId == message.Id);
+    }
+
+    /// <summary>
     ///     Determines if a specified reporter has already
     /// </summary>
     /// <param name="message">The reported message.</param>
@@ -154,8 +164,20 @@ internal sealed class MessageReportService : BackgroundService
 
         Logger.Info(LoggerMessages.MessageReported.FormatSmart(new {user = reporter, message}));
         await CreateNewMessageReportAsync(message, reporter);
+
+        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(message.Channel.Guild);
+        int urgentReportThreshold = guildConfiguration.UrgentReportThreshold;
+        int reportCount = GetReportCount(message);
+
+        StaffNotificationOptions notificationOptions;
+
+        if (reportCount >= urgentReportThreshold)
+            notificationOptions = StaffNotificationOptions.Administrator | StaffNotificationOptions.Moderator;
+        else
+            notificationOptions = StaffNotificationOptions.Here;
+
         await reporter.SendMessageAsync(CreateUserReportEmbed(message, reporter));
-        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), StaffNotificationOptions.Here);
+        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions);
     }
 
     /// <summary>

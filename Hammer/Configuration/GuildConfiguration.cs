@@ -48,4 +48,11 @@ internal sealed class GuildConfiguration
     /// <value>The guild's tertiary color, in 24-bit RGB format.</value>
     [JsonPropertyName("tertiaryColor")]
     public int TertiaryColor { get; set; } = 0xFFE056;
+
+    /// <summary>
+    ///     Gets or sets the threshold before a message report is considered urgent.
+    /// </summary>
+    /// <value>The urgent report threshold.</value>
+    [JsonPropertyName("urgentReportThreshold")]
+    public int UrgentReportThreshold { get; set; } = 5;
 }
