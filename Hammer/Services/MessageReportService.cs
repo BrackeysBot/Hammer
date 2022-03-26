@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -29,6 +29,7 @@ internal sealed class MessageReportService : BackgroundService
     private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
     private readonly ICorePlugin _corePlugin;
+    private readonly DiscordClient _discordClient;
     private readonly MessageTrackingService _messageTrackingService;
     private readonly List<ReportedMessage> _reportedMessages = new();
     private readonly IServiceScopeFactory _scopeFactory;
@@ -36,12 +37,13 @@ internal sealed class MessageReportService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageReportService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin,
+    public MessageReportService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
         ConfigurationService configurationService, MessageTrackingService messageTrackingService)
     {
         _scopeFactory = scopeFactory;
         _configurationService = configurationService;
         _corePlugin = corePlugin;
+        _discordClient = discordClient;
         _messageTrackingService = messageTrackingService;
     }
 
@@ -130,6 +132,9 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="reporter">The member who reported the message.</param>
     public async Task ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
     {
+        message = await message.NormalizeClientAsync(_discordClient);
+        reporter = await reporter.NormalizeClientAsync(_discordClient);
+
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
         {
