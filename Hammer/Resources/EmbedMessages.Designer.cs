@@ -79,6 +79,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified note type {type} is invalid. Please use one of the following types: {validTypes}.
+        /// </summary>
+        internal static string InvalidNoteType {
+            get {
+                return ResourceManager.GetString("InvalidNoteType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
         ///
         ///Please take some time to reflect on the reason for this action, and return when you feel you are ready..

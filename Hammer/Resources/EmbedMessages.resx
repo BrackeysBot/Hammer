@@ -29,6 +29,9 @@
     <data name="DmModMail" xml:space="preserve">
         <value>If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel.</value>
     </data>
+    <data name="InvalidNoteType" xml:space="preserve">
+        <value>The specified note type {type} is invalid. Please use one of the following types: {validTypes}</value>
+    </data>
     <data name="KickDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
 

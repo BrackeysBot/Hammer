@@ -23,6 +23,9 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="InvalidNoteType" xml:space="preserve">
+        <value>Invalid Note Type</value>
+    </data>
     <data name="Message" xml:space="preserve">
         <value>Message</value>
     </data>
@@ -40,6 +43,9 @@
     </data>
     <data name="NoSuchUser" xml:space="preserve">
         <value>No Such User</value>
+    </data>
+    <data name="NoteDeleted" xml:space="preserve">
+        <value>Note Deleted</value>
     </data>
     <data name="NoteUpdated" xml:space="preserve">
         <value>Note Updated</value>

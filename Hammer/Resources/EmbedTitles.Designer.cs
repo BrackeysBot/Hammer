@@ -61,6 +61,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Note Type.
+        /// </summary>
+        internal static string InvalidNoteType {
+            get {
+                return ResourceManager.GetString("InvalidNoteType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Message.
         /// </summary>
         internal static string Message {
@@ -111,6 +120,15 @@ namespace Hammer.Resources {
         internal static string NoSuchUser {
             get {
                 return ResourceManager.GetString("NoSuchUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Note Deleted.
+        /// </summary>
+        internal static string NoteDeleted {
+            get {
+                return ResourceManager.GetString("NoteDeleted", resourceCulture);
             }
         }
         
