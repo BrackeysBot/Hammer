@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using System.ComponentModel.DataAnnotations.Schema;
+using DSharpPlus.Entities;
 using Hammer.API;
 
 namespace Hammer.Data;
@@ -7,64 +8,43 @@ namespace Hammer.Data;
 /// <summary>
 ///     Represents an infraction.
 /// </summary>
-internal class Infraction : IInfraction
+internal sealed class Infraction : IInfraction
 {
-    /// <summary>
-    ///     Gets or sets the time at which this infraction expires.
-    /// </summary>
-    /// <value>The expiration time.</value>
-    public DateTimeOffset? ExpirationTime { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the ID of the infraction.
-    /// </summary>
-    /// <value>The ID of the infraction.</value>
-    public long Id { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the ID fo the guild in which this infraction was issued.
-    /// </summary>
-    /// <value>The guild ID.</value>
-    public ulong GuildId { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the ID of the staff member who issued this infraction.
-    /// </summary>
-    /// <value>The ID of the staff member who issued this infraction.</value>
-    public ulong StaffMemberId { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the reason for the infraction.
-    /// </summary>
-    /// <value>The reason for the infraction.</value>
-    public string? Reason { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the time of the infraction.
-    /// </summary>
-    /// <value>The time of the infraction.</value>
-    public DateTimeOffset IssuedAt { get; set; } = DateTimeOffset.UtcNow;
-
-    /// <summary>
-    ///     Gets or sets the type of the infraction.
-    /// </summary>
-    /// <value>The type of the infraction.</value>
-    public InfractionType Type { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the ID of the user who received this infraction.
-    /// </summary>
-    /// <value>The ID of the user who received this infraction.</value>
-    public ulong UserId { get; set; }
+    /// <inheritdoc />
+    [NotMapped]
+    public DiscordGuild Guild { get; internal set; } = null!;
 
     /// <inheritdoc />
-    public bool Equals(IInfraction? other)
-    {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        if (other is not Infraction infraction) return false;
-        return Id == infraction.Id;
-    }
+    public ulong GuildId { get; internal set; }
+
+    /// <inheritdoc />
+    public long Id { get; internal set; }
+
+    /// <inheritdoc />
+    public bool IsRedacted { get; internal set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset IssuedAt { get; internal set; }
+
+    /// <inheritdoc />
+    public string? Reason { get; internal set; }
+
+    /// <inheritdoc />
+    [NotMapped]
+    public DiscordUser StaffMember { get; internal set; } = null!;
+
+    /// <inheritdoc />
+    public ulong StaffMemberId { get; internal set; }
+
+    /// <inheritdoc />
+    public InfractionType Type { get; internal set; }
+
+    /// <inheritdoc />
+    [NotMapped]
+    public DiscordUser User { get; internal set; } = null!;
+
+    /// <inheritdoc />
+    public ulong UserId { get; internal set; }
 
     /// <inheritdoc />
     public int CompareTo(IInfraction? other)
@@ -74,17 +54,43 @@ internal class Infraction : IInfraction
     }
 
     /// <inheritdoc />
+    public bool Equals(IInfraction? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id.Equals(other.Id);
+    }
+
+    /// <inheritdoc />
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
         return obj is IInfraction other && Equals(other);
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         return Id.GetHashCode();
+    }
+
+    public static bool operator ==(Infraction? left, IInfraction? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(Infraction? left, IInfraction? right)
+    {
+        return !Equals(left, right);
+    }
+
+    public static bool operator ==(IInfraction? left, Infraction? right)
+    {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(IInfraction? left, Infraction? right)
+    {
+        return !Equals(left, right);
     }
 }
