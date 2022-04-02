@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
-using DisCatSharp.CommandsNext;
-using DisCatSharp.CommandsNext.Attributes;
-using DisCatSharp.Entities;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Hammer.Data;
 
 namespace Hammer.CommandModules.Rules;

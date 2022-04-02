@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Plugins;
-using DisCatSharp.Entities;
+using DSharpPlus.Entities;
 
 namespace Hammer.API;
 

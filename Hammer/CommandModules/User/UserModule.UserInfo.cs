@@ -1,10 +1,10 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
-using DisCatSharp;
-using DisCatSharp.CommandsNext;
-using DisCatSharp.CommandsNext.Attributes;
-using DisCatSharp.Entities;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
 
 namespace Hammer.CommandModules.User;
@@ -37,8 +37,8 @@ internal sealed partial class UserModule
         embed.WithAuthor(user);
         embed.WithColor(isMember ? member!.Color : 0x2196F3);
         embed.WithThumbnail(user.GetAvatarUrl(ImageFormat.Png));
-        embed.WithTitle($"Information about {user.UsernameWithDiscriminator}");
-        embed.AddField("Username", user.UsernameWithDiscriminator, true);
+        embed.WithTitle($"Information about {user.GetUsernameWithDiscriminator()}");
+        embed.AddField("Username", user.GetUsernameWithDiscriminator(), true);
         embed.AddField("ID", user.Id, true);
         embed.AddField("User Created", Formatter.Timestamp(user.CreationTimestamp, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(isMember, "Join Date", () => Formatter.Timestamp(member!.JoinedAt, TimestampFormat.ShortDateTime), true);

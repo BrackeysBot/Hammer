@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using DisCatSharp.CommandsNext;
+using DSharpPlus.CommandsNext;
 
 namespace Hammer.Conversations;
 

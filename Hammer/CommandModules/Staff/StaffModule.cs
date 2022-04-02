@@ -1,4 +1,4 @@
-using DisCatSharp.CommandsNext;
+using DSharpPlus.CommandsNext;
 using Hammer.Services;
 using NLog;
 

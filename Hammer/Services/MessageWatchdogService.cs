@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using DisCatSharp;
-using DisCatSharp.EventArgs;
+using DSharpPlus;
+using DSharpPlus.EventArgs;
 using Hammer.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

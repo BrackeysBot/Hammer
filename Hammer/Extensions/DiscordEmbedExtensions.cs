@@ -1,5 +1,5 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Hammer.Resources;
 
 namespace Hammer.Extensions;

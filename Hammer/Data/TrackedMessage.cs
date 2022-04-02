@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using DisCatSharp.Entities;
+using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 

@@ -1,8 +1,8 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.EventArgs;
+using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using Hammer.Configuration;
 using Hammer.Resources;
 using Microsoft.Extensions.Hosting;

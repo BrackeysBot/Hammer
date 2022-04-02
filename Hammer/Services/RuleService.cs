@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrackeysBot.Core.API.Extensions;
-using DisCatSharp.Entities;
+using DSharpPlus.Entities;
 using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

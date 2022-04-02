@@ -1,6 +1,6 @@
 ﻿using System;
 using BrackeysBot.API.Configuration;
-using DisCatSharp.Entities;
+using DSharpPlus.Entities;
 using Hammer.Configuration;
 
 namespace Hammer.Services;

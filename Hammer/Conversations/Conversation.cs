@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DisCatSharp;
-using DisCatSharp.CommandsNext;
-using DisCatSharp.Entities;
-using DisCatSharp.Interactivity;
-using DisCatSharp.Interactivity.Extensions;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hammer.Conversations;

@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Attributes;
-using DisCatSharp;
-using DisCatSharp.CommandsNext;
-using DisCatSharp.CommandsNext.Attributes;
-using DisCatSharp.Entities;
+using DSharpPlus;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;

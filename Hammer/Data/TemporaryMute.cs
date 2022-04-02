@@ -1,5 +1,5 @@
 ﻿using System;
-using DisCatSharp.Entities;
+using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 
