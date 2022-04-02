@@ -14,10 +14,10 @@ internal sealed class StaffMessageConfiguration : IEntityTypeConfiguration<Staff
         builder.ToTable("StaffMessages");
         builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Id).HasColumnName("id").HasColumnOrder(1);
-        builder.Property(e => e.GuildId).HasColumnName("guildId").HasColumnOrder(2);
-        builder.Property(e => e.StaffMemberId).HasColumnName("staffMemberId").HasColumnOrder(3);
-        builder.Property(e => e.RecipientId).HasColumnName("recipientId").HasColumnOrder(4);
-        builder.Property(e => e.Content).HasColumnName("content").HasColumnOrder(5);
+        builder.Property(e => e.Id);
+        builder.Property(e => e.GuildId);
+        builder.Property(e => e.StaffMemberId);
+        builder.Property(e => e.RecipientId);
+        builder.Property(e => e.Content);
     }
 }

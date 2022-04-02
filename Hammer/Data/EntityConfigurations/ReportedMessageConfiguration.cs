@@ -15,16 +15,8 @@ internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedM
         builder.HasKey(e => e.Id);
         builder.HasOne(e => e.Message);
 
-        builder.Property(e => e.Id)
-            .HasColumnName("id")
-            .HasColumnOrder(1);
-
-        builder.Property(e => e.MessageId)
-            .HasColumnName("messageId")
-            .HasColumnOrder(2);
-
-        builder.Property(e => e.ReporterId)
-            .HasColumnName("reporterId")
-            .HasColumnOrder(3);
+        builder.Property(e => e.Id);
+        builder.Property(e => e.MessageId);
+        builder.Property(e => e.ReporterId);
     }
 }

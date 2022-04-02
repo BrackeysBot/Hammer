@@ -15,21 +15,9 @@ internal sealed class BlockedReporterConfiguration : IEntityTypeConfiguration<Bl
         builder.ToTable("BlockedReporters");
         builder.HasKey(e => new {e.UserId, e.GuildId});
 
-        builder.Property(e => e.UserId)
-            .HasColumnName("userId")
-            .HasColumnOrder(1);
-
-        builder.Property(e => e.GuildId)
-            .HasColumnName("guildId")
-            .HasColumnOrder(2);
-
-        builder.Property(e => e.StaffMemberId)
-            .HasColumnName("staffMemberId")
-            .HasColumnOrder(3);
-
-        builder.Property(e => e.BlockedAt)
-            .HasColumnName("blockedAt")
-            .HasColumnOrder(4)
-            .HasConversion<DateTimeOffsetToBytesConverter>();
+        builder.Property(e => e.UserId);
+        builder.Property(e => e.GuildId);
+        builder.Property(e => e.StaffMemberId);
+        builder.Property(e => e.BlockedAt).HasConversion<DateTimeOffsetToBytesConverter>();
     }
 }

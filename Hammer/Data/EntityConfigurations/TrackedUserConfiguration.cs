@@ -15,17 +15,8 @@ internal sealed class TrackedUserConfiguration : IEntityTypeConfiguration<Tracke
         builder.ToTable("TrackedUsers");
         builder.HasKey(e => new {e.GuildId, e.UserId});
 
-        builder.Property(e => e.UserId)
-            .HasColumnName("userId")
-            .HasColumnOrder(1);
-
-        builder.Property(e => e.GuildId)
-            .HasColumnName("guildId")
-            .HasColumnOrder(2);
-
-        builder.Property(e => e.ExpirationTime)
-            .HasColumnName("expirationTime")
-            .HasColumnOrder(3)
-            .HasConversion<DateTimeOffsetToBytesConverter>();
+        builder.Property(e => e.UserId);
+        builder.Property(e => e.GuildId);
+        builder.Property(e => e.ExpirationTime).HasConversion<DateTimeOffsetToBytesConverter>();
     }
 }
