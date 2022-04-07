@@ -44,7 +44,7 @@ internal sealed class UserReactionService : BackgroundService
 
     private async Task DiscordClientOnMessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
     {
-        if (e.Guild is null)
+        if (e.Guild is null || e.User.IsBot)
             return;
 
         ReactionConfiguration reactionConfiguration = _configurationService.GetGuildConfiguration(e.Guild).ReactionConfiguration;
