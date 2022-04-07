@@ -14,4 +14,11 @@ internal sealed class MuteConfiguration
     /// <value>The duration of a gag, in milliseconds.</value>
     [JsonPropertyName("gagDuration")]
     public long GagDuration { get; set; } = (long) TimeSpan.FromMinutes(5).TotalMilliseconds;
+
+    /// <summary>
+    ///     Gets or sets the maximum mute duration for moderators.
+    /// </summary>
+    /// <value>The maximum mute duration.</value>
+    [JsonPropertyName("maxModeratorMuteDuration")]
+    public long MaxModeratorMuteDuration { get; set; } = (long) TimeSpan.FromDays(14).TotalMilliseconds;
 }
