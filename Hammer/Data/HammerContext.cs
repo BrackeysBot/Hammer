@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using DSharpPlus;
 using Hammer.Data.EntityConfigurations;
 using Microsoft.EntityFrameworkCore;
@@ -113,7 +113,7 @@ internal sealed class HammerContext : DbContext
         modelBuilder.ApplyConfiguration(new MemberNoteConfiguration());
         modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
         modelBuilder.ApplyConfiguration(new MuteConfiguration(_discordClient));
-        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new TrackedJoinLeaveConfiguration());

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
+using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 
@@ -9,33 +9,62 @@ namespace Hammer.Data;
 internal sealed class StaffMessage : IEquatable<StaffMessage>
 {
     /// <summary>
+    ///     Initializes a new instance of the <see cref="StaffMessage" /> class.
+    /// </summary>
+    /// <param name="staffMember">The staff member who sent the message.</param>
+    /// <param name="recipient">The community member who received the message.</param>
+    /// <param name="content">The content of the message.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="recipient" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="content" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    public StaffMessage(DiscordMember staffMember, DiscordUser recipient, string content)
+    {
+        StaffMember = staffMember ?? throw new ArgumentNullException(nameof(staffMember));
+        Recipient = recipient ?? throw new ArgumentNullException(nameof(recipient));
+        Content = string.IsNullOrWhiteSpace(content) ? throw new ArgumentNullException(nameof(content)) : content;
+        Guild = staffMember.Guild;
+    }
+
+    private StaffMessage()
+    {
+        Content = string.Empty;
+        Guild = null!;
+        Recipient = null!;
+        StaffMember = null!;
+    }
+
+    /// <summary>
     ///     Gets or sets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    public string Content { get; set; } = string.Empty;
+    public string Content { get; private set; }
 
     /// <summary>
     ///     Gets or sets the ID of the guild from which this message was sent.
     /// </summary>
     /// <value>The guild ID.</value>
-    public ulong GuildId { get; set; }
+    public DiscordGuild Guild { get; private set; }
 
     /// <summary>
     ///     Gets or sets the ID of the message.
     /// </summary>
-    public long Id { get; set; }
+    public long Id { get; private set; }
+
+    /// <summary>
+    ///     Gets the user who is in receipt of this message.
+    /// </summary>
+    /// <value>The message recipient.</value>
+    public DiscordUser Recipient { get; private set; }
 
     /// <summary>
     ///     Gets the user ID of the staff member who sent the message.
     /// </summary>
     /// <value>The staff member's user ID.</value>
-    public ulong StaffMemberId { get; set; }
-
-    /// <summary>
-    ///     Gets the user ID of the user who received the message.
-    /// </summary>
-    /// <value>The target user's user ID.</value>
-    public ulong RecipientId { get; set; }
+    public DiscordUser StaffMember { get; private set; }
 
     /// <inheritdoc />
     public bool Equals(StaffMessage? other)
@@ -52,9 +81,9 @@ internal sealed class StaffMessage : IEquatable<StaffMessage>
     }
 
     /// <inheritdoc />
-    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
         return Id.GetHashCode();
     }
 }
