@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -58,16 +58,6 @@ internal sealed class UserTrackingService : BackgroundService
     }
 
     /// <summary>
-    ///     Returns a value indicating whether the member is currently being tracked.
-    /// </summary>
-    /// <param name="member">The member whose status to retrieve.</param>
-    /// <returns><see langword="true" /> if this member is currently being tracked; otherwise, <see langword="false" />.</returns>
-    public bool IsUserTracked(DiscordMember member)
-    {
-        return IsUserTracked(member, member.Guild);
-    }
-
-    /// <summary>
     ///     Returns a value indicating whether the user is currently being tracked in a specified guild.
     /// </summary>
     /// <param name="user">The user whose status to retrieve.</param>
@@ -78,23 +68,8 @@ internal sealed class UserTrackingService : BackgroundService
         if (!_trackedUsers.TryGetValue(guild, out List<TrackedUser>? trackedUsers))
             return false;
 
-        return trackedUsers.Exists(u =>
-            u.UserId == user.Id && u.GuildId == guild.Id && u.ExpirationTime.HasValue &&
-            u.ExpirationTime.Value > DateTimeOffset.UtcNow);
-    }
-
-    /// <summary>
-    ///     Returns a value indicating whether the user has been tracked at any point in a specified guild.
-    /// </summary>
-    /// <param name="user">The user whose status to retrieve.</param>
-    /// <param name="guild">The guild whose tracked users to search.</param>
-    /// <returns><see langword="true" /> if this user has been tracked in the past; otherwise, <see langword="false" />.</returns>
-    public bool UserHasTrackHistory(DiscordUser user, DiscordGuild guild)
-    {
-        if (!_trackedUsers.TryGetValue(guild, out List<TrackedUser>? trackedUsers))
-            return false;
-
-        return trackedUsers.Exists(u => u.UserId == user.Id && u.GuildId == guild.Id);
+        return trackedUsers.Exists(u => u.User == user && u.Guild == guild &&
+                                        (!u.ExpirationTime.HasValue || u.ExpirationTime.Value > DateTimeOffset.UtcNow));
     }
 
     /// <summary>
@@ -131,15 +106,15 @@ internal sealed class UserTrackingService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        if (UserHasTrackHistory(user, guild))
+        if (await UserHasTrackHistoryAsync(user, guild))
         {
-            trackedUser = await context.TrackedUsers.FirstOrDefaultAsync(u => u.UserId == user.Id && u.GuildId == guild.Id);
-            trackedUser ??= new TrackedUser {UserId = user.Id, GuildId = guild.Id};
+            trackedUser = await context.TrackedUsers.FirstOrDefaultAsync(u => u.User == user && u.Guild == guild);
+            trackedUser ??= new TrackedUser(user, guild, expirationTime);
             trackedUser.ExpirationTime = expirationTime;
         }
         else
         {
-            trackedUser = new TrackedUser {UserId = user.Id, GuildId = guild.Id};
+            trackedUser = new TrackedUser(user, guild, null);
             EntityEntry<TrackedUser> entry = await context.AddAsync(trackedUser);
             trackedUser = entry.Entity;
             trackedUsers.Add(trackedUser);
@@ -168,18 +143,41 @@ internal sealed class UserTrackingService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         TrackedUser? trackedUser =
-            await context.TrackedUsers.FirstOrDefaultAsync(u => u.UserId == user.Id && u.GuildId == guild.Id);
+            await context.TrackedUsers.FirstOrDefaultAsync(u => u.User == user && u.Guild == guild);
 
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         if (trackedUser is not null)
         {
-            trackedUser.ExpirationTime = DateTimeOffset.UtcNow;
-            context.Update(trackedUser);
-            await context.SaveChangesAsync();
-
             _trackedUsers[guild].Remove(trackedUser);
+
+            if (trackedUser.ExpirationTime == null || trackedUser.ExpirationTime.Value >= now)
+            {
+                trackedUser.ExpirationTime = now;
+                context.Update(trackedUser);
+                await context.SaveChangesAsync();
+            }
         }
 
         Logger.Info(LoggerMessages.TrackingDisabledForUser.FormatSmart(new {user, guild}));
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the user has been tracked at any point in a specified guild.
+    /// </summary>
+    /// <param name="user">The user whose status to retrieve.</param>
+    /// <param name="guild">The guild whose tracked users to search.</param>
+    /// <returns><see langword="true" /> if this user has been tracked in the past; otherwise, <see langword="false" />.</returns>
+    public async Task<bool> UserHasTrackHistoryAsync(DiscordUser user, DiscordGuild guild)
+    {
+        if (_trackedUsers.TryGetValue(guild, out List<TrackedUser>? trackedUsers))
+            if (trackedUsers.Exists(u => u.User == user && u.Guild == guild))
+                return true;
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        return await context.JoinLeaves.AnyAsync(e => e.UserId == user.Id && e.GuildId == guild.Id) ||
+               await context.MessageEdits.AnyAsync(e => e.AuthorId == user.Id && e.GuildId == guild.Id) ||
+               await context.TrackedMessages.AnyAsync(m => m.AuthorId == user.Id && m.GuildId == guild.Id);
     }
 
     /// <inheritdoc />
@@ -223,6 +221,7 @@ internal sealed class UserTrackingService : BackgroundService
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
         var untrackCache = new List<(DiscordGuild Guild, DiscordUser User)>();
 
         foreach ((DiscordGuild guild, List<TrackedUser> trackedUsers) in _trackedUsers)
@@ -232,13 +231,10 @@ internal sealed class UserTrackingService : BackgroundService
                 TrackedUser trackedUser = trackedUsers[index];
                 DateTimeOffset? expirationTime = trackedUser.ExpirationTime;
 
-                if (!expirationTime.HasValue)
-                    continue;
-
-                if (expirationTime <= DateTimeOffset.UtcNow)
+                if (expirationTime <= now)
                 {
-                    DiscordUser? user = await _discordClient.GetUserAsync(trackedUser.UserId);
-                    untrackCache.Add((guild, user));
+                    if (trackedUser.User is { } user)
+                        untrackCache.Add((guild, user));
                 }
             }
         }
@@ -303,8 +299,9 @@ internal sealed class UserTrackingService : BackgroundService
         }
 
         trackedUsers.Clear();
-        trackedUsers.AddRange(context.TrackedUsers.Where(u => u.GuildId == guild.Id));
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        trackedUsers.AddRange(context.TrackedUsers.Where(u => u.Guild == guild && u.User != null));
         Logger.Info(LoggerMessages.TrackedUsersRetrieved.FormatSmart(new {count = trackedUsers.Count, guild}));
     }
 }

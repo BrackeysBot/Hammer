@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 
@@ -9,16 +10,29 @@ namespace Hammer.Data;
 internal class TrackedUser : IEquatable<TrackedUser>
 {
     /// <summary>
-    ///     Gets or sets the ID of the guild in which the user is being tracked.
+    ///     Initializes a new instance of the <see cref="TrackedUser" /> class.
     /// </summary>
-    /// <value>The guild ID.</value>
-    public ulong GuildId { get; set; }
+    /// <param name="user">The tracked user.</param>
+    /// <param name="guild">The guild.</param>
+    /// <param name="expirationTime">The tracking expiration time.</param>
+    public TrackedUser(DiscordUser user, DiscordGuild guild, DateTimeOffset? expirationTime)
+    {
+        User = user;
+        Guild = guild;
+        ExpirationTime = expirationTime;
+    }
 
     /// <summary>
-    ///     Gets or sets the ID of the user being tracked.
+    ///     Gets the guild in which the user is being tracked.
     /// </summary>
-    /// <value>The user ID.</value>
-    public ulong UserId { get; set; }
+    /// <value>The guild.</value>
+    public DiscordGuild Guild { get; private set; }
+
+    /// <summary>
+    ///     Gets the user being tracked.
+    /// </summary>
+    /// <value>The tracked user.</value>
+    public DiscordUser User { get; private set; }
 
     /// <summary>
     ///     Gets or sets the time at which this user should no longer be tracked.
@@ -31,7 +45,7 @@ internal class TrackedUser : IEquatable<TrackedUser>
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return GuildId == other.GuildId && UserId == other.UserId;
+        return Guild == other.Guild && User == other.User;
     }
 
     public static bool operator ==(TrackedUser left, TrackedUser right)
@@ -56,6 +70,6 @@ internal class TrackedUser : IEquatable<TrackedUser>
     [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
-        return HashCode.Combine(GuildId, UserId);
+        return HashCode.Combine(Guild, User);
     }
 }
