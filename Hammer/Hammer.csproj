@@ -23,6 +23,76 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Update="Conversations\Setup\EmbedMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>EmbedMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <None Remove="Conversations\Setup\roles.json"/>
+        <EmbeddedResource Update="Resources\ExceptionMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>ExceptionMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\EmbedFieldNames.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>EmbedFieldNames.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\LoggerMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>LoggerMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\EmbedMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>EmbedMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\EmbedTitles.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>EmbedTitles.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\AuditLogReasons.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>AuditLogReasons.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Conversations\Setup\EmbedMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>EmbedMessages.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\ExceptionMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ExceptionMessages.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\EmbedFieldNames.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>EmbedFieldNames.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\LoggerMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>LoggerMessages.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\EmbedMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>EmbedMessages.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\EmbedTitles.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>EmbedTitles.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Resources\AuditLogReasons.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>AuditLogReasons.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Hammer.API\Hammer.API.csproj"/>
     </ItemGroup>
 

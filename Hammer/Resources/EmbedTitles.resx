@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -23,6 +23,12 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="GeneratingTrackLog" xml:space="preserve">
+        <value>Generating log file</value>
+    </data>
+    <data name="InfractionRedacted" xml:space="preserve">
+        <value>Infraction Redacted</value>
+    </data>
     <data name="InvalidNoteType" xml:space="preserve">
         <value>Invalid Note Type</value>
     </data>
@@ -65,10 +71,22 @@
     <data name="UserBlocked" xml:space="preserve">
         <value>Reports Blocked</value>
     </data>
+    <data name="UserGagged" xml:space="preserve">
+        <value>User Gagged</value>
+    </data>
+    <data name="UserHasNoTrackHistory" xml:space="preserve">
+        <value>No Track History</value>
+    </data>
     <data name="UserNotBlocked" xml:space="preserve">
         <value>Not Blocked</value>
     </data>
+    <data name="UserUnmuted" xml:space="preserve">
+        <value>User Unmuted</value>
+    </data>
+    <data name="UserUnbanned" xml:space="preserve">
+        <value>User Unbanned</value>
+    </data>
     <data name="UserUnblocked" xml:space="preserve">
-        <value>Unblocked</value>
+        <value>User Unblocked</value>
     </data>
 </root>

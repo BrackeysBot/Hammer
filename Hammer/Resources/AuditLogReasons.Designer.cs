@@ -22,14 +22,14 @@ namespace Hammer.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class ExceptionMessages {
+    internal class AuditLogReasons {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ExceptionMessages() {
+        internal AuditLogReasons() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Hammer.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Hammer.Resources.ExceptionMessages", typeof(ExceptionMessages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Hammer.Resources.AuditLogReasons", typeof(AuditLogReasons).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,101 +61,92 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot delete non-guild message..
+        ///   Looks up a localized string similar to Banned by {staffMember.Username}#{staffMember.Discriminator}: {reason}.
         /// </summary>
-        internal static string CannotDeleteNonGuildMessage {
+        internal static string BannedUser {
             get {
-                return ResourceManager.GetString("CannotDeleteNonGuildMessage", resourceCulture);
+                return ResourceManager.GetString("BannedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Expiration time cannot be in the past..
+        ///   Looks up a localized string similar to Gagged by {staffMember.Username}#{staffMember.Discriminator}.
         /// </summary>
-        internal static string ExpirationTimeInPast {
+        internal static string GaggedUser {
             get {
-                return ResourceManager.GetString("ExpirationTimeInPast", resourceCulture);
+                return ResourceManager.GetString("GaggedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified guild is invalid..
+        ///   Looks up a localized string similar to Kicked by {staffMember.Username}#{staffMember.Discriminator}: {reason}.
         /// </summary>
-        internal static string InvalidGuild {
+        internal static string KickedUser {
             get {
-                return ResourceManager.GetString("InvalidGuild", resourceCulture);
+                return ResourceManager.GetString("KickedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Message does not appear in the same guild as the staff member..
+        ///   Looks up a localized string similar to Muted by {staffMember.Username}#{staffMember.Discriminator}: {reason}.
         /// </summary>
-        internal static string MessageStaffMemberGuildMismatch {
+        internal static string MutedUser {
             get {
-                return ResourceManager.GetString("MessageStaffMemberGuildMismatch", resourceCulture);
+                return ResourceManager.GetString("MutedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An embed cannot be built for a Gag infraction..
+        ///   Looks up a localized string similar to Temp-Banned by {staffMember.Username}#{staffMember.Discriminator} ({duration}): {reason}.
         /// </summary>
-        internal static string NoEmbedForGag {
+        internal static string TempBannedUser {
             get {
-                return ResourceManager.GetString("NoEmbedForGag", resourceCulture);
+                return ResourceManager.GetString("TempBannedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The duration of an infraction cannot be negative..
+        ///   Looks up a localized string similar to Temp-Muted by {staffMember.Username}#{staffMember.Discriminator} ({duration}): {reason}.
         /// </summary>
-        internal static string NoNegativeDuration {
+        internal static string TempMutedUser {
             get {
-                return ResourceManager.GetString("NoNegativeDuration", resourceCulture);
+                return ResourceManager.GetString("TempMutedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No note with the ID {id} could be found..
+        ///   Looks up a localized string similar to Temporary ban expired..
         /// </summary>
-        internal static string NoSuchNote {
+        internal static string TemporaryBanExpired {
             get {
-                return ResourceManager.GetString("NoSuchNote", resourceCulture);
+                return ResourceManager.GetString("TemporaryBanExpired", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {user.UsernameWithDiscriminator} is not a staff member of {guild.Name}..
+        ///   Looks up a localized string similar to Temporary mute expired..
         /// </summary>
-        internal static string NotAStaffMember {
+        internal static string TemporaryMuteExpired {
             get {
-                return ResourceManager.GetString("NotAStaffMember", resourceCulture);
+                return ResourceManager.GetString("TemporaryMuteExpired", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}..
+        ///   Looks up a localized string similar to Unbanned by {staffMember.Username}#{staffMember.Discriminator}: {reason}.
         /// </summary>
-        internal static string StaffIsHigherLevel {
+        internal static string UnbannedUser {
             get {
-                return ResourceManager.GetString("StaffIsHigherLevel", resourceCulture);
+                return ResourceManager.GetString("UnbannedUser", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified staff member do not belong to the specified guild..
+        ///   Looks up a localized string similar to Unmuted by {staffMember.Username}#{staffMember.Discriminator}: {reason}.
         /// </summary>
-        internal static string StaffMemberGuildMismatch {
+        internal static string UnmutedUser {
             get {
-                return ResourceManager.GetString("StaffMemberGuildMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified staff member and recipient do not belong to the same guild..
-        /// </summary>
-        internal static string StaffMemberRecipientGuildMismatch {
-            get {
-                return ResourceManager.GetString("StaffMemberRecipientGuildMismatch", resourceCulture);
+                return ResourceManager.GetString("UnmutedUser", resourceCulture);
             }
         }
     }

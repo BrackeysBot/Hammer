@@ -26,6 +26,9 @@
     <data name="CannotDeleteNonGuildMessage" xml:space="preserve">
         <value>Cannot delete non-guild message.</value>
     </data>
+    <data name="ExpirationTimeInPast" xml:space="preserve">
+        <value>Expiration time cannot be in the past.</value>
+    </data>
     <data name="InvalidGuild" xml:space="preserve">
         <value>The specified guild is invalid.</value>
     </data>
@@ -42,10 +45,10 @@
         <value>No note with the ID {id} could be found.</value>
     </data>
     <data name="NotAStaffMember" xml:space="preserve">
-        <value>{user.UsernameWithDiscriminator} is not a staff member of {guild.Name}.</value>
+        <value>{user.Username}#{user.Discriminator} is not a staff member of {guild.Name}.</value>
     </data>
     <data name="StaffIsHigherLevel" xml:space="preserve">
-        <value>{higher.UsernameWithDiscriminator} is a higher permission level than {lower.UsernameWithDiscriminator}.</value>
+        <value>{higher.Username}#{higher.Discriminator} is a higher permission level than {lower.Username}#{lower.Discriminator}.</value>
     </data>
     <data name="StaffMemberGuildMismatch" xml:space="preserve">
         <value>The specified staff member do not belong to the specified guild.</value>

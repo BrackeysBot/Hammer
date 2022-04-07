@@ -41,6 +41,12 @@
     <data name="Duration" xml:space="preserve">
         <value>__Duration__</value>
     </data>
+    <data name="ExpirationTime" xml:space="preserve">
+        <value>__Expiration Time__</value>
+    </data>
+    <data name="InfractionID" xml:space="preserve">
+        <value>__Infraction ID__</value>
+    </data>
     <data name="Message" xml:space="preserve">
         <value>__Message__</value>
     </data>
@@ -68,7 +74,13 @@
     <data name="TotalInfractions" xml:space="preserve">
         <value>__Total Infractions__</value>
     </data>
+    <data name="TotalUserInfractions" xml:space="preserve">
+        <value>__Total User Infractions__</value>
+    </data>
     <data name="User" xml:space="preserve">
         <value>__User__</value>
+    </data>
+    <data name="UserID" xml:space="preserve">
+        <value>__User ID__</value>
     </data>
 </root>

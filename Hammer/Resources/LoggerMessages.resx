@@ -41,6 +41,9 @@
     <data name="MemberMuted" xml:space="preserve">
         <value>{user} was muted by {staffMember} in {guild}</value>
     </data>
+    <data name="MemberUnmuted" xml:space="preserve">
+        <value>{user} was unmuted by {staffMember} in {guild}</value>
+    </data>
     <data name="MessageDeleted" xml:space="preserve">
         <value>{message} in channel {message.Channel} was deleted by {staffMember}</value>
     </data>

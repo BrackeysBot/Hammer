@@ -97,6 +97,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {user} was unmuted by {staffMember} in {guild}.
+        /// </summary>
+        internal static string MemberUnmuted {
+            get {
+                return ResourceManager.GetString("MemberUnmuted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {message} in channel {message.Channel} was deleted by {staffMember}.
         /// </summary>
         internal static string MessageDeleted {

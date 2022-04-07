@@ -15,13 +15,6 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     DiscordGuild Guild { get; }
 
     /// <summary>
-    ///     Gets the ID of the guild in which this infraction was issued.
-    /// </summary>
-    /// <value>The guild ID.</value>
-    [CLSCompliant(false)]
-    ulong GuildId { get; }
-
-    /// <summary>
     ///     Gets the ID of this infraction.
     /// </summary>
     /// <value>The infraction ID.</value>
@@ -53,24 +46,10 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     DiscordUser StaffMember { get; }
 
     /// <summary>
-    ///     Gets the ID of the staff member who issued this infraction.
-    /// </summary>
-    /// <value>The staff member's user ID.</value>
-    [CLSCompliant(false)]
-    ulong StaffMemberId { get; }
-
-    /// <summary>
     ///     Gets the type of this infraction.
     /// </summary>
     /// <value>The infraction type.</value>
     InfractionType Type { get; }
-
-    /// <summary>
-    ///     Gets the ID of the user who holds this infraction.
-    /// </summary>
-    /// <value>The user ID.</value>
-    [CLSCompliant(false)]
-    ulong UserId { get; }
 
     /// <summary>
     ///     Gets the user who holds this infraction.

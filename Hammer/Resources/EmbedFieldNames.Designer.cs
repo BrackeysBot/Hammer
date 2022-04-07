@@ -115,6 +115,24 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Expiration Time__.
+        /// </summary>
+        internal static string ExpirationTime {
+            get {
+                return ResourceManager.GetString("ExpirationTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __Infraction ID__.
+        /// </summary>
+        internal static string InfractionID {
+            get {
+                return ResourceManager.GetString("InfractionID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __Message__.
         /// </summary>
         internal static string Message {
@@ -196,11 +214,29 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Total User Infractions__.
+        /// </summary>
+        internal static string TotalUserInfractions {
+            get {
+                return ResourceManager.GetString("TotalUserInfractions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __User__.
         /// </summary>
         internal static string User {
             get {
                 return ResourceManager.GetString("User", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to __User ID__.
+        /// </summary>
+        internal static string UserID {
+            get {
+                return ResourceManager.GetString("UserID", resourceCulture);
             }
         }
     }

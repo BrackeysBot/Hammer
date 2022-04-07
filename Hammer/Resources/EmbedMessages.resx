@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
@@ -28,6 +28,12 @@
     </data>
     <data name="DmModMail" xml:space="preserve">
         <value>If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
+    <data name="GeneratingTrackLog" xml:space="preserve">
+        <value>The interaction history of {user.Mention} is being collected. This may take a few minutes.</value>
+    </data>
+    <data name="InfractionRedacted" xml:space="preserve">
+        <value>{infraction.Type} #{infraction.Id} for {user.Mention} has been redacted.</value>
     </data>
     <data name="InvalidNoteType" xml:space="preserve">
         <value>The specified note type {type} is invalid. Please use one of the following types: {validTypes}</value>
@@ -90,8 +96,14 @@ Failing to follow the rules in future will result in further infractions. Accumu
     <data name="UserBlocked" xml:space="preserve">
         <value>{user.Mention} will no longer be able to make message reports.</value>
     </data>
+    <data name="UserHasNoTrackHistory" xml:space="preserve">
+        <value>{user.Mention} has no tracked interactions.</value>
+    </data>
     <data name="UserNotBlocked" xml:space="preserve">
         <value>{user.Mention} was not previously blocked from reporting messages.</value>
+    </data>
+    <data name="UserUnbanned" xml:space="preserve">
+        <value>{user.Mention} has been unbanned.</value>
     </data>
     <data name="UserUnblocked" xml:space="preserve">
         <value>{user.Mention} has been unblocked. Their message reports will now be acknowledged.</value>

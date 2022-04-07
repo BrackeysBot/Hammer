@@ -28,31 +28,34 @@ namespace Hammer;
 [PluginIntents(DiscordIntents.All)]
 public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 {
+    private BanService _banService = null!;
     private InfractionService _infractionService = null!;
     private MessageDeletionService _messageDeletionService = null!;
+    private MuteService _muteService = null!;
+    private WarningService _warningService = null!;
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _infractionService.BanAsync(user, staffMember, null, null);
+        return await _banService.BanAsync(user, staffMember, null);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _infractionService.BanAsync(user, staffMember, reason, null);
+        return await _banService.BanAsync(user, staffMember, reason);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _infractionService.BanAsync(user, staffMember, null, duration);
+        return await _banService.TemporaryBanAsync(user, staffMember, null, duration);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _infractionService.BanAsync(user, staffMember, reason, duration);
+        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration);
     }
 
     /// <inheritdoc />
@@ -100,43 +103,43 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember)
     {
-        return await _infractionService.KickAsync(member, staffMember, null);
+        return await _banService.KickAsync(member, staffMember, null);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason)
     {
-        return await _infractionService.KickAsync(member, staffMember, reason);
+        return await _banService.KickAsync(member, staffMember, reason);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _infractionService.MuteAsync(user, staffMember, null, null);
+        return await _muteService.MuteAsync(user, staffMember, null);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _infractionService.MuteAsync(user, staffMember, reason, null);
+        return await _muteService.MuteAsync(user, staffMember, reason);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _infractionService.MuteAsync(user, staffMember, null, duration);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _infractionService.MuteAsync(user, staffMember, reason, duration);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _infractionService.WarnAsync(user, staffMember, reason);
+        return await _warningService.WarnAsync(user, staffMember, reason);
     }
 
     /// <inheritdoc />
@@ -145,23 +148,19 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         services.AddSingleton(PluginManager.GetPlugin<ICorePlugin>()!);
 
         services.AddSingleton<ConfigurationService>();
-        services.AddSingleton<InfractionService>();
-        services.AddSingleton<MemberNoteService>();
+        services.AddSingleton<MailmanService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
-        services.AddSingleton<MessageReportService>();
-        services.AddSingleton<MessageTrackingService>();
-        services.AddSingleton<RuleService>();
-        services.AddSingleton<UserTrackingService>();
-        services.AddSingleton<UserReactionService>();
+        services.AddSingleton<WarningService>();
 
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<InfractionService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MemberNoteService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageTrackingService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<MessageReportService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<RuleService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<UserTrackingService>());
-        services.AddSingleton<IHostedService>(provider => provider.GetRequiredService<UserReactionService>());
+        services.AddHostedSingleton<BanService>();
+        services.AddHostedSingleton<InfractionService>();
+        services.AddHostedSingleton<MemberNoteService>();
+        services.AddHostedSingleton<MessageTrackingService>();
+        services.AddHostedSingleton<MessageReportService>();
+        services.AddHostedSingleton<MuteService>();
+        services.AddHostedSingleton<RuleService>();
+        services.AddHostedSingleton<UserTrackingService>();
 
         services.AddDbContext<HammerContext>();
     }
@@ -185,6 +184,13 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         commandsNext.RegisterCommands<StaffModule>();
         commandsNext.RegisterCommands<UserModule>();
 
+        commandsNext.RegisterCommands<BanCommandModule>();
+        commandsNext.RegisterCommands<KickCommandModule>();
+        commandsNext.RegisterCommands<MuteCommandModule>();
+        commandsNext.RegisterCommands<UnbanCommandModule>();
+        commandsNext.RegisterCommands<UnmuteCommandModule>();
+        commandsNext.RegisterCommands<WarnCommandModule>();
+
         Logger.Info("Registering InteractivityExtension");
         DiscordClient.UseInteractivity(new InteractivityConfiguration());
 
@@ -193,7 +199,10 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 
     private void FetchServices()
     {
+        _banService = ServiceProvider.GetRequiredService<BanService>();
         _infractionService = ServiceProvider.GetRequiredService<InfractionService>();
         _messageDeletionService = ServiceProvider.GetRequiredService<MessageDeletionService>();
+        _muteService = ServiceProvider.GetRequiredService<MuteService>();
+        _warningService = ServiceProvider.GetRequiredService<WarningService>();
     }
 }
