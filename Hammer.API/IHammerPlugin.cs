@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Plugins;
@@ -164,6 +164,19 @@ public interface IHammerPlugin : IPlugin
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
     IReadOnlyList<IInfraction> GetInfractions(DiscordUser user, DiscordGuild guild);
+
+    /// <summary>
+    ///     Returns a value indicating whether a user is currently muted in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose mute status to check.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <returns><see langword="true" /> if <paramref name="user" /> is muted; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
+    bool IsUserMuted(DiscordUser user, DiscordGuild guild);
 
     /// <summary>
     ///     Kicks a member from the guild.

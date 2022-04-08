@@ -101,6 +101,12 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     }
 
     /// <inheritdoc />
+    public bool IsUserMuted(DiscordUser user, DiscordGuild guild)
+    {
+        return _muteService.IsUserMuted(user, guild);
+    }
+
+    /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember)
     {
         return await _banService.KickAsync(member, staffMember, null);
