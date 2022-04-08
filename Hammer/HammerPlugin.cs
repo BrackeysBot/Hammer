@@ -201,6 +201,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 
         Logger.Info("Registering InteractivityExtension");
         DiscordClient.UseInteractivity(new InteractivityConfiguration());
+        DiscordClient.AutoJoinThreads();
 
         await base.OnLoad();
     }
