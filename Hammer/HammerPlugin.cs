@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.API.Plugins;
 using BrackeysBot.Core.API;
+using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -16,6 +17,7 @@ using Hammer.CommandModules.User;
 using Hammer.Data;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
+using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
 
 namespace Hammer;
 
@@ -202,6 +204,25 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         Logger.Info("Registering InteractivityExtension");
         DiscordClient.UseInteractivity(new InteractivityConfiguration());
         DiscordClient.AutoJoinThreads();
+
+        var corePlugin = ServiceProvider.GetRequiredService<ICorePlugin>();
+        corePlugin.RegisterUserInfoField(builder =>
+        {
+            bool ExecutionCheck(UserInfoFieldContext context)
+            {
+                if (context.Member is not { } member) return false;
+
+                DiscordGuild guild = context.Guild!;
+                if (member != context.TargetMember && member.GetPermissionLevel(guild) < PermissionLevel.Guru)
+                    return false;
+
+                return _infractionService.GetInfractionCount(context.TargetUser, guild) > 0;
+            }
+
+            builder.WithName("Infractions");
+            builder.WithValue(context => _infractionService.GetInfractionCount(context.TargetUser, context.Guild!));
+            builder.WithExecutionFilter(ExecutionCheck);
+        });
 
         await base.OnLoad();
     }
