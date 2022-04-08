@@ -1,14 +1,15 @@
-name: Tagged Release
+name: Publish Nightly
 
 on:
   push:
-    tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
+      - develop
 
 jobs:
-  tagged-release:
-    name: "Tagged Release"
+  nightly:
     runs-on: ubuntu-latest
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
 
     steps:
     - name: Checkout
@@ -25,8 +26,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Publish
-      run: dotnet publish -c Release -r linux-x64 --self-contained true
+    - name: Build
+      run: dotnet build -c Debug
 
     - name: Build NuGet package
       run: |
@@ -38,9 +39,3 @@ jobs:
 
     - name: Push NuGet Package to nuget.org
       run: dotnet nuget push "build/*" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
-
-    - name: Create Release
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
