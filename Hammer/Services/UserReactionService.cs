@@ -1,13 +1,11 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
+using BrackeysBot.API.Extensions;
 using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
-using Hammer.Resources;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using SmartFormat;
 
 namespace Hammer.Services;
 
@@ -44,15 +42,12 @@ internal sealed class UserReactionService : BackgroundService
 
     private async Task DiscordClientOnMessageReactionAdded(DiscordClient sender, MessageReactionAddEventArgs e)
     {
-        if (e.Guild is null || e.User.IsBot)
+        if (e.Guild is not { } guild || e.User.IsBot)
             return;
 
         ReactionConfiguration reactionConfiguration = _configurationService.GetGuildConfiguration(e.Guild).ReactionConfiguration;
         string reaction = e.Emoji.GetDiscordName();
         if (reaction == reactionConfiguration.ReportReaction)
-        {
-            DiscordUser user = e.User;
-            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) user);
-        }
+            await _messageReportService.ReportMessageAsync(e.Message, (await e.User.GetAsMemberAsync(guild))!);
     }
 }
