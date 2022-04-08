@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -52,13 +52,6 @@ internal sealed class UserReactionService : BackgroundService
         if (reaction == reactionConfiguration.ReportReaction)
         {
             DiscordUser user = e.User;
-
-            if (_messageReportService.IsUserBlocked(user, e.Guild))
-            {
-                Logger.Info(LoggerMessages.MessageReportBlocked.FormatSmart(new {user}));
-                return;
-            }
-
             await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) user);
         }
     }

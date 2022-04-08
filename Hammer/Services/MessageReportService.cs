@@ -142,6 +142,12 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="reporter">The member who reported the message.</param>
     public async Task ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
     {
+        if (IsUserBlocked(reporter, reporter.Guild))
+        {
+            Logger.Info(LoggerMessages.MessageReportBlocked.FormatSmart(new {user = reporter}));
+            return;
+        }
+        
         message = await message.NormalizeClientAsync(_discordClient);
         reporter = await reporter.NormalizeClientAsync(_discordClient);
 
