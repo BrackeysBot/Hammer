@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BrackeysBot.API.Extensions;
 using BrackeysBot.API.Plugins;
 using BrackeysBot.Core.API;
 using DSharpPlus;
@@ -15,7 +16,6 @@ using Hammer.CommandModules.User;
 using Hammer.Data;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Hammer;
 
