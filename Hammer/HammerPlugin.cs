@@ -22,7 +22,7 @@ namespace Hammer;
 /// <summary>
 ///     Represents a <see cref="BrackeysBot" /> plugin which handles moderation.
 /// </summary>
-[Plugin("Hammer", "1.0.0")]
+[Plugin("Hammer")]
 [PluginDependencies("BrackeysBot.Core")]
 [PluginDescription("A BrackeysBot plugin for managing infractions against misbehaving users.")]
 [PluginIntents(DiscordIntents.All)]
