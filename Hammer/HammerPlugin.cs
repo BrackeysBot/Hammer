@@ -11,6 +11,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Hammer.API;
+using Hammer.CommandModules;
 using Hammer.CommandModules.Rules;
 using Hammer.CommandModules.Staff;
 using Hammer.CommandModules.User;
