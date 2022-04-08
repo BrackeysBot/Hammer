@@ -300,9 +300,22 @@ internal sealed class UserTrackingService : BackgroundService
 
         trackedUsers.Clear();
 
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        trackedUsers.AddRange(context.TrackedUsers.AsEnumerable().Where(u => u.User is not null && u.Guild?.Id == guild.Id));
+        await foreach (TrackedUser trackedUser in context.TrackedUsers)
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (trackedUser.User is null)
+            {
+                context.Entry(trackedUser).State = EntityState.Deleted;
+                continue;
+            }
+
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+            if (trackedUser.Guild?.Id != guild.Id)
+                continue;
+
+            trackedUsers.Add(trackedUser);
+        }
+
         Logger.Info(LoggerMessages.TrackedUsersRetrieved.FormatSmart(new {count = trackedUsers.Count, guild}));
     }
 }
