@@ -118,7 +118,7 @@ internal sealed class HammerContext : DbContext
         modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new TrackedJoinLeaveConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new TrackedUserConfiguration());
+        modelBuilder.ApplyConfiguration(new TrackedUserConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }
 }
