@@ -126,7 +126,7 @@ internal sealed class MessageDeletionService
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return message.Channel.Guild.CreateDefaultEmbed()
+        return message.Channel.Guild.CreateDefaultEmbed(false)
             .WithColor(0xFF0000)
             .WithTitle(EmbedTitles.MessageDeleted)
             .WithDescription(EmbedMessages.MessageDeleted.FormatSmart(new {channel = message.Channel}))
