@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -186,7 +187,7 @@ internal sealed class MessageTrackingService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        IQueryable<TrackedMessage> messages = context.TrackedMessages.Where(m => m.GuildId == guildId);
+        IEnumerable<TrackedMessage> messages = context.TrackedMessages.Where(m => m.GuildId == guildId).AsEnumerable();
 
         foreach (IGrouping<ulong, TrackedMessage> channelGroups in messages.GroupBy(m => m.ChannelId))
         {
@@ -201,11 +202,16 @@ internal sealed class MessageTrackingService : BackgroundService
 
             foreach (TrackedMessage trackedMessage in channelGroups)
             {
-                DiscordMessage message = await channel.GetMessageAsync(trackedMessage.Id);
-                if (message is null)
+                try
+                {
+                    DiscordMessage message = await channel.GetMessageAsync(trackedMessage.Id);
+                    if (message is null) trackedMessage.IsDeleted = true;
+                    else _trackedMessages.Add(trackedMessage);
+                }
+                catch (NotFoundException)
+                {
                     trackedMessage.IsDeleted = true;
-                else
-                    _trackedMessages.Add(trackedMessage);
+                }
             }
 
             context.UpdateRange(channelGroups);
