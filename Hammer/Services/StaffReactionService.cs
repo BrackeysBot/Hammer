@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -59,7 +58,7 @@ internal sealed class StaffReactionService : BackgroundService
         DiscordUser author = message.Author;
         GuildConfiguration configuration = _configurationService.GetGuildConfiguration(guild);
 
-        DiscordMember staffMember = (await e.User.GetAsMemberAsync(guild))!;
+        var staffMember = (DiscordMember) e.User;
         if (!staffMember.IsStaffMember(guild))
             return;
 

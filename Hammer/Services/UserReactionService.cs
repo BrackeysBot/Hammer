@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -48,6 +48,6 @@ internal sealed class UserReactionService : BackgroundService
         ReactionConfiguration reactionConfiguration = _configurationService.GetGuildConfiguration(e.Guild).ReactionConfiguration;
         string reaction = e.Emoji.GetDiscordName();
         if (reaction == reactionConfiguration.ReportReaction)
-            await _messageReportService.ReportMessageAsync(e.Message, (await e.User.GetAsMemberAsync(guild))!);
+            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User);
     }
 }
