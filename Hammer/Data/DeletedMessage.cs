@@ -11,33 +11,10 @@ namespace Hammer.Data;
 internal sealed class DeletedMessage : IEquatable<DeletedMessage>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DeletedMessage" /> class.
-    /// </summary>
-    /// <param name="message">The message which was deleted.</param>
-    /// <param name="staffMember">The staff member responsible for the deletion.</param>
-    public DeletedMessage(DiscordMessage message, DiscordMember staffMember)
-    {
-        Attachments = message.Attachments.Select(a => new Uri(a.Url)).ToArray();
-        AuthorId = message.Author.Id;
-        ChannelId = message.Channel.Id;
-        Content = message.Content;
-        CreationTimestamp = message.CreationTimestamp;
-        DeletionTimestamp = DateTimeOffset.UtcNow;
-        MessageId = message.Id;
-        GuildId = message.Channel.Guild.Id;
-        StaffMemberId = staffMember.Id;
-    }
-
-    private DeletedMessage()
-    {
-        Attachments = ArraySegment<Uri>.Empty;
-    }
-
-    /// <summary>
     ///     Gets the attachments of the deleted message.
     /// </summary>
     /// <value>The attachments.</value>
-    public IReadOnlyList<Uri> Attachments { get; private set; }
+    public IReadOnlyList<Uri> Attachments { get; private set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets the ID of the user who sent the message.
@@ -86,6 +63,27 @@ internal sealed class DeletedMessage : IEquatable<DeletedMessage>
     /// </summary>
     /// <value>The staff member's user ID.</value>
     public ulong StaffMemberId { get; private set; }
+
+    /// <summary>
+    ///     Constructs a new instance of the <see cref="DeletedMessage" /> class.
+    /// </summary>
+    /// <param name="message">The message which was deleted.</param>
+    /// <param name="staffMember">The staff member responsible for the deletion.</param>
+    public static DeletedMessage Create(DiscordMessage message, DiscordMember staffMember)
+    {
+        return new DeletedMessage
+        {
+            Attachments = message.Attachments.Select(a => new Uri(a.Url)).ToArray(),
+            AuthorId = message.Author.Id,
+            ChannelId = message.Channel.Id,
+            Content = message.Content,
+            CreationTimestamp = message.CreationTimestamp,
+            DeletionTimestamp = DateTimeOffset.UtcNow,
+            GuildId = message.Channel.Guild.Id,
+            MessageId = message.Id,
+            StaffMemberId = staffMember.Id
+        };
+    }
 
     /// <inheritdoc />
     public bool Equals(DeletedMessage? other)

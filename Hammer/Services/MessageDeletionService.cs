@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
@@ -93,7 +93,7 @@ internal sealed class MessageDeletionService
 
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
 
-        var deletedMessage = new DeletedMessage(message, staffMember);
+        var deletedMessage = DeletedMessage.Create(message, staffMember);
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         await context.AddAsync(deletedMessage);
