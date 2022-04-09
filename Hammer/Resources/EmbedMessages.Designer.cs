@@ -155,13 +155,21 @@ namespace Hammer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, thank you for your report.
         ///
-        ///The following message has been brought to the attention of staff. If the message is deemed to violate server rules, appropriate action will be taken.
-        ///__No further action is required on your part.__
+        ///The reported message has been brought to the attention of staff. __**No further action is required on your part.**__
         ///If you&apos;d like to discuss this report with staff, please DM ModMail instead of posting about it in a public channel..
         /// </summary>
         internal static string MessageReportFeedback {
             get {
                 return ResourceManager.GetString("MessageReportFeedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reporting this message again will have no impact..
+        /// </summary>
+        internal static string MessageReportNoDuplicates {
+            get {
+                return ResourceManager.GetString("MessageReportNoDuplicates", resourceCulture);
             }
         }
         

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
@@ -8,8 +8,10 @@ using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.SlashCommands;
 using Hammer.API;
 using Hammer.CommandModules;
 using Hammer.CommandModules.Rules;
@@ -204,6 +206,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         Logger.Info("Registering InteractivityExtension");
         DiscordClient.UseInteractivity(new InteractivityConfiguration());
         DiscordClient.AutoJoinThreads();
+        DiscordClient.GuildAvailable += DiscordClientOnGuildAvailable;
 
         var corePlugin = ServiceProvider.GetRequiredService<ICorePlugin>();
         corePlugin.RegisterUserInfoField(builder =>
@@ -234,5 +237,13 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         _messageDeletionService = ServiceProvider.GetRequiredService<MessageDeletionService>();
         _muteService = ServiceProvider.GetRequiredService<MuteService>();
         _warningService = ServiceProvider.GetRequiredService<WarningService>();
+    }
+
+    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    {
+        Logger.Info($"Registering slash commands for {e.Guild}");
+        SlashCommandsExtension slashCommands = sender.GetSlashCommands();
+        slashCommands.RegisterCommands<ReportMessageApplicationCommand>(e.Guild.Id);
+        return slashCommands.RefreshCommands();
     }
 }

@@ -58,9 +58,11 @@ Please take some time to reflect on the reason for this action, and return when 
     <data name="MessageReportFeedback" xml:space="preserve">
         <value>{user.Mention}, thank you for your report.
 
-The following message has been brought to the attention of staff. If the message is deemed to violate server rules, appropriate action will be taken.
-__No further action is required on your part.__
+The reported message has been brought to the attention of staff. __**No further action is required on your part.**__
 If you'd like to discuss this report with staff, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
+    <data name="MessageReportNoDuplicates" xml:space="preserve">
+        <value>Reporting this message again will have no impact.</value>
     </data>
     <data name="MuteDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **indefinitely muted** from **{guild.Name}**.</value>

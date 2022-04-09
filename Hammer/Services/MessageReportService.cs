@@ -140,7 +140,7 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="message">The message to report.</param>
     /// <param name="reporter">The member who reported the message.</param>
-    public async Task ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
+    public async Task<bool> ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
     {
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (reporter is null) throw new ArgumentNullException(nameof(reporter));
@@ -148,10 +148,14 @@ internal sealed class MessageReportService : BackgroundService
         if (IsUserBlocked(reporter, reporter.Guild))
         {
             Logger.Info(LoggerMessages.MessageReportBlocked.FormatSmart(new {user = reporter}));
-            return;
+            return false;
         }
 
-        message = await message.NormalizeClientAsync(_discordClient);
+        if (message.Author is null)
+            message = await message.Channel.GetMessageAsync(message.Id);
+        else
+            message = await message.NormalizeClientAsync(_discordClient);
+
         reporter = await reporter.NormalizeClientAsync(_discordClient);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
@@ -161,14 +165,14 @@ internal sealed class MessageReportService : BackgroundService
 
             // we can stop tracking reports for a message which is deleted
             _reportedMessages.RemoveAll(m => m.MessageId == message.Id);
-            return;
+            return false;
         }
 
         bool duplicateReport = HasUserReportedMessage(message, reporter);
         if (duplicateReport)
         {
             Logger.Info(LoggerMessages.DuplicateMessageReport.FormatSmart(new {user = reporter, message}));
-            return;
+            return false;
         }
 
         Logger.Info(LoggerMessages.MessageReported.FormatSmart(new {user = reporter, message}));
@@ -185,8 +189,8 @@ internal sealed class MessageReportService : BackgroundService
         else
             notificationOptions = StaffNotificationOptions.Here;
 
-        await reporter.SendMessageAsync(CreateUserReportEmbed(message, reporter));
-        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions);
+        _ = _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions);
+        return true;
     }
 
     /// <summary>
@@ -266,24 +270,6 @@ internal sealed class MessageReportService : BackgroundService
             .AddField(EmbedFieldNames.MessageID, Formatter.MaskedUrl(message.Id.ToString(), message.JumpLink), true)
             .AddField(EmbedFieldNames.MessageTime, Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
                 true)
-            .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
-            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
-    }
-
-    private DiscordEmbed CreateUserReportEmbed(DiscordMessage message, DiscordMember member)
-    {
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(member.Guild);
-
-        bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
-        bool hasAttachments = message.Attachments.Count > 0;
-
-        string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
-        string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
-
-        return member.Guild.CreateDefaultEmbed()
-            .WithColor(guildConfiguration.TertiaryColor)
-            .WithTitle(EmbedTitles.MessageReported)
-            .WithDescription(EmbedMessages.MessageReportFeedback.FormatSmart(new {user = member}))
             .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
             .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
     }
