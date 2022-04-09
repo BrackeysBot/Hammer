@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
@@ -85,6 +85,9 @@ internal sealed class MessageDeletionService
                 ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
         }
 
+        if (message.Author.IsBot && message.Interaction is not null)
+            author = await message.Channel.Guild.GetMemberAsync(message.Interaction.User.Id);
+
         if (notifyAuthor)
         {
             DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message);
@@ -106,7 +109,11 @@ internal sealed class MessageDeletionService
 
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)
     {
-        var formatObject = new {user = message.Author, channel = message.Channel};
+        DiscordUser author = message.Author;
+        if (message.Interaction is not null)
+            author = message.Interaction.User;
+        
+        var formatObject = new {user = author, channel = message.Channel};
         string description = EmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
 
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
@@ -137,7 +144,13 @@ internal sealed class MessageDeletionService
             .WithTitle(EmbedTitles.MessageDeleted)
             .WithDescription(EmbedMessages.MessageDeleted.FormatSmart(new {channel = message.Channel}))
             .AddField(EmbedFieldNames.Channel, message.Channel.Mention, true)
-            .AddField(EmbedFieldNames.Author, message.Author.Mention, true)
+            .AddField(EmbedFieldNames.Author, () =>
+            {
+                if (message.Author.IsBot && message.Interaction is not null)
+                    return $"{message.Interaction.User.Mention} via {message.Author.Mention}";
+
+                return message.Author.Mention;
+            }, true)
             .AddField(EmbedFieldNames.StaffMember, staffMember.Mention, true)
             .AddField(EmbedFieldNames.MessageID, message.Id, true)
             .AddField(EmbedFieldNames.MessageTime, Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
