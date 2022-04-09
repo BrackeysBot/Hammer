@@ -100,9 +100,8 @@ internal sealed class MessageDeletionService
         await context.SaveChangesAsync();
 
         Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
-        _ = _corePlugin.LogAsync(guild, staffLogEmbed);
-
         _ = message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}");
+        _ = _corePlugin.LogAsync(guild, staffLogEmbed);
     }
 
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)

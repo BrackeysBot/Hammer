@@ -31,6 +31,12 @@ internal sealed class HammerContext : DbContext
     public DbSet<BlockedReporter> BlockedReporters { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
+    ///     Gets the set of staff-deleted messages.
+    /// </summary>
+    /// <value>The set of staff-deleted messages.</value>
+    public DbSet<DeletedMessage> DeletedMessages { get; private set; } = null!; // assigned when context is created
+
+    /// <summary>
     ///     Gets the set of infractions.
     /// </summary>
     /// <value>The set of infractions.</value>
@@ -91,6 +97,7 @@ internal sealed class HammerContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration());
+        modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new MemberNoteConfiguration());
         modelBuilder.ApplyConfiguration(new MuteConfiguration(_discordClient));
