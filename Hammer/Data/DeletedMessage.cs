@@ -28,6 +28,11 @@ internal sealed class DeletedMessage : IEquatable<DeletedMessage>
         StaffMemberId = staffMember.Id;
     }
 
+    private DeletedMessage()
+    {
+        Attachments = ArraySegment<Uri>.Empty;
+    }
+
     /// <summary>
     ///     Gets the attachments of the deleted message.
     /// </summary>
