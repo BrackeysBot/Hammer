@@ -1,11 +1,9 @@
-using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -20,19 +18,17 @@ internal sealed class StaffReactionService : BackgroundService
     private readonly MessageDeletionService _deletionService;
     private readonly DiscordClient _discordClient;
     private readonly InfractionService _infractionService;
-    private readonly UserTrackingService _userTrackingService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="StaffReactionService" /> class.
     /// </summary>
     public StaffReactionService(DiscordClient discordClient, ConfigurationService configurationService,
-        InfractionService infractionService, MessageDeletionService deletionService, UserTrackingService userTrackingService)
+        InfractionService infractionService, MessageDeletionService deletionService)
     {
         _discordClient = discordClient;
         _configurationService = configurationService;
         _infractionService = infractionService;
         _deletionService = deletionService;
-        _userTrackingService = userTrackingService;
     }
 
     /// <inheritdoc />
@@ -75,11 +71,6 @@ internal sealed class StaffReactionService : BackgroundService
         {
             _ = e.Message.DeleteReactionAsync(emoji, staffMember);
             _ = _deletionService.DeleteMessageAsync(message, staffMember);
-        }
-        else if (reaction == reactionConfiguration.TrackReaction)
-        {
-            _ = e.Message.DeleteReactionAsync(emoji, staffMember);
-            _ = _userTrackingService.TrackUserAsync(author, guild, TimeSpan.FromDays(7));
         }
     }
 }

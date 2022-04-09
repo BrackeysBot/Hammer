@@ -6,8 +6,10 @@ using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
+using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using SmartFormat;
 
@@ -19,19 +21,18 @@ namespace Hammer.Services;
 internal sealed class MessageDeletionService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ICorePlugin _corePlugin;
     private readonly DiscordClient _discordClient;
-    private readonly MessageTrackingService _messageTrackingService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageDeletionService" /> class.
     /// </summary>
-    public MessageDeletionService(ICorePlugin corePlugin, DiscordClient discordClient,
-        MessageTrackingService messageTrackingService)
+    public MessageDeletionService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient)
     {
+        _scopeFactory = scopeFactory;
         _corePlugin = corePlugin;
         _discordClient = discordClient;
-        _messageTrackingService = messageTrackingService;
     }
 
     /// <summary>
@@ -84,18 +85,24 @@ internal sealed class MessageDeletionService
                 ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
         }
 
-        await _messageTrackingService.GetTrackedMessageAsync(message, true);
-        await message.DeleteAsync();
-
-        Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
-        DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
-        await _corePlugin.LogAsync(guild, staffLogEmbed);
-
         if (notifyAuthor)
         {
             DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message);
             await author.SendMessageAsync(toAuthorEmbed);
         }
+
+        DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
+
+        var deletedMessage = new DeletedMessage(message, staffMember);
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await context.AddAsync(deletedMessage);
+        await context.SaveChangesAsync();
+
+        Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
+        _ = _corePlugin.LogAsync(guild, staffLogEmbed);
+
+        _ = message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}");
     }
 
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)

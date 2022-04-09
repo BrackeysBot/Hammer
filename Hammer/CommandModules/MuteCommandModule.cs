@@ -4,7 +4,6 @@ using BrackeysBot.API.Configuration;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Attributes;
-using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;

@@ -37,22 +37,10 @@ internal sealed class HammerContext : DbContext
     public DbSet<Infraction> Infractions { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
-    ///     Gets the set of join/leave events for a tracked user.
-    /// </summary>
-    /// <value>The set of join/leave events.</value>
-    public DbSet<TrackedJoinLeave> JoinLeaves { get; private set; } = null!; // assigned when context is created
-
-    /// <summary>
     ///     Gets the set of member notes.
     /// </summary>
     /// <value>The set of member notes.</value>
     public DbSet<MemberNote> MemberNotes { get; private set; } = null!; // assigned when context is created
-
-    /// <summary>
-    ///     Gets the set of message edits.
-    /// </summary>
-    /// <value>The set of message edits.</value>
-    public DbSet<MessageEdit> MessageEdits { get; private set; } = null!; // assigned when context is created
 
     /// <summary>
     ///     Gets the set of mutes.
@@ -90,12 +78,6 @@ internal sealed class HammerContext : DbContext
     /// <value>The set of tracked messages.</value>
     public DbSet<TrackedMessage> TrackedMessages { get; private set; } = null!; // assigned when context is created
 
-    /// <summary>
-    ///     Gets the set of tracked users.
-    /// </summary>
-    /// <value>The set of tracked users.</value>
-    public DbSet<TrackedUser> TrackedUsers { get; private set; } = null!; // assigned when context is created
-
     /// <inheritdoc />
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -111,14 +93,11 @@ internal sealed class HammerContext : DbContext
         modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new MemberNoteConfiguration());
-        modelBuilder.ApplyConfiguration(new MessageEditConfiguration());
         modelBuilder.ApplyConfiguration(new MuteConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new StaffMessageConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_discordClient));
-        modelBuilder.ApplyConfiguration(new TrackedJoinLeaveConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new TrackedUserConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }
 }

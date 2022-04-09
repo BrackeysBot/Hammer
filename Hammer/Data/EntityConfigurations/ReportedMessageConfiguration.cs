@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hammer.Data.ValueConverters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Hammer.Data.EntityConfigurations;
@@ -11,12 +12,16 @@ internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedM
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<ReportedMessage> builder)
     {
-        builder.ToTable("ReportedMessages");
+        builder.ToTable(nameof(ReportedMessage));
         builder.HasKey(e => e.Id);
-        builder.HasOne(e => e.Message);
 
         builder.Property(e => e.Id);
+        builder.Property(e => e.GuildId);
+        builder.Property(e => e.ChannelId);
         builder.Property(e => e.MessageId);
+        builder.Property(e => e.AuthorId);
         builder.Property(e => e.ReporterId);
+        builder.Property(e => e.Content);
+        builder.Property(e => e.Attachments).HasConversion<UriListToBytesConverter>();
     }
 }

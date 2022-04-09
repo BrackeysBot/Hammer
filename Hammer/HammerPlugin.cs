@@ -170,7 +170,6 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         services.AddHostedSingleton<MuteService>();
         services.AddHostedSingleton<RuleService>();
         services.AddHostedSingleton<StaffReactionService>();
-        services.AddHostedSingleton<UserTrackingService>();
         services.AddHostedSingleton<UserReactionService>();
 
         services.AddDbContext<HammerContext>();

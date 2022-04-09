@@ -7,10 +7,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
-using Humanizer;
 using NLog;
 
 namespace Hammer.CommandModules;

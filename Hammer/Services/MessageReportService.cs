@@ -8,6 +8,7 @@ using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Resources;
@@ -81,20 +82,19 @@ internal sealed class MessageReportService : BackgroundService
     /// <returns>The reported message.</returns>
     public async Task<ReportedMessage> CreateNewMessageReportAsync(DiscordMessage message, DiscordMember reporter)
     {
-        TrackedMessage trackedMessage = await _messageTrackingService.GetTrackedMessageAsync(message);
+        if (message is null) throw new ArgumentNullException(nameof(message));
+        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        EntityEntry<ReportedMessage> entry = await context.AddAsync(new ReportedMessage
-        {
-            MessageId = trackedMessage.Id,
-            ReporterId = reporter.Id
-        });
+        var reportedMessage = new ReportedMessage(message, reporter);
+        EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage);
 
         await context.SaveChangesAsync();
-        ReportedMessage report = entry.Entity;
-        _reportedMessages.Add(report);
-        return report;
+        reportedMessage = entry.Entity;
+        _reportedMessages.Add(reportedMessage);
+        return reportedMessage;
     }
 
     /// <summary>
@@ -142,12 +142,15 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="reporter">The member who reported the message.</param>
     public async Task ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
     {
+        if (message is null) throw new ArgumentNullException(nameof(message));
+        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+
         if (IsUserBlocked(reporter, reporter.Guild))
         {
             Logger.Info(LoggerMessages.MessageReportBlocked.FormatSmart(new {user = reporter}));
             return;
         }
-        
+
         message = await message.NormalizeClientAsync(_discordClient);
         reporter = await reporter.NormalizeClientAsync(_discordClient);
 
@@ -157,7 +160,7 @@ internal sealed class MessageReportService : BackgroundService
             Logger.Warn(LoggerMessages.UserReportedDeletedMessage.FormatSmart(new {reporter, message}));
 
             // we can stop tracking reports for a message which is deleted
-            _reportedMessages.RemoveAll(m => m.Message == message);
+            _reportedMessages.RemoveAll(m => m.MessageId == message.Id);
             return;
         }
 
@@ -222,7 +225,25 @@ internal sealed class MessageReportService : BackgroundService
         _blockedReporters.AddRange(context.BlockedReporters);
 
         _reportedMessages.Clear();
-        _reportedMessages.AddRange(context.ReportedMessages.Include(m => m.Message).Where(m => !m.Message.IsDeleted));
+        await foreach (ReportedMessage reportedMessage in context.ReportedMessages)
+        {
+            if (!_discordClient.Guilds.TryGetValue(reportedMessage.GuildId, out DiscordGuild? guild))
+                continue;
+
+            try
+            {
+                DiscordChannel channel = guild.GetChannel(reportedMessage.ChannelId);
+                await channel.GetMessageAsync(reportedMessage.MessageId);
+
+                _reportedMessages.Add(reportedMessage);
+            }
+            catch (NotFoundException)
+            {
+                context.Entry(reportedMessage).State = EntityState.Deleted;
+            }
+        }
+
+        await context.SaveChangesAsync(stoppingToken);
     }
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)
