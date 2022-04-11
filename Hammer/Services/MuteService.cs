@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -111,6 +111,7 @@ internal sealed class MuteService : BackgroundService
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Mute, user, issuer, options);
+        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = AuditLogReasons.MutedUser.FormatSmart(new {staffMember = issuer, reason});
@@ -135,6 +136,7 @@ internal sealed class MuteService : BackgroundService
         embed.AddField(EmbedFieldNames.User, user.Mention, true);
         embed.AddField(EmbedFieldNames.UserID, user.Id, true);
         embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
+        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         _ = _corePlugin.LogAsync(issuer.Guild, embed);
@@ -243,6 +245,7 @@ internal sealed class MuteService : BackgroundService
 
         Infraction infraction =
             await _infractionService.CreateInfractionAsync(InfractionType.TemporaryMute, user, issuer, options);
+        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = AuditLogReasons.TempMutedUser.FormatSmart(new {staffMember = issuer, reason, duration = duration.Humanize()});
@@ -269,6 +272,7 @@ internal sealed class MuteService : BackgroundService
         embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
         embed.AddField(EmbedFieldNames.ExpirationTime,
             Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
+        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         _ = _corePlugin.LogAsync(guild, embed);

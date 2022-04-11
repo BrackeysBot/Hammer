@@ -77,6 +77,7 @@ internal sealed class BanService : BackgroundService
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Ban, user, issuer, options);
+        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = AuditLogReasons.BannedUser.FormatSmart(new {staffMember = issuer, reason});
@@ -89,6 +90,7 @@ internal sealed class BanService : BackgroundService
         embed.AddField(EmbedFieldNames.User, user.Mention, true);
         embed.AddField(EmbedFieldNames.UserID, user.Id, true);
         embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
+        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         _ = _corePlugin.LogAsync(issuer.Guild, embed);
@@ -242,6 +244,7 @@ internal sealed class BanService : BackgroundService
 
         Infraction infraction =
             await _infractionService.CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options);
+        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = AuditLogReasons.TempBannedUser.FormatSmart(new {staffMember = issuer, reason, duration = duration.Humanize()});
@@ -256,6 +259,7 @@ internal sealed class BanService : BackgroundService
         embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
         embed.AddField(EmbedFieldNames.ExpirationTime,
             Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
+        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         _ = _corePlugin.LogAsync(guild, embed);
