@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -242,7 +242,7 @@ internal sealed class MuteService : BackgroundService
         await CreateTemporaryMuteAsync(user, guild, options.ExpirationTime.Value);
 
         Infraction infraction =
-            await _infractionService.CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options);
+            await _infractionService.CreateInfractionAsync(InfractionType.TemporaryMute, user, issuer, options);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = AuditLogReasons.TempMutedUser.FormatSmart(new {staffMember = issuer, reason, duration = duration.Humanize()});
