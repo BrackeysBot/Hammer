@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
+using BrackeysBot.API.Extensions;
+using BrackeysBot.Core.API;
 using DSharpPlus.Entities;
 using Hammer.API;
 using Hammer.Data;
 using Hammer.Data.Infractions;
 using Hammer.Extensions;
+using Hammer.Resources;
 
 namespace Hammer.Services;
 
@@ -13,13 +16,15 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class WarningService
 {
+    private readonly ICorePlugin _corePlugin;
     private readonly InfractionService _infractionService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="WarningService" /> class.
     /// </summary>
-    public WarningService(InfractionService infractionService)
+    public WarningService(ICorePlugin corePlugin, InfractionService infractionService)
     {
+        _corePlugin = corePlugin;
         _infractionService = infractionService;
     }
 
@@ -27,12 +32,12 @@ internal sealed class WarningService
     ///     Warns a user with the specified reason.
     /// </summary>
     /// <param name="user">The user to warn.</param>
-    /// <param name="staffMember">The staff member who issued the warning.</param>
+    /// <param name="issuer">The staff member who issued the warning.</param>
     /// <param name="reason">The reason for the warning.</param>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.
     /// </exception>
-    public Task<Infraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason)
+    public async Task<Infraction> WarnAsync(DiscordUser user, DiscordMember issuer, string reason)
     {
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentNullException(nameof(reason));
@@ -43,6 +48,21 @@ internal sealed class WarningService
             Reason = reason.AsNullIfWhiteSpace()
         };
 
-        return _infractionService.CreateInfractionAsync(InfractionType.Warning, user, staffMember, options);
+        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options);
+        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
+
+        var embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.Orange);
+        embed.WithAuthor(user);
+        embed.WithTitle("User warned");
+        embed.AddField(EmbedFieldNames.User, user.Mention, true);
+        embed.AddField(EmbedFieldNames.UserID, user.Id, true);
+        embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
+        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
+        embed.WithFooter($"Infraction {infraction.Id}");
+        _ = _corePlugin.LogAsync(issuer.Guild, embed);
+
+        return infraction;
     }
 }
