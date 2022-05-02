@@ -9,44 +9,8 @@ namespace Hammer.Data;
 /// </summary>
 internal sealed class Infraction : IInfraction
 {
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="Infraction" /> class.
-    /// </summary>
-    /// <param name="type">The type of the infraction.</param>
-    /// <param name="user">The user to whom the infraction is issued.</param>
-    /// <param name="guild">The guild in which the infraction is issued.</param>
-    /// <param name="staffMember">The staff member who issued the infraction.</param>
-    /// <param name="issuedAt">The date and time at which the infraction was issued.</param>
-    /// <param name="reason">The reason for the infraction.</param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="type" /> is not a defined <see cref="InfractionType" />.
-    /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
-    ///     -or-
-    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
-    ///     -or-
-    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
-    /// </exception>
-    public Infraction(InfractionType type, DiscordUser user, DiscordGuild guild, DiscordUser staffMember, DateTimeOffset issuedAt,
-        string? reason)
-    {
-        if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
-
-        Guild = guild ?? throw new ArgumentNullException(nameof(guild));
-        IssuedAt = issuedAt;
-        Reason = reason;
-        StaffMember = staffMember ?? throw new ArgumentNullException(nameof(staffMember));
-        Type = type;
-        User = user ?? throw new ArgumentNullException(nameof(user));
-    }
-
-    private Infraction()
-    {
-    }
-
     /// <inheritdoc />
-    public DiscordGuild Guild { get; private set; }
+    public ulong GuildId { get; private set; }
 
     /// <inheritdoc />
     public long Id { get; private set; }
@@ -61,13 +25,54 @@ internal sealed class Infraction : IInfraction
     public string? Reason { get; private set; }
 
     /// <inheritdoc />
-    public DiscordUser StaffMember { get; private set; }
+    public ulong StaffMemberId { get; private set; }
 
     /// <inheritdoc />
     public InfractionType Type { get; private set; }
 
     /// <inheritdoc />
-    public DiscordUser User { get; private set; }
+    public ulong UserId { get; private set; }
+
+    /// <summary>
+    ///     Constructs a new <see cref="Infraction" />.
+    /// </summary>
+    /// <param name="type">The infraction type.</param>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="staffMemberId">The staff member ID.</param>
+    /// <param name="guildId">The ID of the guild in which the infraction was issued.</param>
+    /// <param name="reason">The infraction reason.</param>
+    /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
+    /// <returns></returns>
+    public static Infraction Create(InfractionType type, ulong userId, ulong staffMemberId, ulong guildId, string? reason,
+        DateTimeOffset? issuedAt = null)
+    {
+        return new Infraction
+        {
+            GuildId = guildId,
+            IsRedacted = false,
+            IssuedAt = issuedAt ?? DateTimeOffset.UtcNow,
+            Reason = reason,
+            StaffMemberId = staffMemberId,
+            Type = type,
+            UserId = userId
+        };
+    }
+
+    /// <summary>
+    ///     Constructs a new <see cref="Infraction" />.
+    /// </summary>
+    /// <param name="type">The infraction type.</param>
+    /// <param name="user">The user.</param>
+    /// <param name="staffMember">The staff member.</param>
+    /// <param name="guild">The guild in which the infraction was issued.</param>
+    /// <param name="reason">The infraction reason.</param>
+    /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
+    /// <returns></returns>
+    public static Infraction Create(InfractionType type, DiscordUser user, DiscordUser staffMember, DiscordGuild guild,
+        string? reason, DateTimeOffset? issuedAt = null)
+    {
+        return Create(type, user.Id, staffMember.Id, guild.Id, reason, issuedAt);
+    }
 
     /// <inheritdoc />
     public int CompareTo(IInfraction? other)

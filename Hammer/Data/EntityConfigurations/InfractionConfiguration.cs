@@ -1,5 +1,4 @@
 ﻿using DSharpPlus;
-using Hammer.Data.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -29,9 +28,9 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);
-        builder.Property(e => e.Guild).HasConversion(new DiscordGuildValueConverter(_discordClient));
-        builder.Property(e => e.User).HasConversion(new DiscordUserValueConverter(_discordClient));
-        builder.Property(e => e.StaffMember).HasConversion(new DiscordUserValueConverter(_discordClient));
+        builder.Property(e => e.GuildId);
+        builder.Property(e => e.UserId);
+        builder.Property(e => e.StaffMemberId);
         builder.Property(e => e.Type);
         builder.Property(e => e.IssuedAt).HasConversion<DateTimeOffsetToBytesConverter>();
         builder.Property(e => e.Reason);

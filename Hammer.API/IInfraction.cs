@@ -9,10 +9,10 @@ namespace Hammer.API;
 public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
 {
     /// <summary>
-    ///     Gets the guild in which this infraction was issued.
+    ///     Gets the ID of the guild in which this infraction was issued.
     /// </summary>
-    /// <value>The guild.</value>
-    DiscordGuild Guild { get; }
+    /// <value>The guild ID.</value>
+    ulong GuildId { get; }
 
     /// <summary>
     ///     Gets the ID of this infraction.
@@ -40,10 +40,10 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     string? Reason { get; }
 
     /// <summary>
-    ///     Gets the staff member who issued this infraction.
+    ///     Gets the ID of the staff member who issued this infraction.
     /// </summary>
-    /// <value>The staff member.</value>
-    DiscordUser StaffMember { get; }
+    /// <value>The staff member ID.</value>
+    ulong StaffMemberId { get; }
 
     /// <summary>
     ///     Gets the type of this infraction.
@@ -52,8 +52,8 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     InfractionType Type { get; }
 
     /// <summary>
-    ///     Gets the user who holds this infraction.
+    ///     Gets the ID of the user who holds this infraction.
     /// </summary>
-    /// <value>The user.</value>
-    DiscordUser User { get; }
+    /// <value>The user ID.</value>
+    ulong UserId { get; }
 }

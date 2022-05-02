@@ -98,7 +98,7 @@ internal sealed class InfractionBuilder
         if (_type is null) throw new InvalidOperationException($"{nameof(Type)} is not set!");
         if (_guild is null) throw new InvalidOperationException($"{nameof(Guild)} is not set!");
 
-        return new Infraction(Type, Target, Guild, StaffMember, IssuedAt, Reason);
+        return Infraction.Create(Type, Target, StaffMember, Guild, Reason, IssuedAt);
     }
 
     /// <summary>

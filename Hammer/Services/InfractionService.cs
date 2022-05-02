@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BrackeysBot.API;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using BrackeysBot.Core.API.Extensions;
@@ -34,7 +35,7 @@ namespace Hammer.Services;
 internal sealed class InfractionService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly Dictionary<DiscordGuild, List<Infraction>> _infractionCache = new();
+    private readonly Dictionary<ulong, List<Infraction>> _infractionCache = new();
     private readonly ConfigurationService _configurationService;
     private readonly MailmanService _mailmanService;
     private readonly ICorePlugin _corePlugin;
@@ -70,20 +71,25 @@ internal sealed class InfractionService : BackgroundService
     /// <seealso cref="CreateInfractionAsync" />
     public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild? guild = null)
     {
-        if (guild is not null) guild = await guild.NormalizeClientAsync(_discordClient);
-
-        guild ??= infraction.Guild;
-        if (guild is null) throw new InvalidOperationException(ExceptionMessages.InvalidGuild);
+        if (guild is not null) guild = await guild.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        try
+        {
+            guild ??= await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
+        }
+        catch (NotFoundException)
+        {
+            throw new InvalidOperationException(ExceptionMessages.InvalidGuild);
+        }
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        infraction = (await context.AddAsync(infraction)).Entity;
+        infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
         await context.SaveChangesAsync();
 
-        if (!_infractionCache.TryGetValue(guild, out List<Infraction>? infractions))
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? infractions))
         {
             infractions = new List<Infraction>();
-            _infractionCache.Add(guild, infractions);
+            _infractionCache.Add(guild.Id, infractions);
         }
 
         infractions.Add(infraction);
@@ -161,9 +167,19 @@ internal sealed class InfractionService : BackgroundService
     ///     Creates an infraction embed to send to the staff log channel.
     /// </summary>
     /// <param name="infraction">The infraction to log.</param>
-    public DiscordEmbed CreateInfractionEmbed(Infraction infraction)
+    public async Task<DiscordEmbed> CreateInfractionEmbedAsync(Infraction infraction)
     {
-        int infractionCount = GetInfractionCount(infraction.User, infraction.Guild);
+        DiscordUser? user;
+        try
+        {
+            user = await _discordClient.GetUserAsync(infraction.UserId).ConfigureAwait(false);
+        }
+        catch (NotFoundException)
+        {
+            user = null;
+        }
+
+        int infractionCount = GetInfractionCount(infraction.UserId, infraction.GuildId);
 
         string reason = string.IsNullOrWhiteSpace(infraction.Reason)
             ? Formatter.Italic("<none>")
@@ -171,12 +187,15 @@ internal sealed class InfractionService : BackgroundService
 
         var embedBuilder = new DiscordEmbedBuilder();
         embedBuilder.WithColor(0xFF0000);
-        embedBuilder.WithAuthor(infraction.User);
+
+        if (user is null) embedBuilder.WithAuthor($"User {infraction.UserId}");
+        else embedBuilder.WithAuthor(user);
+
         embedBuilder.WithTitle(infraction.Type.Humanize());
         embedBuilder.AddField(EmbedFieldNames.InfractionID, infraction.Id, true);
-        embedBuilder.AddField(EmbedFieldNames.User, infraction.User.Mention, true);
-        embedBuilder.AddField(EmbedFieldNames.UserID, infraction.User.Id.ToString(), true);
-        embedBuilder.AddField(EmbedFieldNames.StaffMember, infraction.StaffMember.Mention, true);
+        embedBuilder.AddField(EmbedFieldNames.User, MentionUtility.MentionUser(infraction.UserId), true);
+        embedBuilder.AddField(EmbedFieldNames.UserID, infraction.UserId.ToString(), true);
+        embedBuilder.AddField(EmbedFieldNames.StaffMember, MentionUtility.MentionUser(infraction.StaffMemberId), true);
         embedBuilder.AddField(EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embedBuilder.AddField(EmbedFieldNames.Reason, reason);
 
@@ -214,7 +233,7 @@ internal sealed class InfractionService : BackgroundService
             builder.Append($"Punishment: {infraction.Type.Humanize()}");
 
             if (staffRequested)
-                builder.Append($" by {infraction.StaffMember.Mention}");
+                builder.Append($" by {MentionUtility.MentionUser(infraction.StaffMemberId)}");
 
             builder.AppendLine().AppendLine(infraction.Reason);
 
@@ -227,7 +246,7 @@ internal sealed class InfractionService : BackgroundService
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        if (!_infractionCache.TryGetValue(guild, out List<Infraction>? cache))
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             yield break;
 
         foreach (Infraction infraction in cache)
@@ -240,10 +259,10 @@ internal sealed class InfractionService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        if (!_infractionCache.TryGetValue(guild, out List<Infraction>? cache))
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             yield break;
 
-        foreach (Infraction infraction in cache.Where(i => i.User == user))
+        foreach (Infraction infraction in cache.Where(i => i.UserId == user.Id))
             yield return infraction;
     }
 
@@ -319,7 +338,7 @@ internal sealed class InfractionService : BackgroundService
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild, out List<Infraction>? cache)
+        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
             ? cache.Count
             : 0;
     }
@@ -330,8 +349,14 @@ internal sealed class InfractionService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild, out List<Infraction>? cache)
-            ? cache.Count(i => i.User == user)
+        return GetInfractionCount(user.Id, guild.Id);
+    }
+
+    /// <inheritdoc cref="IHammerPlugin.GetInfractionCount(DiscordUser, DiscordGuild)" />
+    public int GetInfractionCount(ulong userId, ulong guildId)
+    {
+        return _infractionCache.TryGetValue(guildId, out List<Infraction>? cache)
+            ? cache.Count(i => i.UserId == userId)
             : 0;
     }
 
@@ -340,7 +365,7 @@ internal sealed class InfractionService : BackgroundService
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild, out List<Infraction>? cache)
+        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
             ? cache.ToArray()
             : ArraySegment<Infraction>.Empty;
     }
@@ -351,8 +376,8 @@ internal sealed class InfractionService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild, out List<Infraction>? cache)
-            ? cache.Where(i => i.User == user).ToArray()
+        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
+            ? cache.Where(i => i.UserId == user.Id).ToArray()
             : ArraySegment<Infraction>.Empty;
     }
 
@@ -389,12 +414,38 @@ internal sealed class InfractionService : BackgroundService
     {
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
-        _infractionCache[infraction.Guild].Remove(infraction);
+        _infractionCache[infraction.GuildId].Remove(infraction);
         infraction.IsRedacted = true;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(infraction);
+        await context.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Redacts a collection of infractions.
+    /// </summary>
+    /// <param name="infractions">The infractions to redact.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="infractions" /> is <see langword="null" />.</exception>
+    public async Task RedactInfractionsAsync(IEnumerable<Infraction> infractions)
+    {
+        if (infractions is null) throw new ArgumentNullException(nameof(infractions));
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (IGrouping<ulong, Infraction> group in infractions.GroupBy(i => i.GuildId))
+        {
+            List<Infraction> list = _infractionCache[group.Key];
+            foreach (Infraction infraction in group)
+            {
+                infraction.IsRedacted = true;
+                context.Update(infraction);
+                list.Remove(infraction);
+            }
+        }
+
         await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
@@ -407,20 +458,19 @@ internal sealed class InfractionService : BackgroundService
 
     private async Task LoadGuildInfractions(DiscordGuild guild)
     {
-        if (!_infractionCache.TryGetValue(guild, out List<Infraction>? cache))
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
         {
             cache = new List<Infraction>();
-            _infractionCache.Add(guild, cache);
+            _infractionCache.Add(guild.Id, cache);
         }
 
         cache.Clear();
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        foreach (Infraction infraction in context.Infractions.AsEnumerable().Where(i => i.Guild == guild))
-        {
-            cache.Add(infraction);
-        }
+        cache.AddRange(context.Infractions.Where(i => i.GuildId == guild.Id));
+
+        Logger.Info($"Retrieved {cache.Count} infractions for {guild}");
     }
 
     private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)

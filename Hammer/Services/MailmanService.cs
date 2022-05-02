@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using DSharpPlus;
@@ -18,13 +18,15 @@ namespace Hammer.Services;
 internal sealed class MailmanService
 {
     private readonly HammerPlugin _hammerPlugin;
+    private readonly DiscordClient _discordClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MailmanService" /> class.
     /// </summary>
-    public MailmanService(HammerPlugin hammerPlugin)
+    public MailmanService(HammerPlugin hammerPlugin, DiscordClient discordClient)
     {
         _hammerPlugin = hammerPlugin;
+        _discordClient = discordClient;
     }
 
     /// <summary>
@@ -65,14 +67,25 @@ internal sealed class MailmanService
         }
     }
 
-    private DiscordEmbed CreatePrivateInfractionEmbed(IInfraction infraction)
+    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(IInfraction infraction)
     {
         if (infraction.Type == InfractionType.Gag)
             throw new ArgumentException(ExceptionMessages.NoEmbedForGag, nameof(infraction));
 
-        DiscordUser user = infraction.User;
-        DiscordGuild guild = infraction.Guild;
-        int infractionCount = _hammerPlugin.GetInfractionCount(user, guild);
+        DiscordUser user;
+        DiscordGuild guild;
+        try
+        {
+            guild = await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
+            user = await guild.GetMemberAsync(infraction.UserId).ConfigureAwait(false);
+        }
+        catch (NotFoundException)
+        {
+            // bots can only DM users who are in the guild, and if the guild is valid
+            return null;
+        }
+
+        int infractionCount = _hammerPlugin.GetInfractionCount(infraction.UserId, infraction.GuildId);
 
         string? description = infraction.Type switch
         {
