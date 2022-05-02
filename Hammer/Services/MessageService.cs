@@ -58,11 +58,11 @@ internal sealed class MessageService
         if (recipient.Guild != staffMember.Guild)
             throw new ArgumentException(ExceptionMessages.StaffMemberRecipientGuildMismatch, nameof(recipient));
 
-        StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message);
+        StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message).ConfigureAwait(false);
 
         Logger.Info(LoggerMessages.StaffMessagedMember.FormatSmart(new
             {staffMember, recipient, guild = staffMember.Guild, message}));
-        await recipient.SendMessageAsync(CreateUserEmbed(staffMessage));
+        await recipient.SendMessageAsync(CreateUserEmbed(staffMessage)).ConfigureAwait(false);
         await _corePlugin.LogAsync(recipient.Guild, CreateStaffLogEmbed(staffMessage));
     }
 
@@ -97,8 +97,9 @@ internal sealed class MessageService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        EntityEntry<StaffMessage> entry = await context.AddAsync(new StaffMessage(staffMember, recipient, message));
-        await context.SaveChangesAsync();
+        EntityEntry<StaffMessage> entry =
+            await context.AddAsync(new StaffMessage(staffMember, recipient, message)).ConfigureAwait(false);
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         return entry.Entity;
     }

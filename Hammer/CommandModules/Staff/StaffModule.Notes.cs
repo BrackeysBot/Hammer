@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
@@ -21,10 +22,9 @@ internal sealed partial class StaffModule
     [Description("Retrieves the notes for a specified user.")]
     [RequirePermissionLevel(PermissionLevel.Guru)]
     public async Task NotesCommandAsync(CommandContext context,
-        [Description("The ID of the user whose notes to retrieve.")]
-        ulong userId)
+        [Description("The ID of the user whose notes to retrieve.")] ulong userId)
     {
-        DiscordUser user = await context.Client.GetUserAsync(userId);
+        DiscordUser user = await context.Client.GetUserAsync(userId).ConfigureAwait(false);
 
         if (user is null)
         {
@@ -32,22 +32,21 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchUser);
             embed.WithDescription(EmbedMessages.NoSuchUser.FormatSmart(new {id = userId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await NotesCommandAsync(context, user);
+        await NotesCommandAsync(context, user).ConfigureAwait(false);
     }
 
     [Command("notes")]
     [Description("Retrieves the notes for a specified user.")]
     [RequirePermissionLevel(PermissionLevel.Guru)]
     public async Task NotesCommandAsync(CommandContext context,
-        [Description("The user whose notes to retrieve.")]
-        DiscordUser user)
+        [Description("The user whose notes to retrieve.")] DiscordUser user)
     {
-        await context.AcknowledgeAsync();
-        await context.TriggerTypingAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
+        await context.TriggerTypingAsync().ConfigureAwait(false);
 
         DiscordEmbedBuilder embed = context.Guild.CreateDefaultEmbed(false);
 
@@ -56,9 +55,10 @@ internal sealed partial class StaffModule
             var builder = new StringBuilder();
 
             // guru can only retrieve guru notes
-            IAsyncEnumerable<MemberNote> notes = context.Member.GetPermissionLevel(context.Guild) >= PermissionLevel.Moderator
-                ? _memberNoteService.GetNotesAsync(user, context.Guild)
-                : _memberNoteService.GetNotesAsync(user, context.Guild, MemberNoteType.Guru);
+            ConfiguredCancelableAsyncEnumerable<MemberNote> notes =
+                context.Member.GetPermissionLevel(context.Guild) >= PermissionLevel.Moderator
+                    ? _memberNoteService.GetNotesAsync(user, context.Guild).ConfigureAwait(false)
+                    : _memberNoteService.GetNotesAsync(user, context.Guild, MemberNoteType.Guru).ConfigureAwait(false);
 
             await foreach (MemberNote note in notes)
             {
@@ -83,6 +83,6 @@ internal sealed partial class StaffModule
             embed.WithFooter("See log for more details.");
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

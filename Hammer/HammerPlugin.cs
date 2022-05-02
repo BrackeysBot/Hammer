@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
@@ -42,25 +42,25 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _banService.BanAsync(user, staffMember, null);
+        return await _banService.BanAsync(user, staffMember, null).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _banService.BanAsync(user, staffMember, reason);
+        return await _banService.BanAsync(user, staffMember, reason).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _banService.TemporaryBanAsync(user, staffMember, null, duration);
+        return await _banService.TemporaryBanAsync(user, staffMember, null, duration).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration);
+        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -114,43 +114,43 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember)
     {
-        return await _banService.KickAsync(member, staffMember, null);
+        return await _banService.KickAsync(member, staffMember, null).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason)
     {
-        return await _banService.KickAsync(member, staffMember, reason);
+        return await _banService.KickAsync(member, staffMember, reason).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _muteService.MuteAsync(user, staffMember, null);
+        return await _muteService.MuteAsync(user, staffMember, null).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _muteService.MuteAsync(user, staffMember, reason);
+        return await _muteService.MuteAsync(user, staffMember, reason).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _warningService.WarnAsync(user, staffMember, reason);
+        return await _warningService.WarnAsync(user, staffMember, reason).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -187,7 +187,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         await using (AsyncServiceScope scope = scopeFactory.CreateAsyncScope())
         {
             await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-            await context.Database.EnsureCreatedAsync();
+            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
         }
 
         Logger.Info("Registering command modules");
@@ -227,7 +227,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
             builder.WithExecutionFilter(ExecutionCheck);
         });
 
-        await base.OnLoad();
+        await base.OnLoad().ConfigureAwait(false);
     }
 
     private void FetchServices()

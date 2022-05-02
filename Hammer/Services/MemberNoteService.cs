@@ -59,8 +59,8 @@ internal sealed class MemberNoteService : BackgroundService
         string? trimmedContent = content?.Trim();
         if (string.IsNullOrWhiteSpace(trimmedContent)) throw new ArgumentNullException(nameof(content));
 
-        user = await user.NormalizeClientAsync(_discordClient);
-        author = await author.NormalizeClientAsync(_discordClient);
+        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        author = await author.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         DiscordGuild guild = author.Guild;
         PermissionLevel permissionLevel = author.GetPermissionLevel(guild);
@@ -79,10 +79,10 @@ internal sealed class MemberNoteService : BackgroundService
         {
             await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-            EntityEntry<MemberNote> result = await context.AddAsync(note);
+            EntityEntry<MemberNote> result = await context.AddAsync(note).ConfigureAwait(false);
             note = result.Entity;
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
         }
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
@@ -107,7 +107,7 @@ internal sealed class MemberNoteService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
         if (note is null)
             throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
 
@@ -130,7 +130,7 @@ internal sealed class MemberNoteService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
         if (note is null)
             throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
 
@@ -157,7 +157,7 @@ internal sealed class MemberNoteService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        return await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
+        return await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ internal sealed class MemberNoteService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id);
+        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -207,7 +207,8 @@ internal sealed class MemberNoteService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id && n.Type == type);
+        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id && n.Type == type)
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -273,6 +274,6 @@ internal sealed class MemberNoteService : BackgroundService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        await context.Database.EnsureCreatedAsync(stoppingToken);
+        await context.Database.EnsureCreatedAsync(stoppingToken).ConfigureAwait(false);
     }
 }

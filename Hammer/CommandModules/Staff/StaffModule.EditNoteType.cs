@@ -23,7 +23,7 @@ internal sealed partial class StaffModule
         [Description("The new type of the note.")] [RemainingText]
         string newType)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
 
@@ -33,27 +33,27 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.InvalidNoteType);
             embed.WithDescription(EmbedMessages.InvalidNoteType.FormatSmart(new {type = newType, validTypes}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId);
+        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId).ConfigureAwait(false);
 
         if (note is null)
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchNote);
             embed.WithDescription(EmbedMessages.NoSuchNote.FormatSmart(new {id = noteId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await _memberNoteService.EditNoteAsync(noteId, type: type);
+        await _memberNoteService.EditNoteAsync(noteId, type: type).ConfigureAwait(false);
         embed.WithTitle(EmbedTitles.NoteUpdated);
         embed.AddField(EmbedFieldNames.NoteID, noteId);
         embed.AddField(EmbedFieldNames.NoteType, type.ToString("G"));
         embed.WithColor(0x4CAF50);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

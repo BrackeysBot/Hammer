@@ -22,9 +22,9 @@ internal sealed partial class StaffModule
         [Description("The ID of the note to retrieve.")]
         long noteId)
     {
-        await context.AcknowledgeAsync();
-        await context.TriggerTypingAsync();
-        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId);
+        await context.AcknowledgeAsync().ConfigureAwait(false);
+        await context.TriggerTypingAsync().ConfigureAwait(false);
+        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId).ConfigureAwait(false);
 
         DiscordGuild guild = context.Guild;
 
@@ -46,8 +46,8 @@ internal sealed partial class StaffModule
         }
         else
         {
-            DiscordUser? author = await context.Client.GetUserAsync(note.AuthorId);
-            DiscordUser? user = await context.Client.GetUserAsync(note.UserId);
+            DiscordUser? author = await context.Client.GetUserAsync(note.AuthorId).ConfigureAwait(false);
+            DiscordUser? user = await context.Client.GetUserAsync(note.UserId).ConfigureAwait(false);
             string timestamp = Formatter.Timestamp(note.CreationTimestamp, TimestampFormat.ShortDateTime);
 
             embed.WithAuthor(user);
@@ -58,6 +58,6 @@ internal sealed partial class StaffModule
             embed.AddField(EmbedFieldNames.Content, note.Content);
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

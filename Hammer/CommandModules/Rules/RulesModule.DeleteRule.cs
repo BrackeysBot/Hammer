@@ -17,7 +17,7 @@ internal sealed partial class RulesModule
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task DeleteRuleCommandAsync(CommandContext context, [Description("The ID of the rule to remove.")] int ruleId)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
         DiscordGuild guild = context.Guild;
 
         if (!_ruleService.GuildHasRule(guild, ruleId))
@@ -26,13 +26,13 @@ internal sealed partial class RulesModule
             return;
         }
 
-        await _ruleService.DeleteRuleAsync(guild, ruleId);
+        await _ruleService.DeleteRuleAsync(guild, ruleId).ConfigureAwait(false);
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
         embed.WithColor(0x4CAF50);
         embed.WithTitle($"Rule {ruleId} deleted");
         embed.WithDescription($"To view the new rules, run `{context.Prefix}rules`");
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

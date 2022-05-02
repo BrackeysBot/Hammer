@@ -37,12 +37,12 @@ internal sealed class UnmuteCommandModule : BaseCommandModule
         [Description("The reason for the mute revocation."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordUser user;
         try
         {
-            user = await context.Client.GetUserAsync(userId);
+            user = await context.Client.GetUserAsync(userId).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -50,13 +50,13 @@ internal sealed class UnmuteCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ No such user");
             embed.WithDescription($"No user with the ID {userId} could be found.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to revoke mute on non-existent user {userId}");
             return;
         }
 
-        await UnmuteCommandAsync(context, user, reason);
+        await UnmuteCommandAsync(context, user, reason).ConfigureAwait(false);
     }
 
     [Command("unmute")]
@@ -66,12 +66,12 @@ internal sealed class UnmuteCommandModule : BaseCommandModule
         [Description("The reason for the mute revocation."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
         {
-            await _muteService.RevokeMuteAsync(user, context.Member!, reason);
+            await _muteService.RevokeMuteAsync(user, context.Member!, reason).ConfigureAwait(false);
 
             embed.WithAuthor(user);
             embed.WithColor(DiscordColor.SpringGreen);
@@ -91,6 +91,6 @@ internal sealed class UnmuteCommandModule : BaseCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        _ = context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

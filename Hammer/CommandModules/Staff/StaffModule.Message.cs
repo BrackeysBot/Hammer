@@ -19,14 +19,14 @@ internal sealed partial class StaffModule
         [Description("The message content.")] [RemainingText]
         string message)
     {
-        DiscordMember member = await context.Guild.GetMemberAsync(memberId);
+        DiscordMember member = await context.Guild.GetMemberAsync(memberId).ConfigureAwait(false);
 
         if (member is null)
         {
             var embed = new DiscordEmbedBuilder();
             embed.WithColor(0xFF0000);
 
-            DiscordUser user = await context.Client.GetUserAsync(memberId);
+            DiscordUser user = await context.Client.GetUserAsync(memberId).ConfigureAwait(false);
             if (user is null)
             {
                 embed.WithTitle(EmbedTitles.NoSuchUser);
@@ -38,11 +38,11 @@ internal sealed partial class StaffModule
                 embed.WithDescription(EmbedMessages.NotInGuild.FormatSmart(new {user}));
             }
 
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await MessageCommandAsync(context, member, message);
+        await MessageCommandAsync(context, member, message).ConfigureAwait(false);
     }
 
     [Command("message")]
@@ -52,7 +52,7 @@ internal sealed partial class StaffModule
         [Description("The message content.")] [RemainingText]
         string message)
     {
-        await context.AcknowledgeAsync();
-        await _messageService.MessageMemberAsync(member, context.Member, message);
+        await context.AcknowledgeAsync().ConfigureAwait(false);
+        await _messageService.MessageMemberAsync(member, context.Member, message).ConfigureAwait(false);
     }
 }

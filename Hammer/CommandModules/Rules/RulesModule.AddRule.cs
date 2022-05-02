@@ -20,16 +20,16 @@ internal sealed partial class RulesModule
         [Description("The new rule context.")] [RemainingText]
         string ruleContent)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordGuild guild = context.Guild;
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
-        Rule rule = await _ruleService.AddRuleAsync(guild, ruleContent);
+        Rule rule = await _ruleService.AddRuleAsync(guild, ruleContent).ConfigureAwait(false);
 
         embed.WithColor(0x4CAF50);
         embed.WithTitle($"Rule #{rule.Id} added");
         embed.WithDescription(rule.Content);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

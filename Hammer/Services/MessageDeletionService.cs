@@ -62,8 +62,8 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
-        message = await message.NormalizeClientAsync(_discordClient);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient);
+        message = await message.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         DiscordGuild guild = message.Channel.Guild;
 
@@ -86,12 +86,12 @@ internal sealed class MessageDeletionService
         }
 
         if (message.Author.IsBot && message.Interaction is not null)
-            author = await message.Channel.Guild.GetMemberAsync(message.Interaction.User.Id);
+            author = await message.Channel.Guild.GetMemberAsync(message.Interaction.User.Id).ConfigureAwait(false);
 
         if (notifyAuthor)
         {
             DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message);
-            await author.SendMessageAsync(toAuthorEmbed);
+            await author.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
         }
 
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
@@ -99,12 +99,12 @@ internal sealed class MessageDeletionService
         var deletedMessage = DeletedMessage.Create(message, staffMember);
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        await context.AddAsync(deletedMessage);
-        await context.SaveChangesAsync();
+        await context.AddAsync(deletedMessage).ConfigureAwait(false);
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
-        _ = message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}");
-        _ = _corePlugin.LogAsync(guild, staffLogEmbed);
+        await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
+        await _corePlugin.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
     }
 
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)

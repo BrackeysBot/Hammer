@@ -22,21 +22,21 @@ internal sealed partial class StaffModule
         [Description("The new content of the note.")] [RemainingText]
         string content)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
 
         if (string.IsNullOrWhiteSpace(content))
             return;
 
-        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId);
+        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId).ConfigureAwait(false);
 
         if (note is null)
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchNote);
             embed.WithDescription(EmbedMessages.NoSuchNote.FormatSmart(new {id = noteId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
@@ -46,6 +46,6 @@ internal sealed partial class StaffModule
         embed.AddField(EmbedFieldNames.Content, content);
         embed.WithColor(0x4CAF50);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

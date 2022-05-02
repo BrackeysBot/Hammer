@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using DSharpPlus;
@@ -40,7 +40,8 @@ internal sealed class MailmanService
         DiscordMember member;
         try
         {
-            member = await infraction.Guild.GetMemberAsync(infraction.User.Id);
+            DiscordGuild guild = await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
+            member = await guild.GetMemberAsync(infraction.UserId).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -50,8 +51,12 @@ internal sealed class MailmanService
 
         try
         {
-            DiscordEmbed embed = CreatePrivateInfractionEmbed(infraction);
-            return await member.SendMessageAsync(embed);
+            DiscordEmbed? embed = await CreatePrivateInfractionEmbedAsync(infraction).ConfigureAwait(false);
+            if (embed is not null)
+                return await member.SendMessageAsync(embed).ConfigureAwait(false);
+
+            // user does not exist, or guild is invalid
+            return null;
         }
         catch (UnauthorizedException)
         {

@@ -38,7 +38,7 @@ internal sealed class KickCommandModule : BaseCommandModule
         [Description("The reason for the kick."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordUser user;
         try
@@ -51,7 +51,7 @@ internal sealed class KickCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ No such user");
             embed.WithDescription($"No user with the ID {userId} could be found.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to kick non-existent user {userId}");
             return;
@@ -67,7 +67,7 @@ internal sealed class KickCommandModule : BaseCommandModule
         [Description("The reason for the kick."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
@@ -93,7 +93,7 @@ internal sealed class KickCommandModule : BaseCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        _ = context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 
     [Command("kick")]
@@ -103,7 +103,7 @@ internal sealed class KickCommandModule : BaseCommandModule
         [Description("The reason for the kick."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordMember member;
         try
@@ -117,7 +117,7 @@ internal sealed class KickCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ Not in guild");
             embed.WithDescription($"The user {user.Mention} is not in this guild.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to kick non-member {user}");
             return;

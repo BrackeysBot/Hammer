@@ -46,10 +46,10 @@ internal sealed class RuleService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         var rule = new Rule {Id = rules.Count + 1, GuildId = guild.Id, Content = ruleContent};
-        EntityEntry<Rule> entry = await context.AddAsync(rule);
+        EntityEntry<Rule> entry = await context.AddAsync(rule).ConfigureAwait(false);
         rules.Add(rule = entry.Entity);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         return rule;
     }
 
@@ -95,10 +95,10 @@ internal sealed class RuleService : BackgroundService
         {
             Rule rule = remainder[index];
             rule.Id = index + 1;
-            await context.AddAsync(rule);
+            await context.AddAsync(rule).ConfigureAwait(false);
         }
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ internal sealed class RuleService : BackgroundService
     {
         if (!GuildHasRule(guild, ruleId)) return;
         Rule rule = GetRuleById(guild, ruleId)!;
-        await SetRuleContentAsync(rule, content);
+        await SetRuleContentAsync(rule, content).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ internal sealed class RuleService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <inheritdoc />

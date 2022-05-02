@@ -98,7 +98,7 @@ internal sealed class MessageTrackingService : BackgroundService
 
         if (trackedMessage is null)
         {
-            trackedMessage = await context.TrackedMessages.FirstOrDefaultAsync(m => m.Id == message.Id);
+            trackedMessage = await context.TrackedMessages.FirstOrDefaultAsync(m => m.Id == message.Id).ConfigureAwait(false);
 
             if (trackedMessage is null)
             {
@@ -106,7 +106,7 @@ internal sealed class MessageTrackingService : BackgroundService
                 trackedMessage.IsDeleted = deleted;
                 if (deleted) trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
 
-                EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage);
+                EntityEntry<TrackedMessage> entry = await context.AddAsync(trackedMessage).ConfigureAwait(false);
                 trackedMessage = entry.Entity;
             }
             else
@@ -127,7 +127,7 @@ internal sealed class MessageTrackingService : BackgroundService
 
         try
         {
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
         }
         catch (Exception exception)
         {
@@ -157,14 +157,14 @@ internal sealed class MessageTrackingService : BackgroundService
         if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked)
             return;
 
-        TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message);
+        TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message).ConfigureAwait(false);
         trackedMessage.IsDeleted = true;
         trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(trackedMessage);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private async Task DiscordClientOnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
@@ -172,13 +172,13 @@ internal sealed class MessageTrackingService : BackgroundService
         if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked)
             return;
 
-        TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message);
+        TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message).ConfigureAwait(false);
         trackedMessage.Content = e.Message.Content;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(trackedMessage);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private async Task RefreshFromDatabaseAsync(DiscordGuild guild)
@@ -204,7 +204,7 @@ internal sealed class MessageTrackingService : BackgroundService
             {
                 try
                 {
-                    DiscordMessage message = await channel.GetMessageAsync(trackedMessage.Id);
+                    DiscordMessage message = await channel.GetMessageAsync(trackedMessage.Id).ConfigureAwait(false);
                     if (message is null) trackedMessage.IsDeleted = true;
                     else _trackedMessages.Add(trackedMessage);
                 }
@@ -217,6 +217,6 @@ internal sealed class MessageTrackingService : BackgroundService
             context.UpdateRange(channelGroups);
         }
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 }

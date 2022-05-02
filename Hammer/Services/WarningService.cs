@@ -53,7 +53,8 @@ internal sealed class WarningService
             Reason = reason.AsNullIfWhiteSpace()
         };
 
-        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options);
+        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
+            .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, guild);
 
         var embed = new DiscordEmbedBuilder();

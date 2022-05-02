@@ -23,13 +23,13 @@ internal sealed class ReportMessageApplicationCommand : ApplicationCommandModule
     }
 
     [ContextMenu(ApplicationCommandType.MessageContextMenu, "🚩 Report Message")]
-    public Task ReportMessageCommandAsync(ContextMenuContext context)
+    public async Task ReportMessageCommandAsync(ContextMenuContext context)
     {
-        _ = context.DeferAsync(true);
+        await context.DeferAsync(true).ConfigureAwait(false);
 
         DiscordUser user = context.User;
         DiscordMessage message = context.Interaction.Data.Resolved.Messages.First().Value;
-        _ = _messageReportService.ReportMessageAsync(message, (DiscordMember) user);
+        await _messageReportService.ReportMessageAsync(message, (DiscordMember) user).ConfigureAwait(false);
 
         var builder = new DiscordWebhookBuilder();
         var embed = new DiscordEmbedBuilder();
@@ -39,8 +39,6 @@ internal sealed class ReportMessageApplicationCommand : ApplicationCommandModule
         embed.WithFooter(EmbedMessages.MessageReportNoDuplicates);
         builder.AddEmbed(embed);
 
-        _ = context.EditResponseAsync(builder);
-
-        return Task.CompletedTask;
+        await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 }

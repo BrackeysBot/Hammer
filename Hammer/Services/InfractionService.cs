@@ -99,8 +99,8 @@ internal sealed class InfractionService : BackgroundService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        await context.AddRangeAsync(infractions);
-        await context.SaveChangesAsync();
+        await context.AddRangeAsync(infractions).ConfigureAwait(false);
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <summary>
@@ -124,8 +124,8 @@ internal sealed class InfractionService : BackgroundService
     public async Task<Infraction> CreateInfractionAsync(InfractionType type, DiscordUser user, DiscordMember staffMember,
         InfractionOptions options)
     {
-        user = await user.NormalizeClientAsync(_discordClient);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient);
+        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         string? reason = options.Reason.AsNullIfWhiteSpace();
 
@@ -143,7 +143,7 @@ internal sealed class InfractionService : BackgroundService
         builder.WithTargetUser(user).WithGuild(guild);
         builder.WithReason(reason).WithStaffMember(staffMember);
 
-        Infraction infraction = await AddInfractionAsync(builder.Build(), guild);
+        Infraction infraction = await AddInfractionAsync(builder.Build(), guild).ConfigureAwait(false);
 
         var logMessageBuilder = new StringBuilder();
         logMessageBuilder.Append($"{type.ToString("G")} issued to {user} by {staffMember} in {guild}. ");
@@ -152,7 +152,7 @@ internal sealed class InfractionService : BackgroundService
         Logger.Info(logMessageBuilder);
 
         if (type != InfractionType.Gag && options.NotifyUser)
-            _ = _mailmanService.SendInfractionAsync(infraction);
+            await _mailmanService.SendInfractionAsync(infraction).ConfigureAwait(false);
 
         return infraction;
     }
@@ -256,8 +256,8 @@ internal sealed class InfractionService : BackgroundService
     /// <returns>The newly-created infraction.</returns>
     public async Task<Infraction> GagAsync(DiscordUser user, DiscordMember staffMember, DiscordMessage? sourceMessage = null)
     {
-        user = await user.NormalizeClientAsync(_discordClient);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient);
+        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         DiscordGuild guild = staffMember.Guild;
         GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
@@ -267,8 +267,8 @@ internal sealed class InfractionService : BackgroundService
 
         try
         {
-            DiscordMember member = await guild.GetMemberAsync(user.Id);
-            _ = member.TimeoutAsync(gagUntil, AuditLogReasons.GaggedUser.FormatSmart(new {staffMember}));
+            DiscordMember member = await guild.GetMemberAsync(user.Id).ConfigureAwait(false);
+            await member.TimeoutAsync(gagUntil, AuditLogReasons.GaggedUser.FormatSmart(new {staffMember})).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -299,7 +299,7 @@ internal sealed class InfractionService : BackgroundService
             embed.AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
         }
 
-        _ = _corePlugin.LogAsync(guild, embed);
+        await _corePlugin.LogAsync(guild, embed).ConfigureAwait(false);
 
         return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false});
     }
@@ -375,8 +375,9 @@ internal sealed class InfractionService : BackgroundService
         if (guild is null) throw new ArgumentNullException(nameof(guild));
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
-        guild = await guild.NormalizeClientAsync(_discordClient);
-        await _corePlugin.LogAsync(guild, CreateInfractionEmbed(infraction), notificationOptions);
+        guild = await guild.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
+        await _corePlugin.LogAsync(guild, embed, notificationOptions).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -394,7 +395,7 @@ internal sealed class InfractionService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         context.Update(infraction);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <inheritdoc />

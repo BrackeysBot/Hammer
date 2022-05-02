@@ -38,12 +38,12 @@ internal sealed class WarnCommandModule : BaseCommandModule
         [Description("The reason for the warning."), RemainingText]
         string reason)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordUser user;
         try
         {
-            user = await context.Client.GetUserAsync(userId);
+            user = await context.Client.GetUserAsync(userId).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -51,13 +51,13 @@ internal sealed class WarnCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ No such user");
             embed.WithDescription($"No user with the ID {userId} could be found.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to warn non-existent user {userId}");
             return;
         }
 
-        await WarnCommandAsync(context, user, reason);
+        await WarnCommandAsync(context, user, reason).ConfigureAwait(false);
     }
 
     [Command("warn")]
@@ -67,12 +67,12 @@ internal sealed class WarnCommandModule : BaseCommandModule
         [Description("The reason for the warning."), RemainingText]
         string reason)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
         {
-            Infraction infraction = await _warningService.WarnAsync(user, context.Member!, reason);
+            Infraction infraction = await _warningService.WarnAsync(user, context.Member!, reason).ConfigureAwait(false);
 
             embed.WithAuthor(user);
             embed.WithColor(DiscordColor.Orange);
@@ -93,6 +93,6 @@ internal sealed class WarnCommandModule : BaseCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        _ = context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

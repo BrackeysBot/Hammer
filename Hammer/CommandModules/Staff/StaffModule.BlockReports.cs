@@ -17,7 +17,7 @@ internal sealed partial class StaffModule
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task BlockReportsCommandAsync(CommandContext context, [Description("The ID of the user to block.")] ulong userId)
     {
-        DiscordUser user = await context.Client.GetUserAsync(userId);
+        DiscordUser user = await context.Client.GetUserAsync(userId).ConfigureAwait(false);
 
         if (user is null)
         {
@@ -25,11 +25,11 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchUser);
             embed.WithDescription(EmbedMessages.NoSuchUser.FormatSmart(new {id = userId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await BlockReportsCommandAsync(context, user);
+        await BlockReportsCommandAsync(context, user).ConfigureAwait(false);
     }
 
     [Command("blockreports")]
@@ -37,7 +37,7 @@ internal sealed partial class StaffModule
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task BlockReportsCommandAsync(CommandContext context, [Description("The user to block.")] DiscordUser user)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordGuild guild = context.Guild;
 
@@ -55,9 +55,9 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.UserBlocked);
             embed.WithDescription(EmbedMessages.UserBlocked.FormatSmart(new {user}));
-            await _reportService.BlockUserAsync(user, context.Member);
+            await _reportService.BlockUserAsync(user, context.Member).ConfigureAwait(false);
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

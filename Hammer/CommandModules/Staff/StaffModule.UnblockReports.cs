@@ -19,7 +19,7 @@ internal sealed partial class StaffModule
         [Description("The ID of the user to unblock.")]
         ulong userId)
     {
-        DiscordUser user = await context.Client.GetUserAsync(userId);
+        DiscordUser user = await context.Client.GetUserAsync(userId).ConfigureAwait(false);
 
         if (user is null)
         {
@@ -27,11 +27,11 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchUser);
             embed.WithDescription(EmbedMessages.NoSuchUser.FormatSmart(new {id = userId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await UnblockReportsCommandAsync(context, user);
+        await UnblockReportsCommandAsync(context, user).ConfigureAwait(false);
     }
 
     [Command("unblockreports")]
@@ -39,7 +39,7 @@ internal sealed partial class StaffModule
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task UnblockReportsCommandAsync(CommandContext context, [Description("The user to unblock.")] DiscordUser user)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordGuild guild = context.Guild;
 
@@ -57,9 +57,9 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.UserUnblocked);
             embed.WithDescription(EmbedMessages.UserUnblocked.FormatSmart(new {user}));
-            await _reportService.UnblockUserAsync(user, guild);
+            await _reportService.UnblockUserAsync(user, guild).ConfigureAwait(false);
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

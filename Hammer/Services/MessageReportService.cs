@@ -68,8 +68,8 @@ internal sealed class MessageReportService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        blockedReporter = (await context.AddAsync(blockedReporter)).Entity;
-        await context.SaveChangesAsync();
+        blockedReporter = (await context.AddAsync(blockedReporter).ConfigureAwait(false)).Entity;
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         _blockedReporters.Add(blockedReporter);
     }
@@ -89,9 +89,9 @@ internal sealed class MessageReportService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         var reportedMessage = new ReportedMessage(message, reporter);
-        EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage);
+        EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage).ConfigureAwait(false);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
         reportedMessage = entry.Entity;
         _reportedMessages.Add(reportedMessage);
         return reportedMessage;
@@ -152,11 +152,11 @@ internal sealed class MessageReportService : BackgroundService
         }
 
         if (message.Author is null)
-            message = await message.Channel.GetMessageAsync(message.Id);
+            message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         else
-            message = await message.NormalizeClientAsync(_discordClient);
+            message = await message.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
-        reporter = await reporter.NormalizeClientAsync(_discordClient);
+        reporter = await reporter.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
@@ -176,7 +176,7 @@ internal sealed class MessageReportService : BackgroundService
         }
 
         Logger.Info(LoggerMessages.MessageReported.FormatSmart(new {user = reporter, message}));
-        await CreateNewMessageReportAsync(message, reporter);
+        await CreateNewMessageReportAsync(message, reporter).ConfigureAwait(false);
 
         GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(message.Channel.Guild);
         int urgentReportThreshold = guildConfiguration.UrgentReportThreshold;
@@ -189,7 +189,8 @@ internal sealed class MessageReportService : BackgroundService
         else
             notificationOptions = StaffNotificationOptions.Here;
 
-        _ = _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions);
+        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions)
+            .ConfigureAwait(false);
         return true;
     }
 
@@ -206,7 +207,8 @@ internal sealed class MessageReportService : BackgroundService
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         BlockedReporter? blockedReporter =
-            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == guild.Id);
+            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == guild.Id)
+                .ConfigureAwait(false);
 
         if (blockedReporter is null)
             Logger.Warn($"Could not unblock {user}: was allegedly blocked, but dind't find BlockedReporter entity!");
@@ -214,7 +216,7 @@ internal sealed class MessageReportService : BackgroundService
         {
             _blockedReporters.Remove(blockedReporter);
             context.Remove(blockedReporter);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
         }
     }
 
@@ -223,7 +225,7 @@ internal sealed class MessageReportService : BackgroundService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        await context.Database.EnsureCreatedAsync(stoppingToken);
+        await context.Database.EnsureCreatedAsync(stoppingToken).ConfigureAwait(false);
 
         _blockedReporters.Clear();
         _blockedReporters.AddRange(context.BlockedReporters);
@@ -237,7 +239,7 @@ internal sealed class MessageReportService : BackgroundService
             try
             {
                 DiscordChannel channel = guild.GetChannel(reportedMessage.ChannelId);
-                await channel.GetMessageAsync(reportedMessage.MessageId);
+                await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
 
                 _reportedMessages.Add(reportedMessage);
             }
@@ -247,7 +249,7 @@ internal sealed class MessageReportService : BackgroundService
             }
         }
 
-        await context.SaveChangesAsync(stoppingToken);
+        await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
     }
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)

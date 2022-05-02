@@ -21,26 +21,26 @@ internal sealed partial class StaffModule
         [Description("The ID of the note to delete.")]
         long noteId)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
-        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId);
+        MemberNote? note = await _memberNoteService.GetNoteAsync(noteId).ConfigureAwait(false);
 
         if (note is null)
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchNote);
             embed.WithDescription(EmbedMessages.NoSuchNote.FormatSmart(new {id = noteId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await _memberNoteService.DeleteNoteAsync(note.Id);
+        await _memberNoteService.DeleteNoteAsync(note.Id).ConfigureAwait(false);
         embed.WithTitle(EmbedTitles.NoteDeleted);
         embed.AddField(EmbedFieldNames.NoteID, note.Id);
         embed.AddField(EmbedFieldNames.Content, note.Content);
         embed.WithColor(0x4CAF50);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

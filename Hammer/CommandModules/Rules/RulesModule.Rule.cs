@@ -15,7 +15,7 @@ internal sealed partial class RulesModule
     [RequireGuild]
     public async Task RuleCommandAsync(CommandContext context, [Description("The ID of the rule to retrieve.")] int ruleId)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
         DiscordGuild guild = context.Guild;
 
         if (!_ruleService.GuildHasRule(guild, ruleId))
@@ -31,6 +31,6 @@ internal sealed partial class RulesModule
         embed.WithTitle(string.IsNullOrWhiteSpace(rule.Brief) ? $"Rule #{rule.Id}" : $"Rule #{rule.Id}. {rule.Brief}");
         embed.WithDescription(rule.Content);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

@@ -21,12 +21,12 @@ internal sealed partial class RulesModule
         [Description("The new rule text")] [RemainingText]
         string ruleContent)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
         DiscordGuild guild = context.Guild;
 
         if (!_ruleService.GuildHasRule(guild, ruleId))
         {
-            await context.RespondAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId));
+            await context.RespondAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId)).ConfigureAwait(false);
             return;
         }
 
@@ -37,6 +37,6 @@ internal sealed partial class RulesModule
         embed.WithTitle($"Rule {ruleId} updated");
         embed.WithDescription(ruleContent);
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

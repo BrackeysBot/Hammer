@@ -48,6 +48,6 @@ internal sealed class UserReactionService : BackgroundService
         ReactionConfiguration reactionConfiguration = _configurationService.GetGuildConfiguration(e.Guild).ReactionConfiguration;
         string reaction = e.Emoji.GetDiscordName();
         if (reaction == reactionConfiguration.ReportReaction)
-            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User);
+            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User).ConfigureAwait(false);
     }
 }

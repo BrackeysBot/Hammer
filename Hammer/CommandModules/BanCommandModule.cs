@@ -41,7 +41,7 @@ internal sealed class BanCommandModule : BaseCommandModule
         [Description("The reason for the ban."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordUser user;
         try
@@ -54,7 +54,7 @@ internal sealed class BanCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ No such user");
             embed.WithDescription($"No user with the ID {userId} could be found.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to ban non-existent user {userId}");
             return;
@@ -72,7 +72,7 @@ internal sealed class BanCommandModule : BaseCommandModule
         [Description("The reason for the ban."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
@@ -98,7 +98,7 @@ internal sealed class BanCommandModule : BaseCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        _ = context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 
     [Command("ban")]
@@ -108,7 +108,7 @@ internal sealed class BanCommandModule : BaseCommandModule
         [Description("The reason for the ban."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         DiscordUser user;
         try
@@ -121,7 +121,7 @@ internal sealed class BanCommandModule : BaseCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ No such user");
             embed.WithDescription($"No user with the ID {userId} could be found.");
-            _ = context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
 
             Logger.Info($"{context.Member} attempted to ban non-existent user {userId}");
             return;
@@ -137,7 +137,7 @@ internal sealed class BanCommandModule : BaseCommandModule
         [Description("The reason for the ban."), RemainingText]
         string? reason = null)
     {
-        _ = context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
@@ -163,6 +163,6 @@ internal sealed class BanCommandModule : BaseCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        _ = context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

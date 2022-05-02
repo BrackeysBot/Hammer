@@ -28,7 +28,7 @@ internal sealed partial class StaffModule
         {
             // RemainingText seems to capture empty arguments too. so if no string is specified,
             // assume we wish to create a new note
-            await ViewNoteCommandAsync(context, (long) userId);
+            await ViewNoteCommandAsync(context, (long) userId).ConfigureAwait(false);
             return;
         }
 
@@ -40,11 +40,11 @@ internal sealed partial class StaffModule
             embed.WithColor(0xFF0000);
             embed.WithTitle(EmbedTitles.NoSuchUser);
             embed.WithDescription(EmbedMessages.NoSuchUser.FormatSmart(new {id = userId}));
-            await context.RespondAsync(embed);
+            await context.RespondAsync(embed).ConfigureAwait(false);
             return;
         }
 
-        await CreateNoteCommandAsync(context, user, content);
+        await CreateNoteCommandAsync(context, user, content).ConfigureAwait(false);
     }
 
     [Command("note")]
@@ -56,14 +56,14 @@ internal sealed partial class StaffModule
         [Description("The content of the note.")] [RemainingText]
         string content)
     {
-        await context.AcknowledgeAsync();
-        await context.TriggerTypingAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
+        await context.TriggerTypingAsync().ConfigureAwait(false);
 
         DiscordEmbedBuilder embed = context.Guild.CreateDefaultEmbed(false);
 
         try
         {
-            MemberNote note = await _memberNoteService.CreateNoteAsync(user, context.Member, content);
+            MemberNote note = await _memberNoteService.CreateNoteAsync(user, context.Member, content).ConfigureAwait(false);
 
             embed.WithColor(0x4CAF50);
             embed.WithTitle("Note Created");
@@ -80,6 +80,6 @@ internal sealed partial class StaffModule
             embed.WithFooter("See log for more details.");
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

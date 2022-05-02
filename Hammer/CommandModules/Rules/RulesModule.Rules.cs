@@ -17,7 +17,7 @@ internal sealed partial class RulesModule
     [RequireGuild]
     public async Task RulesCommandAsync(CommandContext context)
     {
-        await context.AcknowledgeAsync();
+        await context.AcknowledgeAsync().ConfigureAwait(false);
         DiscordGuild guild = context.Guild;
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
 
@@ -40,6 +40,6 @@ internal sealed partial class RulesModule
             }
         }
 
-        await context.RespondAsync(embed);
+        await context.RespondAsync(embed).ConfigureAwait(false);
     }
 }

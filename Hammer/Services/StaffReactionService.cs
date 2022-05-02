@@ -48,7 +48,7 @@ internal sealed class StaffReactionService : BackgroundService
         if (message.Author is null)
         {
             // not cached! fetch new message
-            message = await message.Channel.GetMessageAsync(message.Id);
+            message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         }
 
         DiscordUser author = message.Author;
@@ -64,13 +64,12 @@ internal sealed class StaffReactionService : BackgroundService
 
         if (reaction == reactionConfiguration.GagReaction)
         {
-            _ = e.Message.DeleteReactionAsync(emoji, staffMember);
-            _ = _infractionService.GagAsync(author, staffMember, message);
+            await e.Message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
+            await _infractionService.GagAsync(author, staffMember, message).ConfigureAwait(false);
         }
         else if (reaction == reactionConfiguration.DeleteMessageReaction)
         {
-            _ = e.Message.DeleteReactionAsync(emoji, staffMember);
-            _ = _deletionService.DeleteMessageAsync(message, staffMember);
+            await _deletionService.DeleteMessageAsync(message, staffMember).ConfigureAwait(false);
         }
     }
 }
