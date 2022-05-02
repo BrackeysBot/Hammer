@@ -10,11 +10,18 @@ using NLog;
 
 namespace Hammer.CommandModules;
 
+/// <summary>
+///     Represents a class which implements the <c>warn</c> command.
+/// </summary>
 internal sealed class WarnCommand : ApplicationCommandModule
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly WarningService _warningService;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="WarnCommand" /> class.
+    /// </summary>
+    /// <param name="warningService">The warning service.</param>
     public WarnCommand(WarningService warningService)
     {
         _warningService = warningService;
