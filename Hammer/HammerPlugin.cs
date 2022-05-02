@@ -88,6 +88,12 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     }
 
     /// <inheritdoc />
+    public int GetInfractionCount(ulong userId, ulong guildId)
+    {
+        return _infractionService.GetInfractionCount(userId, guildId);
+    }
+
+    /// <inheritdoc />
     public int GetInfractionCount(DiscordUser user, DiscordGuild guild)
     {
         return _infractionService.GetInfractionCount(user, guild);

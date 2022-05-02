@@ -132,6 +132,14 @@ public interface IHammerPlugin : IPlugin
     /// <summary>
     ///     Returns the count of infractions held by a user in a specified guild.
     /// </summary>
+    /// <param name="userId">The ID of the user whose infractions to retrieve.</param>
+    /// <param name="guildId">The ID of the guild whose infractions to search.</param>
+    /// <returns>The number of infractions held by the user in the specified guild.</returns>
+    int GetInfractionCount(ulong userId, ulong guildId);
+
+    /// <summary>
+    ///     Returns the count of infractions held by a user in a specified guild.
+    /// </summary>
     /// <param name="user">The user whose infractions to retrieve.</param>
     /// <param name="guild">The guild whose infractions to search.</param>
     /// <returns>The number of infractions held by <paramref name="user" /> in <paramref name="guild" />.</returns>
