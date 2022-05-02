@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using Hammer.API;
 using Hammer.Data;
@@ -17,14 +18,16 @@ namespace Hammer.Services;
 internal sealed class WarningService
 {
     private readonly ICorePlugin _corePlugin;
+    private readonly DiscordClient _discord;
     private readonly InfractionService _infractionService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="WarningService" /> class.
     /// </summary>
-    public WarningService(ICorePlugin corePlugin, InfractionService infractionService)
+    public WarningService(ICorePlugin corePlugin, DiscordClient discord, InfractionService infractionService)
     {
         _corePlugin = corePlugin;
+        _discord = discord;
         _infractionService = infractionService;
     }
 
@@ -42,6 +45,8 @@ internal sealed class WarningService
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentNullException(nameof(reason));
 
+        DiscordGuild guild = await issuer.Guild.NormalizeClientAsync(_discord).ConfigureAwait(false);
+
         var options = new InfractionOptions
         {
             NotifyUser = true,
@@ -49,7 +54,7 @@ internal sealed class WarningService
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options);
-        int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
+        int infractionCount = _infractionService.GetInfractionCount(user, guild);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
@@ -61,8 +66,8 @@ internal sealed class WarningService
         embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
-        _ = _corePlugin.LogAsync(issuer.Guild, embed);
 
+        await _corePlugin.LogAsync(guild, embed).ConfigureAwait(false);
         return infraction;
     }
 }
