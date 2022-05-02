@@ -1,5 +1,4 @@
 ﻿using System;
-using DSharpPlus.Entities;
 
 namespace Hammer.API;
 

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
