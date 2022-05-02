@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using SmartFormat;
+using TimestampFormat = DSharpPlus.TimestampFormat;
 
 namespace Hammer.Services;
 
