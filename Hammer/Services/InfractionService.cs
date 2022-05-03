@@ -411,16 +411,15 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="infraction">The infraction to redact.</param>
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
-    public async Task RedactInfractionAsync(Infraction infraction)
+    public async Task RemoveInfractionAsync(Infraction infraction)
     {
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
         _infractionCache[infraction.GuildId].Remove(infraction);
-        infraction.IsRedacted = true;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        context.Update(infraction);
+        context.Remove(infraction);
         await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
@@ -429,7 +428,7 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="infractions">The infractions to redact.</param>
     /// <exception cref="ArgumentNullException"><paramref name="infractions" /> is <see langword="null" />.</exception>
-    public async Task RedactInfractionsAsync(IEnumerable<Infraction> infractions)
+    public async Task RemoveInfractionsAsync(IEnumerable<Infraction> infractions)
     {
         if (infractions is null) throw new ArgumentNullException(nameof(infractions));
 
@@ -441,8 +440,7 @@ internal sealed class InfractionService : BackgroundService
             List<Infraction> list = _infractionCache[group.Key];
             foreach (Infraction infraction in group)
             {
-                infraction.IsRedacted = true;
-                context.Update(infraction);
+                context.Remove(infraction);
                 list.Remove(infraction);
             }
         }

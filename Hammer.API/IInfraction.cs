@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Hammer.API;
 
@@ -18,13 +18,6 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     /// </summary>
     /// <value>The infraction ID.</value>
     long Id { get; }
-
-    /// <summary>
-    ///     Gets a value indicating whether this infraction has been redacted.
-    /// </summary>
-    /// <value><see langword="true" /> if this infraction has been redacted; otherwise, <see langword="false" />.</value>
-    /// <remarks>This applies to an infraction which has been deleted, or a permanent mute/ban which has been revoked.</remarks>
-    bool IsRedacted { get; }
 
     /// <summary>
     ///     Gets the date and time at which this infraction was issued.

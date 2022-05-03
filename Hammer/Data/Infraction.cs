@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DSharpPlus.Entities;
 using Hammer.API;
 
@@ -13,10 +13,7 @@ internal sealed class Infraction : IInfraction
     public ulong GuildId { get; private set; }
 
     /// <inheritdoc />
-    public long Id { get; private set; }
-
-    /// <inheritdoc />
-    public bool IsRedacted { get; internal set; }
+    public long Id { get; internal set; }
 
     /// <inheritdoc />
     public DateTimeOffset IssuedAt { get; private set; }
@@ -53,7 +50,6 @@ internal sealed class Infraction : IInfraction
         return new Infraction
         {
             GuildId = guildId,
-            IsRedacted = false,
             IssuedAt = issuedAt ?? DateTimeOffset.UtcNow,
             Reason = reason,
             RuleId = ruleBroken,
