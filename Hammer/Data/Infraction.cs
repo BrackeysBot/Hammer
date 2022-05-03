@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.Entities;
 using Hammer.API;
 
@@ -25,6 +25,9 @@ internal sealed class Infraction : IInfraction
     public string? Reason { get; private set; }
 
     /// <inheritdoc />
+    public int? RuleId { get; private set; }
+
+    /// <inheritdoc />
     public ulong StaffMemberId { get; private set; }
 
     /// <inheritdoc />
@@ -42,9 +45,10 @@ internal sealed class Infraction : IInfraction
     /// <param name="guildId">The ID of the guild in which the infraction was issued.</param>
     /// <param name="reason">The infraction reason.</param>
     /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
+    /// <param name="ruleBroken">Optional. The rule which was broken.</param>
     /// <returns></returns>
     public static Infraction Create(InfractionType type, ulong userId, ulong staffMemberId, ulong guildId, string? reason,
-        DateTimeOffset? issuedAt = null)
+        DateTimeOffset? issuedAt = null, int? ruleBroken = null)
     {
         return new Infraction
         {
@@ -52,6 +56,7 @@ internal sealed class Infraction : IInfraction
             IsRedacted = false,
             IssuedAt = issuedAt ?? DateTimeOffset.UtcNow,
             Reason = reason,
+            RuleId = ruleBroken,
             StaffMemberId = staffMemberId,
             Type = type,
             UserId = userId
@@ -67,11 +72,12 @@ internal sealed class Infraction : IInfraction
     /// <param name="guild">The guild in which the infraction was issued.</param>
     /// <param name="reason">The infraction reason.</param>
     /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
+    /// <param name="ruleBroken">Optional. The rule which was broken.</param>
     /// <returns></returns>
     public static Infraction Create(InfractionType type, DiscordUser user, DiscordUser staffMember, DiscordGuild guild,
-        string? reason, DateTimeOffset? issuedAt = null)
+        string? reason, DateTimeOffset? issuedAt = null, int? ruleBroken = null)
     {
-        return Create(type, user.Id, staffMember.Id, guild.Id, reason, issuedAt);
+        return Create(type, user.Id, staffMember.Id, guild.Id, reason, issuedAt, ruleBroken);
     }
 
     /// <inheritdoc />

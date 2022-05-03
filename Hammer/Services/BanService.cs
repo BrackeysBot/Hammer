@@ -57,12 +57,13 @@ internal sealed class BanService : BackgroundService
     /// <param name="user">The user to ban.</param>
     /// <param name="issuer">The staff member who issued the ban.</param>
     /// <param name="reason">The reason for the ban.</param>
+    /// <param name="ruleBroken">The rule which was broken, if any.</param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> BanAsync(DiscordUser user, DiscordMember issuer, string? reason)
+    public async Task<Infraction> BanAsync(DiscordUser user, DiscordMember issuer, string? reason, Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -73,7 +74,8 @@ internal sealed class BanService : BackgroundService
         var options = new InfractionOptions
         {
             NotifyUser = true,
-            Reason = reason.AsNullIfWhiteSpace()
+            Reason = reason.AsNullIfWhiteSpace(),
+            RuleBroken = ruleBroken
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Ban, user, issuer, options)
@@ -129,6 +131,7 @@ internal sealed class BanService : BackgroundService
     /// <param name="member">The member to kick.</param>
     /// <param name="staffMember">The staff member who issued the kick.</param>
     /// <param name="reason">The reason for the kick.</param>
+    /// <param name="ruleBroken">The rule which was broken, if any.</param>
     /// <returns>The newly created infraction.</returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="member" /> is <see langword="null" />.</para>
@@ -138,7 +141,7 @@ internal sealed class BanService : BackgroundService
     /// <exception cref="ArgumentException">
     ///     <paramref name="member" /> and <paramref name="staffMember" /> are not in the same guild.
     /// </exception>
-    public async Task<Infraction> KickAsync(DiscordMember member, DiscordMember staffMember, string? reason)
+    public async Task<Infraction> KickAsync(DiscordMember member, DiscordMember staffMember, string? reason, Rule? ruleBroken)
     {
         if (member is null) throw new ArgumentNullException(nameof(member));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
@@ -152,7 +155,8 @@ internal sealed class BanService : BackgroundService
         var options = new InfractionOptions
         {
             NotifyUser = true,
-            Reason = reason.AsNullIfWhiteSpace()
+            Reason = reason.AsNullIfWhiteSpace(),
+            RuleBroken = ruleBroken
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Kick, member, staffMember, options)
@@ -222,12 +226,14 @@ internal sealed class BanService : BackgroundService
     /// <param name="issuer">The staff member who issued the ban.</param>
     /// <param name="reason">The reason for the ban.</param>
     /// <param name="duration">The duration of the ban.</param>
+    /// <param name="ruleBroken">The rule which was broken, if any.</param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> TemporaryBanAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration)
+    public async Task<Infraction> TemporaryBanAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration,
+        Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -238,8 +244,9 @@ internal sealed class BanService : BackgroundService
         var options = new InfractionOptions
         {
             NotifyUser = true,
+            ExpirationTime = DateTimeOffset.UtcNow + duration,
             Reason = reason.AsNullIfWhiteSpace(),
-            ExpirationTime = DateTimeOffset.UtcNow + duration
+            RuleBroken = ruleBroken
         };
 
         DiscordGuild guild = issuer.Guild;

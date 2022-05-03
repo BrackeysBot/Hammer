@@ -37,30 +37,60 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     private InfractionService _infractionService = null!;
     private MessageDeletionService _messageDeletionService = null!;
     private MuteService _muteService = null!;
+    private RuleService _ruleService = null!;
     private WarningService _warningService = null!;
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _banService.BanAsync(user, staffMember, null).ConfigureAwait(false);
+        return await _banService.BanAsync(user, staffMember, null, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.BanAsync(user, staffMember, null, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _banService.BanAsync(user, staffMember, reason).ConfigureAwait(false);
+        return await _banService.BanAsync(user, staffMember, reason, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.BanAsync(user, staffMember, reason, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _banService.TemporaryBanAsync(user, staffMember, null, duration).ConfigureAwait(false);
+        return await _banService.TemporaryBanAsync(user, staffMember, null, duration, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.TemporaryBanAsync(user, staffMember, null, duration, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration).ConfigureAwait(false);
+        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration,
+        int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.TemporaryBanAsync(user, staffMember, reason, duration, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -120,43 +150,92 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember)
     {
-        return await _banService.KickAsync(member, staffMember, null).ConfigureAwait(false);
+        return await _banService.KickAsync(member, staffMember, null, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.KickAsync(member, staffMember, null, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason)
     {
-        return await _banService.KickAsync(member, staffMember, reason).ConfigureAwait(false);
+        return await _banService.KickAsync(member, staffMember, reason, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _banService.KickAsync(member, staffMember, reason, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember)
     {
-        return await _muteService.MuteAsync(user, staffMember, null).ConfigureAwait(false);
+        return await _muteService.MuteAsync(user, staffMember, null, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _muteService.MuteAsync(user, staffMember, null, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _muteService.MuteAsync(user, staffMember, reason).ConfigureAwait(false);
+        return await _muteService.MuteAsync(user, staffMember, reason, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _muteService.MuteAsync(user, staffMember, reason, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration)
     {
-        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration).ConfigureAwait(false);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, null, duration, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration)
     {
-        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration).ConfigureAwait(false);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration, null).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public async Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration,
+        int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _muteService.TemporaryMuteAsync(user, staffMember, reason, duration, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public async Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason)
     {
-        return await _warningService.WarnAsync(user, staffMember, reason).ConfigureAwait(false);
+        return await _warningService.WarnAsync(user, staffMember, reason, null).ConfigureAwait(false);
+    }
+
+    public async Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken)
+    {
+        Rule? rule = _ruleService.GetRuleById(staffMember.Guild, ruleBroken);
+        return await _warningService.WarnAsync(user, staffMember, reason, rule).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -202,11 +281,11 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         commandsNext.RegisterCommands<StaffModule>();
         commandsNext.RegisterCommands<UserModule>();
 
-        commandsNext.RegisterCommands<BanCommandModule>();
         commandsNext.RegisterCommands<UnbanCommandModule>();
 
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
+        slashCommands.RegisterCommands<BanCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
@@ -245,6 +324,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         _infractionService = ServiceProvider.GetRequiredService<InfractionService>();
         _messageDeletionService = ServiceProvider.GetRequiredService<MessageDeletionService>();
         _muteService = ServiceProvider.GetRequiredService<MuteService>();
+        _ruleService = ServiceProvider.GetRequiredService<RuleService>();
         _warningService = ServiceProvider.GetRequiredService<WarningService>();
     }
 

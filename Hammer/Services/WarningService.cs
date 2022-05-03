@@ -37,10 +37,11 @@ internal sealed class WarningService
     /// <param name="user">The user to warn.</param>
     /// <param name="issuer">The staff member who issued the warning.</param>
     /// <param name="reason">The reason for the warning.</param>
+    /// <param name="ruleBroken">The rule broken, if any.</param>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.
     /// </exception>
-    public async Task<Infraction> WarnAsync(DiscordUser user, DiscordMember issuer, string reason)
+    public async Task<Infraction> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken)
     {
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentNullException(nameof(reason));
@@ -50,7 +51,8 @@ internal sealed class WarningService
         var options = new InfractionOptions
         {
             NotifyUser = true,
-            Reason = reason.AsNullIfWhiteSpace()
+            Reason = reason.AsNullIfWhiteSpace(),
+            RuleBroken = ruleBroken
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)

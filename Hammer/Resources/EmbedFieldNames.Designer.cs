@@ -196,6 +196,15 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to __Rule Broken__.
+        /// </summary>
+        internal static string RuleBroken {
+            get {
+                return ResourceManager.GetString("RuleBroken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to __Staff Member__.
         /// </summary>
         internal static string StaffMember {

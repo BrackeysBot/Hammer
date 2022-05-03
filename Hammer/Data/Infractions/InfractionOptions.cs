@@ -17,6 +17,7 @@ internal readonly struct InfractionOptions
         _expirationTime = null;
         NotifyUser = true;
         Reason = null;
+        RuleBroken = null;
     }
 
     /// <summary>
@@ -54,4 +55,10 @@ internal readonly struct InfractionOptions
     /// </summary>
     /// <value>The reason.</value>
     public string? Reason { get; init; }
+
+    /// <summary>
+    ///     Gets or initializes the rule which was broken.
+    /// </summary>
+    /// <value>The rule broken, or <see langword="null" /> if no specific rule was broken.</value>
+    public Rule? RuleBroken { get; init; }
 }

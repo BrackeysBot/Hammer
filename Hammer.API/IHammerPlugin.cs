@@ -25,6 +25,20 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember);
 
     /// <summary>
+    ///     Issues a ban against a user.
+    /// </summary>
+    /// <param name="user">The user to ban.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, int ruleBroken);
+
+    /// <summary>
     ///     Issues a ban against a user, with a specified reason.
     /// </summary>
     /// <param name="user">The user to ban.</param>
@@ -41,6 +55,23 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason);
 
     /// <summary>
+    ///     Issues a ban against a user, with a specified reason.
+    /// </summary>
+    /// <param name="user">The user to ban.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken);
+
+    /// <summary>
     ///     Issues a temporary ban against a user.
     /// </summary>
     /// <param name="user">The user to ban.</param>
@@ -54,6 +85,22 @@ public interface IHammerPlugin : IPlugin
     /// </exception>
     /// <exception cref="ArgumentException"><paramref name="duration" /> refers to a negative duration.</exception>
     Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration);
+
+    /// <summary>
+    ///     Issues a temporary ban against a user.
+    /// </summary>
+    /// <param name="user">The user to ban.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="duration">The duration of the ban.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException"><paramref name="duration" /> refers to a negative duration.</exception>
+    Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration, int ruleBroken);
 
     /// <summary>
     ///     Issues a temporary ban against a user with a specified reason.
@@ -74,6 +121,27 @@ public interface IHammerPlugin : IPlugin
     ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
     /// </exception>
     Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration);
+
+    /// <summary>
+    ///     Issues a temporary ban against a user with a specified reason.
+    /// </summary>
+    /// <param name="user">The user to ban.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="duration">The duration of the ban.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentException">
+    ///     <para><paramref name="duration" /> refers to a negative duration.</para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> BanAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration, int ruleBroken);
 
     /// <summary>
     ///     Deletes a specified message, logging the deletion in the staff log and optionally notifying the author.
@@ -207,6 +275,23 @@ public interface IHammerPlugin : IPlugin
     /// </summary>
     /// <param name="member">The member to kick.</param>
     /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentException">
+    ///     <para><paramref name="member" /> and <paramref name="staffMember" /> are not in the same guild.</para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="member" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, int ruleBroken);
+
+    /// <summary>
+    ///     Kicks a member from the guild.
+    /// </summary>
+    /// <param name="member">The member to kick.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
     /// <param name="reason">The reason for the infraction.</param>
     /// <returns>The newly-created infraction.</returns>
     /// <exception cref="ArgumentException">
@@ -222,6 +307,26 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason);
 
     /// <summary>
+    ///     Kicks a member from the guild.
+    /// </summary>
+    /// <param name="member">The member to kick.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentException">
+    ///     <para><paramref name="member" /> and <paramref name="staffMember" /> are not in the same guild.</para>
+    /// </exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="member" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> KickAsync(DiscordMember member, DiscordMember staffMember, string reason, int ruleBroken);
+
+    /// <summary>
     ///     Issues a mute against a user.
     /// </summary>
     /// <param name="user">The user to mute.</param>
@@ -233,6 +338,20 @@ public interface IHammerPlugin : IPlugin
     ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
     /// </exception>
     Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember);
+
+    /// <summary>
+    ///     Issues a mute against a user.
+    /// </summary>
+    /// <param name="user">The user to mute.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, int ruleBroken);
 
     /// <summary>
     ///     Issues a mute against a user, with a specified reason.
@@ -251,6 +370,23 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason);
 
     /// <summary>
+    ///     Issues a mute against a user, with a specified reason.
+    /// </summary>
+    /// <param name="user">The user to mute.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken);
+
+    /// <summary>
     ///     Issues a temporary mute against a user.
     /// </summary>
     /// <param name="user">The user to mute.</param>
@@ -264,6 +400,22 @@ public interface IHammerPlugin : IPlugin
     ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
     /// </exception>
     Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration);
+
+    /// <summary>
+    ///     Issues a temporary mute against a user.
+    /// </summary>
+    /// <param name="user">The user to mute.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="duration">The duration of the mute.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentException"><paramref name="duration" /> refers to a negative duration.</exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, TimeSpan duration, int ruleBroken);
 
     /// <summary>
     ///     Issues a temporary mute against a user with a specified reason.
@@ -284,6 +436,25 @@ public interface IHammerPlugin : IPlugin
     Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration);
 
     /// <summary>
+    ///     Issues a temporary mute against a user with a specified reason.
+    /// </summary>
+    /// <param name="user">The user to mute.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="duration">The duration of the mute.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentException"><paramref name="duration" /> refers to a negative duration.</exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> MuteAsync(DiscordUser user, DiscordMember staffMember, string reason, TimeSpan duration, int ruleBroken);
+
+    /// <summary>
     ///     Issues a warning against a user, with a specified reason.
     /// </summary>
     /// <param name="user">The user to warn.</param>
@@ -298,4 +469,21 @@ public interface IHammerPlugin : IPlugin
     ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
     /// </exception>
     Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason);
+
+    /// <summary>
+    ///     Issues a warning against a user, with a specified reason.
+    /// </summary>
+    /// <param name="user">The user to warn.</param>
+    /// <param name="staffMember">The staff member responsible for the infraction.</param>
+    /// <param name="reason">The reason for the infraction.</param>
+    /// <param name="ruleBroken">The rule broken.</param>
+    /// <returns>The newly-created infraction.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    ///     or
+    ///     <para><paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
+    /// </exception>
+    Task<IInfraction> WarnAsync(DiscordUser user, DiscordMember staffMember, string reason, int ruleBroken);
 }

@@ -50,6 +50,12 @@ internal sealed class InfractionBuilder
     }
 
     /// <summary>
+    ///     Gets or sets the rule which was broken.
+    /// </summary>
+    /// <value>The rule.</value>
+    public Rule? Rule { get; set; }
+
+    /// <summary>
     ///     Gets or sets the staff member who issued this infraction.
     /// </summary>
     /// <value>The staff member.</value>
@@ -98,7 +104,7 @@ internal sealed class InfractionBuilder
         if (_type is null) throw new InvalidOperationException($"{nameof(Type)} is not set!");
         if (_guild is null) throw new InvalidOperationException($"{nameof(Guild)} is not set!");
 
-        return Infraction.Create(Type, Target, StaffMember, Guild, Reason, IssuedAt);
+        return Infraction.Create(Type, Target, StaffMember, Guild, Reason, IssuedAt, Rule?.Id);
     }
 
     /// <summary>
@@ -131,6 +137,17 @@ internal sealed class InfractionBuilder
     public InfractionBuilder WithReason(string? reason)
     {
         Reason = reason;
+        return this;
+    }
+
+    /// <summary>
+    ///     Specifies the rule which was broken.
+    /// </summary>
+    /// <param name="rule">The broken rule.</param>
+    /// <returns>This infraction builder.</returns>
+    public InfractionBuilder WithRule(Rule? rule)
+    {
+        Rule = rule;
         return this;
     }
 

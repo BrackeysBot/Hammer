@@ -84,12 +84,13 @@ internal sealed class MuteService : BackgroundService
     /// <param name="user">The user to mute.</param>
     /// <param name="issuer">The staff member who issued the mute.</param>
     /// <param name="reason">The reason for the mute.</param>
+    /// <param name="ruleBroken">The rule which was broken, if any.</param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> MuteAsync(DiscordUser user, DiscordMember issuer, string? reason)
+    public async Task<Infraction> MuteAsync(DiscordUser user, DiscordMember issuer, string? reason, Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -119,7 +120,8 @@ internal sealed class MuteService : BackgroundService
         var options = new InfractionOptions
         {
             NotifyUser = true,
-            Reason = reason.AsNullIfWhiteSpace()
+            Reason = reason.AsNullIfWhiteSpace(),
+            RuleBroken = ruleBroken
         };
 
         Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Mute, user, issuer, options)
@@ -225,12 +227,13 @@ internal sealed class MuteService : BackgroundService
     /// <param name="issuer">The staff member who issued the mute.</param>
     /// <param name="reason">The reason for the mute.</param>
     /// <param name="duration">The duration of the mute.</param>
+    /// <param name="ruleBroken">The rule which was broken, if any.</param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> TemporaryMuteAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration)
+    public async Task<Infraction> TemporaryMuteAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration, Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -251,8 +254,9 @@ internal sealed class MuteService : BackgroundService
         var options = new InfractionOptions
         {
             NotifyUser = true,
+            ExpirationTime = DateTimeOffset.UtcNow + duration,
             Reason = reason.AsNullIfWhiteSpace(),
-            ExpirationTime = DateTimeOffset.UtcNow + duration
+            RuleBroken = ruleBroken
         };
 
         await CreateTemporaryMuteAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);

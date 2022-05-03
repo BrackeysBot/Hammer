@@ -34,5 +34,6 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
         builder.Property(e => e.Type);
         builder.Property(e => e.IssuedAt).HasConversion<DateTimeOffsetToBytesConverter>();
         builder.Property(e => e.Reason);
+        builder.Property(e => e.RuleId);
     }
 }

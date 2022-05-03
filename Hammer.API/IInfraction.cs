@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Hammer.API;
 
@@ -37,6 +37,12 @@ public interface IInfraction : IEquatable<IInfraction>, IComparable<IInfraction>
     /// </summary>
     /// <value>The reason, or <see langword="null" /> if no reason is specified.</value>
     string? Reason { get; }
+
+    /// <summary>
+    ///     Gets the rule which was broken.
+    /// </summary>
+    /// <value>The rule which was broken, or <see langword="null" /> if no rule is specified.</value>
+    int? RuleId { get; }
 
     /// <summary>
     ///     Gets the ID of the staff member who issued this infraction.

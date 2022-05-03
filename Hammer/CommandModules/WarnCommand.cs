@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
+using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
@@ -16,28 +18,37 @@ namespace Hammer.CommandModules;
 internal sealed class WarnCommand : ApplicationCommandModule
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly RuleService _ruleService;
     private readonly WarningService _warningService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="WarnCommand" /> class.
     /// </summary>
+    /// <param name="ruleService">The rule service.</param>
     /// <param name="warningService">The warning service.</param>
-    public WarnCommand(WarningService warningService)
+    public WarnCommand(RuleService ruleService, WarningService warningService)
     {
+        _ruleService = ruleService;
         _warningService = warningService;
     }
 
     [SlashCommand("warn", "Issues a warning to a user.", false)]
-    public async Task WarnSlashCommandAsync(InteractionContext context,
+    [SlashRequireGuild]
+    public async Task WarnAsync(InteractionContext context,
         [Option("user", "The user to warn.")] DiscordUser user,
-        [Option("reason", "The reason for the warning.")] string reason)
+        [Option("reason", "The reason for the warning.")] string reason,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
     {
-        await context.DeferAsync(true);
+        await context.DeferAsync(true).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         try
         {
-            Infraction infraction = await _warningService.WarnAsync(user, context.Member, reason);
+            Rule? rule = null;
+            if (ruleBroken.HasValue)
+                rule = _ruleService.GetRuleById(context.Guild, (int) ruleBroken.Value);
+
+            Infraction infraction = await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
 
             embed.WithAuthor(user);
             embed.WithColor(DiscordColor.Orange);
@@ -58,6 +69,6 @@ internal sealed class WarnCommand : ApplicationCommandModule
             embed.WithFooter("See log for further details.");
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed)).ConfigureAwait(false);
     }
 }

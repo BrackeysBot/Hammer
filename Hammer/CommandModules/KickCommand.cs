@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
@@ -20,21 +21,25 @@ internal sealed class KickCommand : ApplicationCommandModule
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly BanService _banService;
+    private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="KickCommand" /> class.
     /// </summary>
     /// <param name="banService">The ban service.</param>
-    public KickCommand(BanService banService)
+    /// <param name="ruleService">The rule service.</param>
+    public KickCommand(BanService banService, RuleService ruleService)
     {
         _banService = banService;
+        _ruleService = ruleService;
     }
 
     [SlashCommand("kick", "Kicks a member", false)]
     [SlashRequireGuild]
     public async Task KickCommandAsync(InteractionContext context,
         [Option("member", "The member to kick.")] DiscordUser user,
-        [Option("reason", "The reason for the kick."), RemainingText] string? reason = null)
+        [Option("reason", "The reason for the kick."), RemainingText] string? reason = null,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
@@ -44,7 +49,7 @@ internal sealed class KickCommand : ApplicationCommandModule
 
         try
         {
-            member = await context.Guild.GetMemberAsync(user.Id);
+            member = await context.Guild.GetMemberAsync(user.Id).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -61,7 +66,11 @@ internal sealed class KickCommand : ApplicationCommandModule
 
         try
         {
-            Infraction infraction = await _banService.KickAsync(member, context.Member!, reason);
+            Rule? rule = null;
+            if (ruleBroken.HasValue)
+                rule = _ruleService.GetRuleById(context.Guild, (int) ruleBroken.Value);
+
+            Infraction infraction = await _banService.KickAsync(member, context.Member!, reason, rule).ConfigureAwait(false);
 
             embed.WithAuthor(member);
             embed.WithColor(DiscordColor.Red);

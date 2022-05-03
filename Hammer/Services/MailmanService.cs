@@ -5,6 +5,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.API;
+using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
@@ -19,14 +20,16 @@ internal sealed class MailmanService
 {
     private readonly HammerPlugin _hammerPlugin;
     private readonly DiscordClient _discordClient;
+    private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MailmanService" /> class.
     /// </summary>
-    public MailmanService(HammerPlugin hammerPlugin, DiscordClient discordClient)
+    public MailmanService(HammerPlugin hammerPlugin, DiscordClient discordClient, RuleService ruleService)
     {
         _hammerPlugin = hammerPlugin;
         _discordClient = discordClient;
+        _ruleService = ruleService;
     }
 
     /// <summary>
@@ -99,6 +102,10 @@ internal sealed class MailmanService
         };
 
         string reason = infraction.Reason.WithWhiteSpaceAlternative(Formatter.Italic("No reason given."));
+        Rule? rule = null;
+
+        if (infraction.RuleId.HasValue)
+            rule = _ruleService.GetRuleById(guild, infraction.RuleId.Value);
 
         return new DiscordEmbedBuilder()
             .WithColor(0xFF0000)
@@ -106,7 +113,8 @@ internal sealed class MailmanService
             .WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}))
             .WithThumbnail(guild.IconUrl)
             .WithFooter(guild.Name, guild.IconUrl)
-            .AddField(EmbedFieldNames.Reason, reason)
-            .AddField(EmbedFieldNames.TotalInfractions, infractionCount);
+            .AddFieldIf(rule is not null, EmbedFieldNames.RuleBroken, () => $"{rule!.Id} - {rule.Brief ?? rule.Content}", true)
+            .AddField(EmbedFieldNames.TotalInfractions, infractionCount, true)
+            .AddField(EmbedFieldNames.Reason, reason);
     }
 }

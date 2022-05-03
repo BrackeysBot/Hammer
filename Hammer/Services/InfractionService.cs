@@ -148,6 +148,7 @@ internal sealed class InfractionService : BackgroundService
         builder.WithType(type);
         builder.WithTargetUser(user).WithGuild(guild);
         builder.WithReason(reason).WithStaffMember(staffMember);
+        builder.WithRule(options.RuleBroken);
 
         Infraction infraction = await AddInfractionAsync(builder.Build(), guild).ConfigureAwait(false);
 
