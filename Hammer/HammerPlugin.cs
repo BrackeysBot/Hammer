@@ -205,11 +205,11 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         commandsNext.RegisterCommands<BanCommandModule>();
         commandsNext.RegisterCommands<KickCommandModule>();
         commandsNext.RegisterCommands<UnbanCommandModule>();
-        commandsNext.RegisterCommands<UnmuteCommandModule>();
 
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
         slashCommands.RegisterCommands<MuteCommand>();
+        slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
 
         Logger.Info("Registering InteractivityExtension");
