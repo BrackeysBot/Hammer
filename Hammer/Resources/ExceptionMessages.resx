@@ -35,6 +35,9 @@
     <data name="MessageStaffMemberGuildMismatch" xml:space="preserve">
         <value>Message does not appear in the same guild as the staff member.</value>
     </data>
+    <data name="ModeratorCannotPermanentlyMute" xml:space="preserve">
+        <value>Issuer cannot indefinitely mute user because they are a moderator, and the maximum moderator mute duration is set.</value>
+    </data>
     <data name="NoEmbedForGag" xml:space="preserve">
         <value>An embed cannot be built for a Gag infraction.</value>
     </data>

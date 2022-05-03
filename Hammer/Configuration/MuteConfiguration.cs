@@ -20,5 +20,5 @@ internal sealed class MuteConfiguration
     /// </summary>
     /// <value>The maximum mute duration.</value>
     [JsonPropertyName("maxModeratorMuteDuration")]
-    public long MaxModeratorMuteDuration { get; set; } = (long) TimeSpan.FromDays(14).TotalMilliseconds;
+    public long? MaxModeratorMuteDuration { get; set; } = (long) TimeSpan.FromDays(14).TotalMilliseconds;
 }

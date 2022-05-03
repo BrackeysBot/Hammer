@@ -97,6 +97,18 @@ internal sealed class MuteService : BackgroundService
         user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
         issuer = await issuer.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
+        DiscordGuild guild = issuer.Guild;
+
+        if (issuer.GetPermissionLevel(guild) == PermissionLevel.Moderator)
+        {
+            GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
+            long? maxModeratorMuteDuration = guildConfiguration.MuteConfiguration.MaxModeratorMuteDuration;
+            if (maxModeratorMuteDuration.HasValue)
+            {
+                throw new InvalidOperationException(ExceptionMessages.ModeratorCannotPermanentlyMute);
+            }
+        }
+
         lock (_mutes)
         {
             Mute? mute = _mutes.Find(x => x.User == user && x.Guild == issuer.Guild);
@@ -230,10 +242,10 @@ internal sealed class MuteService : BackgroundService
         if (issuer.GetPermissionLevel(guild) == PermissionLevel.Moderator)
         {
             GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
-            long maxModeratorMuteDuration = guildConfiguration.MuteConfiguration.MaxModeratorMuteDuration;
+            long? maxModeratorMuteDuration = guildConfiguration.MuteConfiguration.MaxModeratorMuteDuration;
 
             if (maxModeratorMuteDuration > 0 && duration.TotalMilliseconds > maxModeratorMuteDuration)
-                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
+                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration.Value);
         }
 
         var options = new InfractionOptions
