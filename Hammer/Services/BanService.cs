@@ -8,6 +8,7 @@ using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Hammer.API;
 using Hammer.Data;
 using Hammer.Data.Infractions;
@@ -52,6 +53,27 @@ internal sealed class BanService : BackgroundService
     }
 
     /// <summary>
+    ///     Adds a temporary ban to the database.
+    /// </summary>
+    /// <param name="temporaryBan">The temporary ban to add.</param>
+    /// <returns>The <see cref="TemporaryBan" /> entity.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="temporaryBan" /> is <see langword="null" />.</exception>
+    public async Task<TemporaryBan> AddTemporaryBanAsync(TemporaryBan temporaryBan)
+    {
+        ArgumentNullException.ThrowIfNull(temporaryBan);
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        lock (_temporaryBans)
+            _temporaryBans.Add(temporaryBan);
+
+        temporaryBan = (await context.TemporaryBans.AddAsync(temporaryBan).ConfigureAwait(false)).Entity;
+        await context.SaveChangesAsync().ConfigureAwait(false);
+        return temporaryBan;
+    }
+
+    /// <summary>
     ///     Bans a user.
     /// </summary>
     /// <param name="user">The user to ban.</param>
@@ -65,8 +87,8 @@ internal sealed class BanService : BackgroundService
     /// </exception>
     public async Task<Infraction> BanAsync(DiscordUser user, DiscordMember issuer, string? reason, Rule? ruleBroken)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (issuer is null) throw new ArgumentNullException(nameof(issuer));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(issuer);
 
         user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
         issuer = await issuer.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
@@ -101,6 +123,12 @@ internal sealed class BanService : BackgroundService
         return infraction;
     }
 
+    public TemporaryBan? GetTemporaryBan(DiscordUser user, DiscordGuild guild)
+    {
+        lock (_temporaryBans)
+            return _temporaryBans.Find(b => b.UserId == user.Id && b.GuildId == guild.Id);
+    }
+
     /// <summary>
     ///     Returns a value indicating whether a user is banned from a specified guild.
     /// </summary>
@@ -114,15 +142,12 @@ internal sealed class BanService : BackgroundService
     {
         lock (_temporaryBans)
         {
-            if (_temporaryBans.Exists(x => x.User == user && x.Guild == guild))
+            if (_temporaryBans.Exists(x => x.UserId == user.Id && x.GuildId == guild.Id))
                 return true;
         }
 
         IReadOnlyList<DiscordBan>? bans = await guild.GetBansAsync().ConfigureAwait(false);
-        if (bans.Any(b => b.User == user))
-            return true;
-
-        return false;
+        return bans.Any(b => b.User == user);
     }
 
     /// <summary>
@@ -191,7 +216,7 @@ internal sealed class BanService : BackgroundService
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         TemporaryBan? temporaryBan =
-            await context.TemporaryBans.FirstOrDefaultAsync(b => b.User == user && b.Guild == revoker.Guild)
+            await context.TemporaryBans.FirstOrDefaultAsync(b => b.UserId == user.Id && b.GuildId == revoker.Guild.Id)
                 .ConfigureAwait(false);
 
         if (temporaryBan is not null)
@@ -287,7 +312,7 @@ internal sealed class BanService : BackgroundService
 
     private async Task CreateTemporaryBanAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
     {
-        var temporaryBan = new TemporaryBan(user, guild, expirationTime);
+        var temporaryBan = TemporaryBan.Create(user, guild, expirationTime);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -302,10 +327,26 @@ internal sealed class BanService : BackgroundService
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        foreach (TemporaryBan ban in _temporaryBans.ToArray().Where(b => b.ExpiresAt <= DateTimeOffset.UtcNow))
+        TemporaryBan[] temporaryBans;
+
+        lock (_temporaryBans)
+            temporaryBans = _temporaryBans.ToArray();
+
+        foreach (TemporaryBan ban in temporaryBans.Where(b => b.ExpiresAt <= DateTimeOffset.UtcNow))
         {
-            DiscordMember botMember = await ban.Guild.GetMemberAsync(_discordClient.CurrentUser.Id).ConfigureAwait(false);
-            await RevokeBanAsync(ban.User, botMember, "Temporary ban expired").ConfigureAwait(false);
+            if (!_discordClient.Guilds.TryGetValue(ban.GuildId, out DiscordGuild? guild))
+                continue;
+
+            try
+            {
+                DiscordMember botMember = await guild.GetMemberAsync(_discordClient.CurrentUser.Id).ConfigureAwait(false);
+                DiscordUser? user = await _discordClient.GetUserAsync(ban.UserId).ConfigureAwait(false);
+                await RevokeBanAsync(user, botMember, "Temporary ban expired").ConfigureAwait(false);
+            }
+            catch (NotFoundException)
+            {
+                // ignored
+            }
         }
     }
 }

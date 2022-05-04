@@ -100,10 +100,10 @@ internal sealed class HammerContext : DbContext
         modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new MemberNoteConfiguration());
-        modelBuilder.ApplyConfiguration(new MuteConfiguration(_discordClient));
+        modelBuilder.ApplyConfiguration(new MuteConfiguration());
         modelBuilder.ApplyConfiguration(new StaffMessageConfiguration(_discordClient));
         modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_discordClient));
+        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration());
         modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }

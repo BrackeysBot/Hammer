@@ -64,6 +64,27 @@ internal sealed class MuteService : BackgroundService
     }
 
     /// <summary>
+    ///     Adds a mute to the database.
+    /// </summary>
+    /// <param name="mute">The mute to add.</param>
+    /// <returns>The <see cref="Mute" /> entity.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="mute" /> is <see langword="null" />.</exception>
+    public async Task<Mute> AddMuteAsync(Mute mute)
+    {
+        ArgumentNullException.ThrowIfNull(mute);
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        lock (_mutes)
+            _mutes.Add(mute);
+
+        mute = (await context.Mutes.AddAsync(mute).ConfigureAwait(false)).Entity;
+        await context.SaveChangesAsync().ConfigureAwait(false);
+        return mute;
+    }
+
+    /// <summary>
     ///     Returns a value indicating whether a user is muted in a specified guild.
     /// </summary>
     /// <param name="user">The user whose mute status to retrieve.</param>
@@ -75,7 +96,7 @@ internal sealed class MuteService : BackgroundService
     public bool IsUserMuted(DiscordUser user, DiscordGuild guild)
     {
         lock (_mutes)
-            return _mutes.Exists(x => x.User == user && x.Guild == guild);
+            return _mutes.Exists(x => x.UserId == user.Id && x.GuildId == guild.Id);
     }
 
     /// <summary>
@@ -112,7 +133,7 @@ internal sealed class MuteService : BackgroundService
 
         lock (_mutes)
         {
-            Mute? mute = _mutes.Find(x => x.User == user && x.Guild == issuer.Guild);
+            Mute? mute = _mutes.Find(x => x.UserId == user.Id && x.GuildId == issuer.Guild.Id);
             if (mute is not null)
                 _mutes.Remove(mute);
         }
@@ -180,7 +201,7 @@ internal sealed class MuteService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        Mute? mute = await context.Mutes.FirstOrDefaultAsync(b => b.User == user && b.Guild == revoker.Guild)
+        Mute? mute = await context.Mutes.FirstOrDefaultAsync(b => b.UserId == user.Id && b.GuildId == revoker.Guild.Id)
             .ConfigureAwait(false);
 
         if (mute is not null)
@@ -233,7 +254,8 @@ internal sealed class MuteService : BackgroundService
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> TemporaryMuteAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration, Rule? ruleBroken)
+    public async Task<Infraction> TemporaryMuteAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration,
+        Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -337,7 +359,7 @@ internal sealed class MuteService : BackgroundService
 
     private async Task CreateTemporaryMuteAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
     {
-        var temporaryMute = new Mute(user, guild, expirationTime);
+        var temporaryMute = Mute.Create(user, guild, expirationTime);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -352,10 +374,26 @@ internal sealed class MuteService : BackgroundService
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        foreach (Mute mute in _mutes.ToArray().Where(b => b.ExpiresAt.HasValue && b.ExpiresAt <= DateTimeOffset.UtcNow))
+        Mute[] mutes;
+
+        lock (_mutes)
+            mutes = _mutes.ToArray();
+
+        foreach (Mute mute in mutes.Where(b => b.ExpiresAt.HasValue && b.ExpiresAt <= DateTimeOffset.UtcNow))
         {
-            DiscordMember botMember = await mute.Guild.GetMemberAsync(_discordClient.CurrentUser.Id).ConfigureAwait(false);
-            await RevokeMuteAsync(mute.User, botMember, "Temporary mute expired").ConfigureAwait(false);
+            if (!_discordClient.Guilds.TryGetValue(mute.GuildId, out DiscordGuild? guild))
+                continue;
+
+            try
+            {
+                DiscordMember botMember = await guild.GetMemberAsync(_discordClient.CurrentUser.Id).ConfigureAwait(false);
+                DiscordUser? user = await _discordClient.GetUserAsync(mute.UserId).ConfigureAwait(false);
+                await RevokeMuteAsync(user, botMember, "Temporary mute expired").ConfigureAwait(false);
+            }
+            catch (NotFoundException)
+            {
+                // ignored
+            }
         }
     }
 }
