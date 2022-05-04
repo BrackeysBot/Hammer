@@ -17,7 +17,6 @@ using Hammer.API;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Data.Infractions;
-using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +25,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using SmartFormat;
+using X10D.Text;
 using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
 using Timer = System.Timers.Timer;
 

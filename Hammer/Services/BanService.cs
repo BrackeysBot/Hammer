@@ -12,7 +12,6 @@ using DSharpPlus.Exceptions;
 using Hammer.API;
 using Hammer.Data;
 using Hammer.Data.Infractions;
-using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +19,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SmartFormat;
+using X10D.Text;
 using Timer = System.Timers.Timer;
 
 namespace Hammer.Services;

@@ -6,10 +6,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.API;
 using Hammer.Data;
-using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using SmartFormat;
+using X10D.Text;
 
 namespace Hammer.Services;
 

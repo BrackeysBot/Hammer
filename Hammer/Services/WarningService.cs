@@ -7,8 +7,8 @@ using DSharpPlus.Entities;
 using Hammer.API;
 using Hammer.Data;
 using Hammer.Data.Infractions;
-using Hammer.Extensions;
 using Hammer.Resources;
+using X10D.Text;
 
 namespace Hammer.Services;
 

@@ -8,10 +8,10 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
 using Hammer.Data;
-using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
 using NLog;
+using X10D.Text;
 using X10D.Time;
 
 namespace Hammer.CommandModules;

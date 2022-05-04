@@ -8,9 +8,9 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
-using Hammer.Extensions;
 using Hammer.Services;
 using NLog;
+using X10D.Text;
 
 namespace Hammer.CommandModules;
 
