@@ -39,10 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Update="Conversations\Setup\EmbedMessages.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>EmbedMessages.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
         <None Remove="Conversations\Setup\roles.json"/>
         <EmbeddedResource Update="Resources\ExceptionMessages.resx">
             <Generator>ResXFileCodeGenerator</Generator>
@@ -71,11 +67,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Update="Conversations\Setup\EmbedMessages.Designer.cs">
-            <DesignTime>True</DesignTime>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>EmbedMessages.resx</DependentUpon>
-        </Compile>
         <Compile Update="Resources\ExceptionMessages.Designer.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
