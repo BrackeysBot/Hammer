@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
@@ -42,9 +42,9 @@ internal sealed class BanCommand : ApplicationCommandModule
     [SlashCommand("ban", "Temporarily or permanently bans a user.", false)]
     [SlashRequireGuild]
     public async Task BanAsync(InteractionContext context,
-        [Option("user", "The user to mute")] DiscordUser user,
-        [Option("reason", "The reason for the mute")] string? reason = null,
-        [Option("duration", "The duration of the mute")] string? durationRaw = null,
+        [Option("user", "The user to ban.")] DiscordUser user,
+        [Option("reason", "The reason for the ban.")] string? reason = null,
+        [Option("duration", "The duration of the ban.")] string? durationRaw = null,
         [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);

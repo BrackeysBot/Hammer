@@ -10,21 +10,21 @@ namespace Hammer.CommandModules.Infractions;
 
 internal sealed partial class InfractionCommand
 {
-    [SlashCommand("delete", "Deletes an infraction with the specified ID.", false)]
+    [SlashCommand("delete", "Deletes an infraction.", false)]
     [SlashRequireGuild]
     public async Task DeleteAsync(InteractionContext context,
-        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("id", "The ID of the infraction to delete.")]
-        long id)
+        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("infraction", "The infraction to delete.")]
+        long infractionId)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
         var embed = new DiscordEmbedBuilder();
 
-        Infraction? infraction = _infractionService.GetInfraction(id);
+        Infraction? infraction = _infractionService.GetInfraction(infractionId);
         if (infraction is null)
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle("Infraction not found");
-            embed.WithDescription($"The infraction with the ID `{id}` was not found.");
+            embed.WithDescription($"The infraction with the ID `{infractionId}` was not found.");
         }
         else
         {

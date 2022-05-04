@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API;
@@ -34,8 +34,7 @@ internal sealed class UnbanCommandModule : BaseCommandModule
     [Description("Unbans a user.")]
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task UnbanCommandAsync(CommandContext context, [Description("The ID of the user to unban.")] ulong userId,
-        [Description("The reason for the ban revocation."), RemainingText]
-        string? reason = null)
+        [Description("The reason for the ban revocation."), RemainingText] string? reason = null)
     {
         await context.AcknowledgeAsync().ConfigureAwait(false);
 
@@ -63,8 +62,7 @@ internal sealed class UnbanCommandModule : BaseCommandModule
     [Description("Unbans a user.")]
     [RequirePermissionLevel(PermissionLevel.Administrator)]
     public async Task UnbanCommandAsync(CommandContext context, [Description("The user to unban.")] DiscordUser user,
-        [Description("The reason for the ban revocation."), RemainingText]
-        string? reason = null)
+        [Description("The reason for the ban revocation."), RemainingText] string? reason = null)
     {
         await context.AcknowledgeAsync().ConfigureAwait(false);
 

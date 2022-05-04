@@ -15,7 +15,7 @@ internal sealed partial class InfractionCommand
     [SlashRequireGuild]
     public async Task CopyAsync(InteractionContext context,
         [Option("source", "The user whose infractions to copy.")] DiscordUser source,
-        [Option("destination", "The user whose infractions to copy.")] DiscordUser destination)
+        [Option("destination", "The user who will acquire the copied infractions.")] DiscordUser destination)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
