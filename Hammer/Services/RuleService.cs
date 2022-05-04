@@ -33,19 +33,21 @@ internal sealed class RuleService : BackgroundService
     ///     Adds a rule to the database.
     /// </summary>
     /// <param name="guild">The guild whose rules to update.</param>
-    /// <param name="ruleContent">The rule content.</param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public async Task<Rule> AddRuleAsync(DiscordGuild guild, string ruleContent)
+    /// <param name="description">The rule content.</param>
+    /// <param name="brief">The rule brief.</param>
+    /// <returns>The newly-created rule.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
+    public async Task<Rule> AddRuleAsync(DiscordGuild guild, string description, string? brief = null)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
-        if (string.IsNullOrWhiteSpace(ruleContent)) throw new ArgumentNullException(nameof(ruleContent));
+        ArgumentNullException.ThrowIfNull(guild);
+
+        if (string.IsNullOrWhiteSpace(description)) throw new ArgumentNullException(nameof(description));
         if (!_guildRules.TryGetValue(guild.Id, out List<Rule>? rules)) _guildRules.Add(guild.Id, rules = new List<Rule>());
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
-        var rule = new Rule {Id = rules.Count + 1, GuildId = guild.Id, Content = ruleContent};
+        var rule = new Rule {Id = rules.Count + 1, GuildId = guild.Id, Description = description, Brief = brief};
         EntityEntry<Rule> entry = await context.AddAsync(rule).ConfigureAwait(false);
         rules.Add(rule = entry.Entity);
 
@@ -191,6 +193,35 @@ internal sealed class RuleService : BackgroundService
     }
 
     /// <summary>
+    ///     Updates a rule's brief.
+    /// </summary>
+    /// <param name="guild">The guild whose rules to modify.</param>
+    /// <param name="ruleId">The ID of the rule to modify.</param>
+    /// <param name="brief">The new rule brief.</param>
+    public async Task SetRuleBriefAsync(DiscordGuild guild, int ruleId, string? brief)
+    {
+        if (!GuildHasRule(guild, ruleId)) return;
+        Rule rule = GetRuleById(guild, ruleId)!;
+        await SetRuleBriefAsync(rule, brief).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Updates a rule's brief.
+    /// </summary>
+    /// <param name="rule">The rule to modify.</param>
+    /// <param name="brief">The new rule brief.</param>
+    public async Task SetRuleBriefAsync(Rule rule, string? brief)
+    {
+        rule.Brief = brief;
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        context.Entry(rule).State = EntityState.Modified;
+        context.Update(rule);
+        await context.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
     ///     Updates a rule's content.
     /// </summary>
     /// <param name="guild">The guild whose rules to modify.</param>
@@ -210,7 +241,7 @@ internal sealed class RuleService : BackgroundService
     /// <param name="content">The new rule content.</param>
     public async Task SetRuleContentAsync(Rule rule, string content)
     {
-        rule.Content = content;
+        rule.Description = content;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();

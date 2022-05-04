@@ -17,6 +17,6 @@ internal sealed class RuleConfiguration : IEntityTypeConfiguration<Rule>
         builder.Property(e => e.Id);
         builder.Property(e => e.GuildId);
         builder.Property(e => e.Brief);
-        builder.Property(e => e.Content);
+        builder.Property(e => e.Description);
     }
 }

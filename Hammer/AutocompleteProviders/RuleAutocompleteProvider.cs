@@ -24,6 +24,6 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
 
     private static string GetRuleDescription(Rule rule)
     {
-        return $"{rule.Id}: {rule.Brief ?? rule.Content}";
+        return $"{rule.Id}: {rule.Brief ?? rule.Description}";
     }
 }

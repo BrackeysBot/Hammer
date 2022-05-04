@@ -11,10 +11,10 @@ namespace Hammer.CommandModules.Infractions;
 
 internal sealed partial class InfractionCommand
 {
-    [SlashCommand("view", "Views an infraction with the specified ID.", false)]
+    [SlashCommand("view", "Views an infraction.", false)]
     [SlashRequireGuild]
     public async Task ViewAsync(InteractionContext context,
-        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("id", "The ID of the infraction to view.")]
+        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("infraction", "The infraction to view.")]
         long infractionId)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
@@ -38,7 +38,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
             embed.AddField("Type", infraction.Type.ToString("G"), true);
             embed.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
-            embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Content}", true);
+            embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
             embed.AddFieldIf(infraction.Reason is not null, "Reason", () => infraction.Reason);
         }
 

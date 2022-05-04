@@ -278,7 +278,6 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
 
         Logger.Info("Registering command modules");
         CommandsNextExtension commandsNext = DiscordClient.GetCommandsNext();
-        commandsNext.RegisterCommands<RulesModule>();
         commandsNext.RegisterCommands<StaffModule>();
         commandsNext.RegisterCommands<UserModule>();
 
@@ -290,6 +289,8 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
+        slashCommands.RegisterCommands<RuleCommand>();
+        slashCommands.RegisterCommands<RulesCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
 

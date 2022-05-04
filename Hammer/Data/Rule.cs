@@ -15,10 +15,10 @@ internal sealed class Rule : IEquatable<Rule>
     public string? Brief { get; set; }
 
     /// <summary>
-    ///     Gets or sets the rule content.
+    ///     Gets or sets the rule description.
     /// </summary>
-    /// <value>The content.</value>
-    public string Content { get; set; } = string.Empty;
+    /// <value>The description.</value>
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the ID of the guild to which this rule belongs.

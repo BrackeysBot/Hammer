@@ -113,7 +113,7 @@ internal sealed class MailmanService
             .WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}))
             .WithThumbnail(guild.IconUrl)
             .WithFooter(guild.Name, guild.IconUrl)
-            .AddFieldIf(rule is not null, EmbedFieldNames.RuleBroken, () => $"{rule!.Id} - {rule.Brief ?? rule.Content}", true)
+            .AddFieldIf(rule is not null, EmbedFieldNames.RuleBroken, () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
             .AddField(EmbedFieldNames.TotalInfractions, infractionCount, true)
             .AddField(EmbedFieldNames.Reason, reason);
     }
