@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using BrackeysBot.API.Plugins;
@@ -15,9 +16,11 @@ using DSharpPlus.SlashCommands;
 using Hammer.API;
 using Hammer.CommandModules;
 using Hammer.CommandModules.Infractions;
+using Hammer.CommandModules.Reports;
 using Hammer.CommandModules.Rules;
 using Hammer.CommandModules.Staff;
 using Hammer.CommandModules.User;
+using Hammer.CommandModules.V3Migration;
 using Hammer.Data;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -244,10 +247,13 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
     {
         services.AddSingleton(PluginManager.GetPlugin<ICorePlugin>()!);
 
+        services.AddSingleton<HttpClient>();
+
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<MailmanService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
+        services.AddSingleton<V3ToV4UpgradeService>();
         services.AddSingleton<WarningService>();
 
         services.AddHostedSingleton<BanService>();
@@ -286,9 +292,12 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
         slashCommands.RegisterCommands<BanCommand>();
+        slashCommands.RegisterCommands<DeleteMessageCommand>();
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
+        slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
+        slashCommands.RegisterCommands<ReportCommands>();
         slashCommands.RegisterCommands<RuleCommand>();
         slashCommands.RegisterCommands<RulesCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
@@ -331,11 +340,11 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         _warningService = ServiceProvider.GetRequiredService<WarningService>();
     }
 
-    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    private async Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
         Logger.Info($"Registering slash commands for {e.Guild}");
+
         SlashCommandsExtension slashCommands = sender.GetSlashCommands();
-        slashCommands.RegisterCommands<ReportMessageApplicationCommand>(e.Guild.Id);
-        return slashCommands.RefreshCommands();
+        await slashCommands.RefreshCommands().ConfigureAwait(false);
     }
 }

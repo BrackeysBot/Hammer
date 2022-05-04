@@ -174,6 +174,24 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You took too long to respond. The migration procedure has been canceled..
+        /// </summary>
+        internal static string MigrationTimeout {
+            get {
+                return ResourceManager.GetString("MigrationTimeout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please attach the v3 `users.json` database, which will be used to migrate infractions..
+        /// </summary>
+        internal static string MigrationUploadUsersJson {
+            get {
+                return ResourceManager.GetString("MigrationUploadUsersJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have been **indefinitely muted** from **{guild.Name}**..
         /// </summary>
         internal static string MuteDescription {
