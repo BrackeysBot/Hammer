@@ -104,6 +104,22 @@ internal sealed class RuleService : BackgroundService
     /// <summary>
     ///     Retrieves a rule.
     /// </summary>
+    /// <param name="guildId">The ID of the guild whose rules to retrieve.</param>
+    /// <param name="id">The ID of the rule to retrieve.</param>
+    /// <returns>The matching rule, if found.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     <paramref name="id" /> is less than 1, or greater than the count of the guild rules.
+    /// </exception>
+    public Rule? GetRuleById(ulong guildId, int id)
+    {
+        if (!GuildHasRule(guildId, id)) return null;
+
+        return _guildRules[guildId].FirstOrDefault(r => r.Id == id);
+    }
+
+    /// <summary>
+    ///     Retrieves a rule.
+    /// </summary>
     /// <param name="guild">The guild whose rules to retrieve.</param>
     /// <param name="id">The ID of the rule to retrieve.</param>
     /// <returns>The matching rule, if found.</returns>
@@ -137,10 +153,30 @@ internal sealed class RuleService : BackgroundService
     /// <summary>
     ///     Determines if the specified guild has any rules defined.
     /// </summary>
+    /// <param name="guildId">The ID of the guild to check.</param>
+    /// <param name="id">The ID of the rule to search for.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="guildId" /> has a specified rule defined; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
+    public bool GuildHasRule(ulong guildId, int id)
+    {
+        if (id < 1) return false;
+
+        if (!_guildRules.TryGetValue(guildId, out List<Rule>? rules))
+            return false;
+
+        return id <= rules.Count && rules.Exists(r => r.Id == id);
+    }
+
+    /// <summary>
+    ///     Determines if the specified guild has any rules defined.
+    /// </summary>
     /// <param name="guild">The guild to check.</param>
     /// <param name="id">The ID of the rule to search for.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="guild" /> has a specified rule defined; otherwise, <see langword="false" />.
+    ///     <see langword="true" /> if <paramref name="guild" /> has a specified rule defined; otherwise,
+    ///     <see langword="false" />.
     /// </returns>
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public bool GuildHasRule(DiscordGuild guild, int id)

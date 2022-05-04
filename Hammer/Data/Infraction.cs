@@ -10,28 +10,28 @@ namespace Hammer.Data;
 internal sealed class Infraction : IInfraction
 {
     /// <inheritdoc />
-    public ulong GuildId { get; private set; }
+    public ulong GuildId { get; internal set; }
 
     /// <inheritdoc />
     public long Id { get; internal set; }
 
     /// <inheritdoc />
-    public DateTimeOffset IssuedAt { get; private set; }
+    public DateTimeOffset IssuedAt { get; internal set; }
 
     /// <inheritdoc />
-    public string? Reason { get; private set; }
+    public string? Reason { get; internal set; }
 
     /// <inheritdoc />
-    public int? RuleId { get; private set; }
+    public int? RuleId { get; internal set; }
 
     /// <inheritdoc />
-    public ulong StaffMemberId { get; private set; }
+    public ulong StaffMemberId { get; internal set; }
 
     /// <inheritdoc />
-    public InfractionType Type { get; private set; }
+    public InfractionType Type { get; internal set; }
 
     /// <inheritdoc />
-    public ulong UserId { get; private set; }
+    public ulong UserId { get; internal set; }
 
     /// <summary>
     ///     Constructs a new <see cref="Infraction" />.
@@ -43,7 +43,7 @@ internal sealed class Infraction : IInfraction
     /// <param name="reason">The infraction reason.</param>
     /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
     /// <param name="ruleBroken">Optional. The rule which was broken.</param>
-    /// <returns></returns>
+    /// <returns>The newly-created <see cref="Infraction" />.</returns>
     public static Infraction Create(InfractionType type, ulong userId, ulong staffMemberId, ulong guildId, string? reason,
         DateTimeOffset? issuedAt = null, int? ruleBroken = null)
     {
@@ -69,7 +69,7 @@ internal sealed class Infraction : IInfraction
     /// <param name="reason">The infraction reason.</param>
     /// <param name="issuedAt">Optional. The date and time at which the infraction was issued. Defaults to the current time.</param>
     /// <param name="ruleBroken">Optional. The rule which was broken.</param>
-    /// <returns></returns>
+    /// <returns>The newly-created <see cref="Infraction" />.</returns>
     public static Infraction Create(InfractionType type, DiscordUser user, DiscordUser staffMember, DiscordGuild guild,
         string? reason, DateTimeOffset? issuedAt = null, int? ruleBroken = null)
     {

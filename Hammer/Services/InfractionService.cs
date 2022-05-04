@@ -38,6 +38,7 @@ internal sealed class InfractionService : BackgroundService
     private readonly Dictionary<ulong, List<Infraction>> _infractionCache = new();
     private readonly ConfigurationService _configurationService;
     private readonly MailmanService _mailmanService;
+    private readonly RuleService _ruleService;
     private readonly ICorePlugin _corePlugin;
     private readonly DiscordClient _discordClient;
     private readonly IServiceScopeFactory _scopeFactory;
@@ -46,13 +47,14 @@ internal sealed class InfractionService : BackgroundService
     ///     Initializes a new instance of the <see cref="InfractionService" /> class.
     /// </summary>
     public InfractionService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
-        ConfigurationService configurationService, MailmanService mailmanService)
+        ConfigurationService configurationService, MailmanService mailmanService, RuleService ruleService)
     {
         _scopeFactory = scopeFactory;
         _corePlugin = corePlugin;
         _discordClient = discordClient;
         _configurationService = configurationService;
         _mailmanService = mailmanService;
+        _ruleService = ruleService;
     }
 
     /// <summary>
@@ -155,6 +157,7 @@ internal sealed class InfractionService : BackgroundService
         var logMessageBuilder = new StringBuilder();
         logMessageBuilder.Append($"{type.ToString("G")} issued to {user} by {staffMember} in {guild}. ");
         logMessageBuilder.Append($"Reason: {reason ?? "<none>"}. ");
+        logMessageBuilder.Append($"Rule broken: {options.RuleBroken?.Id.ToString() ?? "<none>"}. ");
         logMessageBuilder.Append($"Expires: {expirationTime?.ToString() ?? "never"}");
         Logger.Info(logMessageBuilder);
 
@@ -192,12 +195,17 @@ internal sealed class InfractionService : BackgroundService
         if (user is null) embedBuilder.WithAuthor($"User {infraction.UserId}");
         else embedBuilder.WithAuthor(user);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId)
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         embedBuilder.WithTitle(infraction.Type.Humanize());
         embedBuilder.AddField(EmbedFieldNames.InfractionID, infraction.Id, true);
         embedBuilder.AddField(EmbedFieldNames.User, MentionUtility.MentionUser(infraction.UserId), true);
         embedBuilder.AddField(EmbedFieldNames.UserID, infraction.UserId.ToString(), true);
         embedBuilder.AddField(EmbedFieldNames.StaffMember, MentionUtility.MentionUser(infraction.StaffMemberId), true);
         embedBuilder.AddField(EmbedFieldNames.TotalUserInfractions, infractionCount, true);
+        embedBuilder.AddField(EmbedFieldNames.RuleBroken, reason);
         embedBuilder.AddField(EmbedFieldNames.Reason, reason);
 
         return embedBuilder.Build();
@@ -404,6 +412,29 @@ internal sealed class InfractionService : BackgroundService
         guild = await guild.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
         DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
         await _corePlugin.LogAsync(guild, embed, notificationOptions).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Modifies an infraction.
+    /// </summary>
+    /// <param name="infraction">The infraction to modify.</param>
+    /// <param name="action">The delegate to invoke for the infraction.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="infraction" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="action" /> is <see langword="null" />.</para>
+    /// </exception>
+    public async Task ModifyInfractionAsync(Infraction infraction, Action<Infraction> action)
+    {
+        ArgumentNullException.ThrowIfNull(infraction);
+        ArgumentNullException.ThrowIfNull(action);
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        infraction = context.Entry(infraction).Entity;
+        action(infraction);
+        context.Update(infraction);
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     /// <summary>

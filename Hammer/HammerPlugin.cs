@@ -14,6 +14,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Hammer.API;
 using Hammer.CommandModules;
+using Hammer.CommandModules.Infractions;
 using Hammer.CommandModules.Rules;
 using Hammer.CommandModules.Staff;
 using Hammer.CommandModules.User;
@@ -286,6 +287,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
         slashCommands.RegisterCommands<BanCommand>();
+        slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
