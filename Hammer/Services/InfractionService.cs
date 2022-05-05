@@ -212,8 +212,17 @@ internal sealed class InfractionService : BackgroundService
         return embedBuilder.Build();
     }
 
-    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild,
-        bool staffRequested, int page = 0)
+    /// <summary>
+    ///     Builds an infraction history embed.
+    /// </summary>
+    /// <param name="user">The user whose infractions to display.</param>
+    /// <param name="guild">The guild in which this history was requested.</param>
+    /// <param name="staffRequested">
+    ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.</param>
+    /// <param name="page">The page of infractions to retrieve.</param>
+    /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
+    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild, bool staffRequested,
+        int page = 0)
     {
         const int infractionsPerPage = 10;
 
