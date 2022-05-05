@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -11,10 +11,10 @@ namespace Hammer.CommandModules.Rules;
 
 internal sealed partial class RulesCommand
 {
-    [SlashCommand("setbrief", "Sets the new description for a rule.", false)]
+    [SlashCommand("setbrief", "Sets the new brief for a rule.", false)]
     [SlashRequireGuild]
     public async Task SetBriefAsync(InteractionContext context,
-        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")] long ruleId,
+        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify.")] long ruleId,
         [Option("brief", "The new rule brief.")] string brief)
     {
         await context.DeferAsync().ConfigureAwait(false);
@@ -50,7 +50,7 @@ internal sealed partial class RulesCommand
     [SlashCommand("setdescription", "Sets the new description for a rule.", false)]
     [SlashRequireGuild]
     public async Task SetDescriptionAsync(InteractionContext context,
-        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")] long ruleId,
+        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify.")] long ruleId,
         [Option("description", "The new rule description.")] string description)
     {
         await context.DeferAsync().ConfigureAwait(false);
