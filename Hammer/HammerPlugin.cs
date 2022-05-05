@@ -16,6 +16,7 @@ using DSharpPlus.SlashCommands;
 using Hammer.API;
 using Hammer.CommandModules;
 using Hammer.CommandModules.Infractions;
+using Hammer.CommandModules.Notes;
 using Hammer.CommandModules.Reports;
 using Hammer.CommandModules.Rules;
 using Hammer.CommandModules.Staff;
@@ -297,6 +298,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
+        slashCommands.RegisterCommands<NoteCommand>();
         slashCommands.RegisterCommands<ReportCommands>();
         slashCommands.RegisterCommands<RuleCommand>();
         slashCommands.RegisterCommands<RulesCommand>();

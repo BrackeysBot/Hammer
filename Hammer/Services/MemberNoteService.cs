@@ -212,6 +212,51 @@ internal sealed class MemberNoteService : BackgroundService
     }
 
     /// <summary>
+    ///     Returns an enumerable collection of the notes in the specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose notes to search.</param>
+    /// <returns>
+    ///     An enumerable collection of <see cref="MemberNote" /> values representing the notes stored in
+    ///     <paramref name="guild" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
+    public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordGuild guild)
+    {
+        if (guild is null) throw new ArgumentNullException(nameof(guild));
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (MemberNote note in context.MemberNotes.Where(n => n.GuildId == guild.Id))
+            yield return note;
+    }
+
+    /// <summary>
+    ///     Returns an enumerable collection of the notes in the specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose notes to search.</param>
+    /// <param name="type">The type of notes by which to filter.</param>
+    /// <returns>
+    ///     An enumerable collection of <see cref="MemberNote" /> values representing the notes stored in
+    ///     <paramref name="guild" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     <paramref name="type" /> is not a value defined in <see cref="MemberNoteType" />.
+    /// </exception>
+    public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordGuild guild, MemberNoteType type)
+    {
+        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (MemberNote note in context.MemberNotes.Where(n => n.GuildId == guild.Id && n.Type == type))
+            yield return note;
+    }
+
+    /// <summary>
     ///     Returns an enumerable collection of the notes for a user in the specified guild.
     /// </summary>
     /// <param name="user">The user whose notes to retrieve.</param>
