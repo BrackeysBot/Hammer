@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
 
 namespace Hammer.CommandModules.Notes;
@@ -10,6 +11,7 @@ namespace Hammer.CommandModules.Notes;
 internal sealed partial class NoteCommand
 {
     [SlashCommand("create", "Creates a new note", false)]
+    [SlashRequireGuild]
     public async Task CreateAsync(InteractionContext context,
         [Option("user", "The user for whom to create a note.")] DiscordUser user,
         [Option("content", "The content of the note.")] string content)

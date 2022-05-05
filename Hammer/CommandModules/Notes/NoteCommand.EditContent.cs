@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using BrackeysBot.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Resources;
@@ -12,6 +13,7 @@ namespace Hammer.CommandModules.Notes;
 internal sealed partial class NoteCommand
 {
     [SlashCommand("editcontent", "Edits the content of a note.", false)]
+    [SlashRequireGuild]
     public async Task EditContentAsync(InteractionContext context,
         [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to edit.")] long noteId,
         [Option("content", "The new content of the note.")] string content)

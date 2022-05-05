@@ -4,6 +4,7 @@ using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Resources;
@@ -15,6 +16,7 @@ namespace Hammer.CommandModules.Notes;
 internal sealed partial class NoteCommand
 {
     [SlashCommand("view", "Views a note.", false)]
+    [SlashRequireGuild]
     public async Task CreateAsync(InteractionContext context,
         [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to view.")] long noteId)
     {

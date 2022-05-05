@@ -6,6 +6,7 @@ using BrackeysBot.API.Extensions;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
 using Hammer.Resources;
 using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
@@ -15,6 +16,7 @@ namespace Hammer.CommandModules.Notes;
 internal sealed partial class NoteCommand
 {
     [SlashCommand("viewall", "Views all notes for a given user.", false)]
+    [SlashRequireGuild]
     public async Task ViewAllAsync(InteractionContext context,
         [Option("user", "The user whose notes to view.")] DiscordUser user)
     {
