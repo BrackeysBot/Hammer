@@ -20,7 +20,6 @@ using Hammer.CommandModules.Notes;
 using Hammer.CommandModules.Reports;
 using Hammer.CommandModules.Rules;
 using Hammer.CommandModules.Staff;
-using Hammer.CommandModules.User;
 using Hammer.CommandModules.V3Migration;
 using Hammer.Data;
 using Hammer.Services;
@@ -286,12 +285,12 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         Logger.Info("Registering command modules");
         CommandsNextExtension commandsNext = DiscordClient.GetCommandsNext();
         commandsNext.RegisterCommands<StaffModule>();
-        commandsNext.RegisterCommands<UserModule>();
 
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
         slashCommands.RegisterCommands<BanCommand>();
         slashCommands.RegisterCommands<DeleteMessageCommand>();
+        slashCommands.RegisterCommands<HistoryCommand>();
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MigrateCommand>();
@@ -300,6 +299,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         slashCommands.RegisterCommands<ReportCommands>();
         slashCommands.RegisterCommands<RuleCommand>();
         slashCommands.RegisterCommands<RulesCommand>();
+        slashCommands.RegisterCommands<SelfHistoryCommand>();
         slashCommands.RegisterCommands<UnbanCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
