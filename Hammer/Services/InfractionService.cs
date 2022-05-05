@@ -247,11 +247,11 @@ internal sealed class InfractionService : BackgroundService
 
         return embed;
 
-        string BuildInfractionString(Infraction infraction)
+        string BuildInfractionString(Infraction infraction, int index)
         {
             var builder = new StringBuilder();
 
-            builder.Append(Formatter.Bold($"ID: {infraction.Id}")).Append(" \u2022 ");
+            builder.Append(Formatter.Bold($"ID: {(staffRequested ? infraction.Id : index + 1)}")).Append(" \u2022 ");
             builder.AppendLine($"Issued at {Formatter.Timestamp(infraction.IssuedAt, TimestampFormat.ShortDate)}");
             builder.Append($"Punishment: {infraction.Type.Humanize()}");
 
