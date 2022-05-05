@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using SmartFormat;
+using CoreGuildConfiguration = BrackeysBot.Core.API.Configuration.GuildConfiguration;
 
 namespace Hammer.Services;
 
@@ -254,7 +255,9 @@ internal sealed class MessageReportService : BackgroundService
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)
     {
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(reporter.Guild);
+        DiscordColor color = DiscordColor.Orange;
+        if (_corePlugin.TryGetGuildConfiguration(reporter.Guild, out CoreGuildConfiguration? guildConfiguration))
+            color = guildConfiguration.PrimaryColor;
 
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
@@ -263,7 +266,7 @@ internal sealed class MessageReportService : BackgroundService
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
         return reporter.Guild.CreateDefaultEmbed()
-            .WithColor(guildConfiguration.TertiaryColor)
+            .WithColor(color)
             .WithTitle(EmbedTitles.MessageReported)
             .WithDescription(EmbedMessages.MessageReported.FormatSmart(new {user = reporter, channel = message.Channel}))
             .AddField(EmbedFieldNames.Channel, message.Channel.Mention, true)

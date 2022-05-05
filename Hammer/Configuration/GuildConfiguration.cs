@@ -29,27 +29,6 @@ internal sealed class GuildConfiguration
     public RoleConfiguration RoleConfiguration { get; set; } = new();
 
     /// <summary>
-    ///     Gets or sets the guild's primary color.
-    /// </summary>
-    /// <value>The guild's primary color, in 24-bit RGB format.</value>
-    [JsonPropertyName("primaryColor")]
-    public int PrimaryColor { get; set; } = 0x7837FF;
-
-    /// <summary>
-    ///     Gets or sets the guild's secondary color.
-    /// </summary>
-    /// <value>The guild's secondary color, in 24-bit RGB format.</value>
-    [JsonPropertyName("secondaryColor")]
-    public int SecondaryColor { get; set; } = 0xE33C6C;
-
-    /// <summary>
-    ///     Gets or sets the guild's tertiary color.
-    /// </summary>
-    /// <value>The guild's tertiary color, in 24-bit RGB format.</value>
-    [JsonPropertyName("tertiaryColor")]
-    public int TertiaryColor { get; set; } = 0xFFE056;
-
-    /// <summary>
     ///     Gets or sets the threshold before a message report is considered urgent.
     /// </summary>
     /// <value>The urgent report threshold.</value>

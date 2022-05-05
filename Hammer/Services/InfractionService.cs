@@ -24,6 +24,7 @@ using NLog;
 using SmartFormat;
 using X10D.Text;
 using TimestampFormat = DSharpPlus.TimestampFormat;
+using CoreGuildConfiguration = BrackeysBot.Core.API.Configuration.GuildConfiguration;
 
 namespace Hammer.Services;
 
@@ -216,11 +217,15 @@ internal sealed class InfractionService : BackgroundService
     {
         const int infractionsPerPage = 10;
 
-        IReadOnlyList<Infraction> infractions = GetInfractions(user, guild);
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed();
+        IReadOnlyList<Infraction> infractions = GetInfractions(user, guild);
+
+        if (_corePlugin.TryGetGuildConfiguration(guild, out CoreGuildConfiguration? guildConfiguration))
+            embed.WithColor(guildConfiguration.PrimaryColor);
+        else
+            embed.WithColor(DiscordColor.Orange);
+
         embed.WithAuthor(user);
-        embed.WithColor(guildConfiguration.PrimaryColor);
 
         string underlinedFieldName = Formatter.Underline("Infraction Record");
         if (infractions.Count > 0)
