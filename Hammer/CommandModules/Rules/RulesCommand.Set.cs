@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -39,9 +39,9 @@ internal sealed partial class RulesCommand
         embed.WithTitle($"Rule {rule.Id} updated");
 
         if (string.IsNullOrWhiteSpace(rule.Brief))
-            embed.WithDescription(brief);
+            embed.WithDescription(rule.Description);
         else
-            embed.AddField(rule.Brief, brief);
+            embed.AddField(rule.Brief, rule.Description);
 
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
