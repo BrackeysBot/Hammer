@@ -206,7 +206,7 @@ internal sealed class InfractionService : BackgroundService
         embedBuilder.AddField(EmbedFieldNames.UserID, infraction.UserId.ToString(), true);
         embedBuilder.AddField(EmbedFieldNames.StaffMember, MentionUtility.MentionUser(infraction.StaffMemberId), true);
         embedBuilder.AddField(EmbedFieldNames.TotalUserInfractions, infractionCount, true);
-        embedBuilder.AddField(EmbedFieldNames.RuleBroken, reason);
+        embedBuilder.AddField(EmbedFieldNames.RuleBroken, $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embedBuilder.AddField(EmbedFieldNames.Reason, reason);
 
         return embedBuilder.Build();
