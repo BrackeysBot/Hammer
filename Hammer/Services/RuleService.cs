@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BrackeysBot.Core.API;
+using BrackeysBot.Core.API.Configuration;
 using BrackeysBot.Core.API.Extensions;
 using DSharpPlus.Entities;
 using Hammer.Data;
@@ -19,13 +21,15 @@ namespace Hammer.Services;
 internal sealed class RuleService : BackgroundService
 {
     private readonly Dictionary<ulong, List<Rule>> _guildRules = new();
+    private readonly ICorePlugin _corePlugin;
     private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuleService" /> class.
     /// </summary>
-    public RuleService(IServiceScopeFactory scopeFactory)
+    public RuleService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin)
     {
+        _corePlugin = corePlugin;
         _scopeFactory = scopeFactory;
     }
 
@@ -248,6 +252,47 @@ internal sealed class RuleService : BackgroundService
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
         await context.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Updates the rules message, if there is any.
+    /// </summary>
+    public async Task SendRulesMessageAsync(DiscordChannel channel)
+    {
+        DiscordColor color = DiscordColor.Orange;
+        DiscordGuild guild = channel.Guild;
+        IReadOnlyList<Rule> rules = GetGuildRules(guild);
+        var builder = new DiscordMessageBuilder();
+        var index = 0;
+
+        if (_corePlugin.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            color = guildConfiguration.PrimaryColor;
+
+        foreach (Rule[] ruleChunk in rules.Chunk(25)) // embeds cannot have more than 25 fields
+        {
+            var embed = new DiscordEmbedBuilder();
+            embed.WithThumbnail(guild.IconUrl);
+            embed.WithAuthor(guild.Name, iconUrl: guild.IconUrl);
+            embed.WithTitle("Server Rules");
+            embed.WithColor(color);
+
+            if (index == 0)
+                embed.WithDescription("Welcome to the official Brackeys Discord Server!\n\n" +
+                                      "To ensure that every one of us here are all happy, please take note and follow these " +
+                                      "rules:");
+
+            foreach (Rule rule in ruleChunk)
+            {
+                string name = rule.Brief is { } brief ? $"#{rule.Id} - {brief}" : $"#{rule.Id}";
+                embed.AddField(name, rule.Description);
+            }
+
+            builder.AddEmbed(embed);
+
+            index++;
+        }
+
+        await channel.SendMessageAsync(builder);
     }
 
     /// <inheritdoc />
