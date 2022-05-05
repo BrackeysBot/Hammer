@@ -288,8 +288,6 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         commandsNext.RegisterCommands<StaffModule>();
         commandsNext.RegisterCommands<UserModule>();
 
-        commandsNext.RegisterCommands<UnbanCommandModule>();
-
         Logger.Info("Registering slash commands");
         SlashCommandsExtension slashCommands = DiscordClient.GetSlashCommands();
         slashCommands.RegisterCommands<BanCommand>();
@@ -302,6 +300,7 @@ public sealed class HammerPlugin : MonoPlugin, IHammerPlugin
         slashCommands.RegisterCommands<ReportCommands>();
         slashCommands.RegisterCommands<RuleCommand>();
         slashCommands.RegisterCommands<RulesCommand>();
+        slashCommands.RegisterCommands<UnbanCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
 
