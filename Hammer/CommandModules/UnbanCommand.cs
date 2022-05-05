@@ -29,7 +29,7 @@ internal sealed class UnbanCommand : ApplicationCommandModule
 
     [SlashCommand("unban", "Unbans a user.", false)]
     [SlashRequireGuild]
-    public async Task UnbanCommandAsync(InteractionContext context,
+    public async Task UnbanAsync(InteractionContext context,
         [Option("user", "The user to unban.")] DiscordUser user,
         [Option("reason", "The reason for the ban revocation.")] string? reason = null)
     {

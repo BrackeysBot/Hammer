@@ -41,7 +41,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
 
     [SlashCommand("mute", "Temporarily or permanently mutes a user", false)]
     [SlashRequireGuild]
-    public async Task MuteSlashCommandAsync(InteractionContext context,
+    public async Task MuteAsync(InteractionContext context,
         [Option("user", "The user to mute")] DiscordUser user,
         [Option("reason", "The reason for the mute")] string? reason = null,
         [Option("duration", "The duration of the mute")] string? durationRaw = null,

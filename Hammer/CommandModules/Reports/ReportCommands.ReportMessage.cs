@@ -11,7 +11,7 @@ namespace Hammer.CommandModules.Reports;
 internal sealed partial class ReportCommands
 {
     [ContextMenu(ApplicationCommandType.MessageContextMenu, "Report Message")]
-    public async Task ReportMessageContextMenuAsync(ContextMenuContext context)
+    public async Task ReportMessageAsync(ContextMenuContext context)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

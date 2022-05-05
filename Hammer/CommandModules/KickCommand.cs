@@ -36,7 +36,7 @@ internal sealed class KickCommand : ApplicationCommandModule
 
     [SlashCommand("kick", "Kicks a member", false)]
     [SlashRequireGuild]
-    public async Task KickCommandAsync(InteractionContext context,
+    public async Task KickAsync(InteractionContext context,
         [Option("member", "The member to kick.")] DiscordUser user,
         [Option("reason", "The reason for the kick."), RemainingText] string? reason = null,
         [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
