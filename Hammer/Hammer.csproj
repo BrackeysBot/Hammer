@@ -26,7 +26,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BrackeysBot.Core.API" Version="1.0.0-nightly.21"/>
+        <PackageReference Include="BrackeysBot.Core.API" Version="1.0.0-nightly.22"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.7">
             <PrivateAssets>all</PrivateAssets>
