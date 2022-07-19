@@ -6,6 +6,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.API;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using SmartFormat;
@@ -115,6 +116,7 @@ internal sealed class MailmanService
             .WithFooter(guild.Name, guild.IconUrl)
             .AddFieldIf(rule is not null, EmbedFieldNames.RuleBroken, () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
             .AddField(EmbedFieldNames.TotalInfractions, infractionCount, true)
-            .AddField(EmbedFieldNames.Reason, reason);
+            .AddField(EmbedFieldNames.Reason, reason)
+            .AddModMailNotice();
     }
 }

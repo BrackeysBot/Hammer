@@ -50,7 +50,7 @@ internal static class DiscordEmbedExtensions
     /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
     public static DiscordEmbedBuilder AddModMailNotice(this DiscordEmbedBuilder embedBuilder)
     {
-        embedBuilder.Description = $"{embedBuilder.Description}\n\n{EmbedMessages.DmModMail}";
+        embedBuilder.AddField("\u200B", EmbedMessages.DmModMail);
         return embedBuilder;
     }
 }
