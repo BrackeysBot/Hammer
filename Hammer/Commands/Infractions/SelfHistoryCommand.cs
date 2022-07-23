@@ -21,7 +21,7 @@ internal sealed class SelfHistoryCommand : ApplicationCommandModule
         _infractionService = infractionService;
     }
 
-    [SlashCommand("selfhistory", "View your own infraction history.", false)]
+    [SlashCommand("selfhistory", "View your own infraction history.")]
     [SlashRequireGuild]
     public async Task SelfHistoryAsync(InteractionContext context)
     {
