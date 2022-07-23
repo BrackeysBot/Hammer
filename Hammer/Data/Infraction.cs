@@ -22,7 +22,6 @@ internal sealed class Infraction : IEquatable<Infraction>, IComparable<Infractio
         if (other is null) throw new ArgumentNullException(nameof(other));
         
         GuildId = other.GuildId;
-        Id = other.Id;
         IssuedAt = other.IssuedAt;
         Reason = other.Reason;
         RuleId = other.RuleId;
