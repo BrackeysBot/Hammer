@@ -108,9 +108,9 @@ internal sealed class MailmanService
             .WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}))
             .WithThumbnail(guild.IconUrl)
             .WithFooter(guild.Name, guild.IconUrl)
+            .AddField("Reason", reason)
             .AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
             .AddField("Total Infractions", infractionCount, true)
-            .AddField("Reason", reason)
             .AddModMailNotice();
     }
 }
