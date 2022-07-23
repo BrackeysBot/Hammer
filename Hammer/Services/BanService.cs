@@ -179,6 +179,16 @@ internal sealed class BanService : BackgroundService
         reason = $"Kicked by {staffMember.GetUsernameWithDiscriminator()}: {reason}";
         await member.RemoveAsync(reason).ConfigureAwait(false);
 
+        var embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.SpringGreen);
+        embed.WithAuthor(member);
+        embed.WithTitle("User kicked");
+        embed.AddField("User", member.Mention, true);
+        embed.AddField("User ID", member.Id, true);
+        embed.AddField("Staff Member", staffMember.Mention, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
+        await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
+
         return infraction;
     }
 
