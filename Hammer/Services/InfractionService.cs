@@ -103,6 +103,19 @@ internal sealed class InfractionService : BackgroundService
     /// <remarks>Do NOT use this method to issue infractions to users. Use an appropriate user-targeted method.</remarks>
     public async Task AddInfractionsAsync(IEnumerable<Infraction> infractions)
     {
+        infractions = infractions.ToArray();
+
+        foreach (Infraction infraction in infractions)
+        {
+            if (!_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
+            {
+                cache = new List<Infraction>();
+                _infractionCache.Add(infraction.GuildId, cache);
+            }
+
+            cache.Add(infraction);
+        }
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         await context.AddRangeAsync(infractions).ConfigureAwait(false);
