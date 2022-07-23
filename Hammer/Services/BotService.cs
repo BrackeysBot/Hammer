@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Hammer.Commands;
 using Hammer.Commands.Infractions;
