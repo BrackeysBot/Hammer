@@ -102,15 +102,20 @@ internal sealed class MailmanService
         if (infraction.RuleId.HasValue)
             rule = _ruleService.GetRuleById(guild, infraction.RuleId.Value);
 
-        return new DiscordEmbedBuilder()
-            .WithColor(0xFF0000)
-            .WithTitle(infraction.Type.Humanize())
-            .WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}))
-            .WithThumbnail(guild.IconUrl)
-            .WithFooter(guild.Name, guild.IconUrl)
-            .AddField("Reason", reason)
-            .AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
-            .AddField("Total Infractions", infractionCount, true)
-            .AddModMailNotice();
+        var embed = new DiscordEmbedBuilder();
+
+        embed.WithColor(0xFF0000);
+        embed.WithTitle(infraction.Type.Humanize());
+        embed.WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}));
+        embed.WithThumbnail(guild.IconUrl);
+        embed.WithFooter(guild.Name, guild.IconUrl);
+        embed.AddField("Reason", reason);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+        embed.AddField("Total Infractions", infractionCount, true);
+
+        if (infraction.Type is not InfractionType.Ban or InfractionType.TemporaryBan)
+            embed.AddModMailNotice();
+
+        return embed;
     }
 }
