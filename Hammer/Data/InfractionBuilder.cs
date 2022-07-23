@@ -1,6 +1,4 @@
-﻿using System;
-using DSharpPlus.Entities;
-using Hammer.API;
+﻿using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 
@@ -104,7 +102,16 @@ internal sealed class InfractionBuilder
         if (_type is null) throw new InvalidOperationException($"{nameof(Type)} is not set!");
         if (_guild is null) throw new InvalidOperationException($"{nameof(Guild)} is not set!");
 
-        return Infraction.Create(Type, Target, StaffMember, Guild, Reason, IssuedAt, Rule?.Id);
+        return new Infraction
+        {
+            Type = Type,
+            UserId = Target.Id,
+            GuildId = Guild.Id,
+            StaffMemberId = StaffMember.Id,
+            Reason = Reason,
+            IssuedAt = IssuedAt,
+            RuleId = Rule?.Id
+        };
     }
 
     /// <summary>

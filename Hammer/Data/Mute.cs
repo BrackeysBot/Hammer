@@ -1,5 +1,4 @@
-﻿using System;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local

@@ -1,30 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using BrackeysBot.API;
-using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
-using Hammer.API;
 using Hammer.Configuration;
 using Hammer.Data;
-using Hammer.Data.Infractions;
-using Hammer.Resources;
+using Hammer.Extensions;
 using Humanizer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using SmartFormat;
+using X10D.DSharpPlus;
 using X10D.Text;
+using ILogger = NLog.ILogger;
 using TimestampFormat = DSharpPlus.TimestampFormat;
-using CoreGuildConfiguration = BrackeysBot.Core.API.Configuration.GuildConfiguration;
 
 namespace Hammer.Services;
 
@@ -37,23 +26,32 @@ internal sealed class InfractionService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly Dictionary<ulong, List<Infraction>> _infractionCache = new();
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
+    private readonly DiscordLogService _logService;
+    private readonly InfractionCooldownService _cooldownService;
     private readonly MailmanService _mailmanService;
     private readonly RuleService _ruleService;
-    private readonly ICorePlugin _corePlugin;
-    private readonly DiscordClient _discordClient;
-    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InfractionService" /> class.
     /// </summary>
-    public InfractionService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
-        ConfigurationService configurationService, MailmanService mailmanService, RuleService ruleService)
+    public InfractionService(
+        IServiceScopeFactory scopeFactory,
+        DiscordClient discordClient,
+        ConfigurationService configurationService,
+        DiscordLogService logService,
+        InfractionCooldownService cooldownService,
+        MailmanService mailmanService,
+        RuleService ruleService
+    )
     {
         _scopeFactory = scopeFactory;
-        _corePlugin = corePlugin;
         _discordClient = discordClient;
         _configurationService = configurationService;
+        _logService = logService;
+        _cooldownService = cooldownService;
         _mailmanService = mailmanService;
         _ruleService = ruleService;
     }
@@ -74,14 +72,13 @@ internal sealed class InfractionService : BackgroundService
     /// <seealso cref="CreateInfractionAsync" />
     public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild? guild = null)
     {
-        if (guild is not null) guild = await guild.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
         try
         {
             guild ??= await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
-            throw new InvalidOperationException(ExceptionMessages.InvalidGuild);
+            throw new InvalidOperationException("The specified guild is invalid.");
         }
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
@@ -133,19 +130,14 @@ internal sealed class InfractionService : BackgroundService
     public async Task<Infraction> CreateInfractionAsync(InfractionType type, DiscordUser user, DiscordMember staffMember,
         InfractionOptions options)
     {
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         string? reason = options.Reason.AsNullIfWhiteSpace();
 
         DiscordGuild guild = staffMember.Guild;
         DateTimeOffset? expirationTime = options.ExpirationTime;
 
-        if (type == InfractionType.Gag)
-        {
-            GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
-            expirationTime = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(guildConfiguration.MuteConfiguration.GagDuration);
-        }
+        if (type == InfractionType.Gag &&
+            _configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            expirationTime = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(guildConfiguration.Mute.GagDuration);
 
         var builder = new InfractionBuilder();
         builder.WithType(type);
@@ -163,8 +155,12 @@ internal sealed class InfractionService : BackgroundService
         Logger.Info(logMessageBuilder);
 
         if (type != InfractionType.Gag && options.NotifyUser)
-            await _mailmanService.SendInfractionAsync(infraction).ConfigureAwait(false);
+        {
+            int infractionCount = GetInfractionCount(user, staffMember.Guild);
+            await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+        }
 
+        _cooldownService.StartCooldown(infraction);
         return infraction;
     }
 
@@ -172,8 +168,11 @@ internal sealed class InfractionService : BackgroundService
     ///     Creates an infraction embed to send to the staff log channel.
     /// </summary>
     /// <param name="infraction">The infraction to log.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
     public async Task<DiscordEmbed> CreateInfractionEmbedAsync(Infraction infraction)
     {
+        if (infraction is null) throw new ArgumentNullException(nameof(infraction));
+
         DiscordUser? user;
         try
         {
@@ -201,13 +200,13 @@ internal sealed class InfractionService : BackgroundService
             rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
 
         embedBuilder.WithTitle(infraction.Type.Humanize());
-        embedBuilder.AddField(EmbedFieldNames.InfractionID, infraction.Id, true);
-        embedBuilder.AddField(EmbedFieldNames.User, MentionUtility.MentionUser(infraction.UserId), true);
-        embedBuilder.AddField(EmbedFieldNames.UserID, infraction.UserId.ToString(), true);
-        embedBuilder.AddField(EmbedFieldNames.StaffMember, MentionUtility.MentionUser(infraction.StaffMemberId), true);
-        embedBuilder.AddField(EmbedFieldNames.TotalUserInfractions, infractionCount, true);
-        embedBuilder.AddField(EmbedFieldNames.RuleBroken, $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
-        embedBuilder.AddField(EmbedFieldNames.Reason, reason);
+        embedBuilder.AddField("Infraction ID", infraction.Id, true);
+        embedBuilder.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
+        embedBuilder.AddField("User ID", infraction.UserId.ToString(), true);
+        embedBuilder.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
+        embedBuilder.AddField("Reason", reason);
+        embedBuilder.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+        embedBuilder.AddField("Total User Infractions", infractionCount, true);
 
         return embedBuilder.Build();
     }
@@ -226,14 +225,10 @@ internal sealed class InfractionService : BackgroundService
     {
         const int infractionsPerPage = 10;
 
-        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed();
         IReadOnlyList<Infraction> infractions = GetInfractions(user, guild);
 
-        if (_corePlugin.TryGetGuildConfiguration(guild, out CoreGuildConfiguration? guildConfiguration))
-            embed.WithColor(guildConfiguration.PrimaryColor);
-        else
-            embed.WithColor(DiscordColor.Orange);
-
+        var embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.Orange);
         embed.WithAuthor(user);
 
         string underlinedFieldName = Formatter.Underline("Infraction Record");
@@ -264,7 +259,12 @@ internal sealed class InfractionService : BackgroundService
         }
     }
 
-    /// <inheritdoc cref="IHammerPlugin.EnumerateInfractions(DiscordGuild)" />
+    /// <summary>
+    ///     Enumerates all infractions for a specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose infractions to enumerate.</param>
+    /// <returns>An enumerable collection of <see cref="Infraction" /> objects.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public IEnumerable<Infraction> EnumerateInfractions(DiscordGuild guild)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
@@ -276,7 +276,32 @@ internal sealed class InfractionService : BackgroundService
             yield return infraction;
     }
 
-    /// <inheritdoc cref="IHammerPlugin.EnumerateInfractions(DiscordUser, DiscordGuild)" />
+    /// <summary>
+    ///     Enumerates the infractions issued to a user in the specified guild.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose infractions to enumerate.</param>
+    /// <param name="guildId">The ID of the guild whose infractions to search.</param>
+    /// <returns>An enumerable collection of <see cref="Infraction" /> objects.</returns>
+    public IEnumerable<Infraction> EnumerateInfractions(ulong userId, ulong guildId)
+    {
+        if (!_infractionCache.TryGetValue(guildId, out List<Infraction>? cache))
+            yield break;
+
+        foreach (Infraction infraction in cache.Where(i => i.UserId == userId))
+            yield return infraction;
+    }
+
+    /// <summary>
+    ///     Enumerates the infractions issued to a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose infractions to enumerate.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <returns>An enumerable collection of <see cref="Infraction" /> objects.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
     public IEnumerable<Infraction> EnumerateInfractions(DiscordUser user, DiscordGuild guild)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
@@ -295,35 +320,34 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="user">The user to warn.</param>
     /// <param name="staffMember">The staff member responsible for the warning.</param>
     /// <param name="sourceMessage">The message to which the staff member reacted.</param>
-    /// <returns>The newly-created infraction.</returns>
-    public async Task<Infraction> GagAsync(DiscordUser user, DiscordMember staffMember, DiscordMessage? sourceMessage = null)
+    /// <returns>The newly-created infraction, or <see langword="null" /> if the infraction could not be created.</returns>
+    public async Task<Infraction?> GagAsync(DiscordUser user, DiscordMember staffMember, DiscordMessage? sourceMessage = null)
     {
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         DiscordGuild guild = staffMember.Guild;
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(guild);
-        long gagDurationMilliseconds = guildConfiguration.MuteConfiguration.GagDuration;
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            return null;
+
+        long gagDurationMilliseconds = guildConfiguration.Mute.GagDuration;
         TimeSpan gagDuration = TimeSpan.FromMilliseconds(gagDurationMilliseconds);
         DateTimeOffset gagUntil = DateTimeOffset.UtcNow + gagDuration;
 
         try
         {
             DiscordMember member = await guild.GetMemberAsync(user.Id).ConfigureAwait(false);
-            await member.TimeoutAsync(gagUntil, AuditLogReasons.GaggedUser.FormatSmart(new {staffMember})).ConfigureAwait(false);
+            await member.TimeoutAsync(gagUntil, $"Gagged by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
             // user is not in the guild. we can safely ignore this
         }
 
-        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
+        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
         embed.WithAuthor(user);
         embed.WithColor(DiscordColor.Orange);
-        embed.WithTitle(EmbedTitles.UserGagged);
-        embed.AddField(EmbedFieldNames.User, user.Mention, true);
-        embed.AddField(EmbedFieldNames.StaffMember, staffMember.Mention, true);
-        embed.AddField(EmbedFieldNames.Duration, gagDuration.Humanize(), true);
+        embed.WithTitle("User Gagged");
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("Staff Member", staffMember.Mention, true);
+        embed.AddField("Duration", gagDuration.Humanize(), true);
 
         if (sourceMessage is not null)
         {
@@ -335,15 +359,15 @@ internal sealed class InfractionService : BackgroundService
             string messageLink = Formatter.MaskedUrl(sourceMessage.Id.ToString(), sourceMessage.JumpLink);
             string timestamp = Formatter.Timestamp(sourceMessage.CreationTimestamp, TimestampFormat.ShortDateTime);
 
-            embed.AddField(EmbedFieldNames.MessageID, messageLink, true);
-            embed.AddField(EmbedFieldNames.MessageTime, timestamp, true);
-            embed.AddFieldIf(hasContent, EmbedFieldNames.Content, content);
-            embed.AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
+            embed.AddField("Message ID", messageLink, true);
+            embed.AddField("Message Time", timestamp, true);
+            embed.AddFieldIf(hasContent, "Content", content);
+            embed.AddFieldIf(hasAttachments, "Attachments", attachments);
         }
 
-        await _corePlugin.LogAsync(guild, embed).ConfigureAwait(false);
-
-        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false});
+        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
+        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false})
+            .ConfigureAwait(false);
     }
 
     /// <summary>
@@ -356,52 +380,125 @@ internal sealed class InfractionService : BackgroundService
         return _infractionCache.Values.SelectMany(i => i).FirstOrDefault(i => i.Id == infractionId);
     }
 
-    /// <inheritdoc cref="IHammerPlugin.GetInfractionCount(DiscordGuild)" />
+    /// <summary>
+    ///     Gets the total infraction count for the specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <returns>The count of infractions in <paramref name="guild" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public int GetInfractionCount(DiscordGuild guild)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
-
-        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
-            ? cache.Count
-            : 0;
+        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache) ? cache.Count : 0;
     }
 
-    /// <inheritdoc cref="IHammerPlugin.GetInfractionCount(DiscordUser, DiscordGuild)" />
+    /// <summary>
+    ///     Gets the total infraction count for a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose infractions to count.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <returns>The count of infractions for <paramref name="user" /> in <paramref name="guild" />.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" /></para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
     public int GetInfractionCount(DiscordUser user, DiscordGuild guild)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return GetInfractionCount(user.Id, guild.Id);
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
+            return 0;
+
+        var total = 0;
+        int count = cache.Count;
+        ulong userId = user.Id;
+
+        for (var index = 0; index < count; index++)
+        {
+            if (cache[index].UserId == userId)
+                total++;
+        }
+
+        return total;
     }
 
-    /// <inheritdoc cref="IHammerPlugin.GetInfractionCount(DiscordUser, DiscordGuild)" />
+    /// <summary>
+    ///     Gets the total infraction count for a user in the specified guild.
+    /// </summary>
+    /// <param name="userId">The ID of the user whose infractions to count.</param>
+    /// <param name="guildId">The ID of the guild whose infractions to search.</param>
+    /// <returns>The count of infractions for <paramref name="userId" /> in <paramref name="guildId" />.</returns>
     public int GetInfractionCount(ulong userId, ulong guildId)
     {
-        return _infractionCache.TryGetValue(guildId, out List<Infraction>? cache)
-            ? cache.Count(i => i.UserId == userId)
-            : 0;
+        if (!_infractionCache.TryGetValue(guildId, out List<Infraction>? cache))
+            return 0;
+
+        var total = 0;
+        int count = cache.Count;
+
+        for (var index = 0; index < count; index++)
+        {
+            if (cache[index].UserId == userId)
+                total++;
+        }
+
+        return total;
     }
 
-    /// <inheritdoc cref="IHammerPlugin.GetInfractions(DiscordGuild)" />
+    /// <summary>
+    ///     Returns all infractions for the specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose infractions to return.</param>
+    /// <returns>A read-only view of the list of <see cref="Infraction" /> objects held for <paramref name="guild" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
-            ? cache.ToArray()
-            : ArraySegment<Infraction>.Empty;
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
+            return ArraySegment<Infraction>.Empty;
+
+        return cache.ToArray();
     }
 
-    /// <inheritdoc cref="IHammerPlugin.GetInfractions(DiscordUser, DiscordGuild)" />
+    /// <summary>
+    ///     Returns all infractions for a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose infractions to return.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <returns>
+    ///     A read-only view of the list of <see cref="Infraction" /> objects issued to <paramref name="user" /> in
+    ///     <paramref name="guild" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" /></para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
     public IReadOnlyList<Infraction> GetInfractions(DiscordUser user, DiscordGuild guild)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (guild is null) throw new ArgumentNullException(nameof(guild));
 
-        return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache)
-            ? cache.Where(i => i.UserId == user.Id).ToArray()
-            : ArraySegment<Infraction>.Empty;
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
+            return ArraySegment<Infraction>.Empty;
+
+        int count = cache.Count;
+        var infractions = new Infraction[count];
+        var resultIndex = 0;
+        ulong userId = user.Id;
+
+        for (var index = 0; index < infractions.Length; index++)
+        {
+            Infraction infraction = cache[index];
+
+            if (infraction.UserId == userId)
+                infractions[resultIndex++] = infraction;
+        }
+
+        return new ArraySegment<Infraction>(infractions, 0, resultIndex);
     }
 
     /// <summary>
@@ -409,23 +506,18 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="guild">The guild in which to log.</param>
     /// <param name="infraction">The infraction to log.</param>
-    /// <param name="notificationOptions">
-    ///     Optional. The staff notification options. Defaults to <see cref="StaffNotificationOptions.None" />.
-    /// </param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     ///     or
     ///     <para><paramref name="infraction" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task LogInfractionAsync(DiscordGuild guild, Infraction infraction,
-        StaffNotificationOptions notificationOptions = StaffNotificationOptions.None)
+    public async Task LogInfractionAsync(DiscordGuild guild, Infraction infraction)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
-        guild = await guild.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
         DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-        await _corePlugin.LogAsync(guild, embed, notificationOptions).ConfigureAwait(false);
+        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -460,6 +552,7 @@ internal sealed class InfractionService : BackgroundService
     {
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
+        _cooldownService.StopCooldown(infraction.UserId);
         _infractionCache[infraction.GuildId].Remove(infraction);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
@@ -485,6 +578,7 @@ internal sealed class InfractionService : BackgroundService
             List<Infraction> list = _infractionCache[group.Key];
             foreach (Infraction infraction in group)
             {
+                _cooldownService.StopCooldown(infraction.UserId);
                 context.Remove(infraction);
                 list.Remove(infraction);
             }

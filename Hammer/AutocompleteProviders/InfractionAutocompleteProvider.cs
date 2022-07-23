@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
-using Hammer.API;
 using Hammer.Data;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
+using X10D.DSharpPlus;
 
 namespace Hammer.AutocompleteProviders;
 
@@ -30,7 +26,7 @@ internal sealed class InfractionAutocompleteProvider : IAutocompleteProvider
         }));
     }
 
-    private static string GetInfractionSummary(DiscordClient client, IInfraction infraction)
+    private static string GetInfractionSummary(DiscordClient client, Infraction infraction)
     {
         string userString = $"User {infraction.UserId}";
         try

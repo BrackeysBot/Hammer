@@ -1,7 +1,4 @@
-﻿using System;
-using DSharpPlus.Entities;
-
-namespace Hammer.Data;
+﻿namespace Hammer.Data;
 
 /// <summary>
 ///     Represents a message sent from a staff member to a community member.
@@ -9,62 +6,39 @@ namespace Hammer.Data;
 internal sealed class StaffMessage : IEquatable<StaffMessage>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="StaffMessage" /> class.
-    /// </summary>
-    /// <param name="staffMember">The staff member who sent the message.</param>
-    /// <param name="recipient">The community member who received the message.</param>
-    /// <param name="content">The content of the message.</param>
-    /// <exception cref="ArgumentNullException">
-    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
-    ///     -or-
-    ///     <para><paramref name="recipient" /> is <see langword="null" />.</para>
-    ///     -or-
-    ///     <para><paramref name="content" /> is <see langword="null" />, empty, or consists of only whitespace.</para>
-    /// </exception>
-    public StaffMessage(DiscordMember staffMember, DiscordUser recipient, string content)
-    {
-        StaffMember = staffMember ?? throw new ArgumentNullException(nameof(staffMember));
-        Recipient = recipient ?? throw new ArgumentNullException(nameof(recipient));
-        Content = string.IsNullOrWhiteSpace(content) ? throw new ArgumentNullException(nameof(content)) : content;
-        Guild = staffMember.Guild;
-    }
-
-    private StaffMessage()
-    {
-        Content = string.Empty;
-        Guild = null!;
-        Recipient = null!;
-        StaffMember = null!;
-    }
-
-    /// <summary>
     ///     Gets or sets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    public string Content { get; private set; }
+    public string Content { get; internal set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the ID of the guild from which this message was sent.
     /// </summary>
     /// <value>The guild ID.</value>
-    public DiscordGuild Guild { get; private set; }
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     ///     Gets or sets the ID of the message.
     /// </summary>
-    public long Id { get; private set; }
+    public long Id { get; internal set; }
 
     /// <summary>
     ///     Gets the user who is in receipt of this message.
     /// </summary>
     /// <value>The message recipient.</value>
-    public DiscordUser Recipient { get; private set; }
+    public ulong RecipientId { get; internal set; }
+
+    /// <summary>
+    ///     Gets the date and time at which this message was sent.
+    /// </summary>
+    /// <value>The creation timestamp.</value>
+    public DateTimeOffset SentAt { get; internal set; }
 
     /// <summary>
     ///     Gets the user ID of the staff member who sent the message.
     /// </summary>
     /// <value>The staff member's user ID.</value>
-    public DiscordUser StaffMember { get; private set; }
+    public ulong StaffMemberId { get; internal set; }
 
     /// <inheritdoc />
     public bool Equals(StaffMessage? other)

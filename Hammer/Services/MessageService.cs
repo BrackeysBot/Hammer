@@ -1,8 +1,6 @@
-using System;
-using System.Threading.Tasks;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
+using DSharpPlus;
 using DSharpPlus.Entities;
+using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
@@ -10,6 +8,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using SmartFormat;
+using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -19,16 +18,25 @@ namespace Hammer.Services;
 internal sealed class MessageService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly ICorePlugin _corePlugin;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly DiscordClient _discordClient;
+    private readonly ConfigurationService _configurationService;
+    private readonly DiscordLogService _logService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageService" /> class.
     /// </summary>
-    public MessageService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin)
+    public MessageService(
+        IServiceScopeFactory scopeFactory,
+        DiscordClient discordClient,
+        ConfigurationService configurationService,
+        DiscordLogService logService
+    )
     {
         _scopeFactory = scopeFactory;
-        _corePlugin = corePlugin;
+        _discordClient = discordClient;
+        _configurationService = configurationService;
+        _logService = logService;
     }
 
     /// <summary>
@@ -60,34 +68,47 @@ internal sealed class MessageService
 
         StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message).ConfigureAwait(false);
 
-        Logger.Info(LoggerMessages.StaffMessagedMember.FormatSmart(new
-            {staffMember, recipient, guild = staffMember.Guild, message}));
-        await recipient.SendMessageAsync(CreateUserEmbed(staffMessage)).ConfigureAwait(false);
-        await _corePlugin.LogAsync(recipient.Guild, CreateStaffLogEmbed(staffMessage));
+        Logger.Info($"{staffMember} sent a message to {recipient} from {staffMember.Guild}. Contents: {message}");
+
+        DiscordEmbed embed = await CreateUserEmbedAsync(staffMessage).ConfigureAwait(false);
+        await recipient.SendMessageAsync(embed).ConfigureAwait(false);
+        
+        embed = await CreateStaffLogEmbedAsync(staffMessage).ConfigureAwait(false);
+        await _logService.LogAsync(recipient.Guild, embed).ConfigureAwait(false);
     }
 
-    private static DiscordEmbed CreateStaffLogEmbed(StaffMessage message)
+    private async Task<DiscordEmbed> CreateStaffLogEmbedAsync(StaffMessage message)
     {
-        DiscordEmbedBuilder embedBuilder = message.Guild.CreateDefaultEmbed();
+        DiscordGuild guild = await _discordClient.GetGuildAsync(message.GuildId).ConfigureAwait(false);
+        DiscordUser staffMember = await _discordClient.GetUserAsync(message.StaffMemberId).ConfigureAwait(false);
+        DiscordUser user = await _discordClient.GetUserAsync(message.RecipientId).ConfigureAwait(false);
+
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            throw new InvalidOperationException(ExceptionMessages.NoConfigurationForGuild);
+
+        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
 
         embedBuilder.WithAuthor($"Message #{message.Id}");
-        embedBuilder.WithTitle(EmbedTitles.MessageSent);
-        embedBuilder.WithDescription(
-            EmbedMessages.StaffSentMessage.FormatSmart(new {staffMember = message.StaffMember, user = message.Recipient}));
-        embedBuilder.AddField(EmbedFieldNames.Message, message.Content);
+        embedBuilder.WithTitle("Message Sent");
+        embedBuilder.WithDescription($"Staff member {staffMember.Mention} sent a message to {user.Mention}.");
+        embedBuilder.AddField("Message", message.Content);
 
         return embedBuilder;
     }
 
-    private static DiscordEmbed CreateUserEmbed(StaffMessage message)
+    private async Task<DiscordEmbed> CreateUserEmbedAsync(StaffMessage message)
     {
-        DiscordEmbedBuilder embedBuilder = message.Guild.CreateDefaultEmbed();
+        DiscordGuild guild = await _discordClient.GetGuildAsync(message.GuildId).ConfigureAwait(false);
+        DiscordUser user = await _discordClient.GetUserAsync(message.RecipientId).ConfigureAwait(false);
 
-        embedBuilder.WithTitle(EmbedTitles.Message);
-        embedBuilder.WithDescription(
-            EmbedMessages.MessageFromStaff.FormatSmart(new {user = message.Recipient, guild = message.Guild}));
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            throw new InvalidOperationException(ExceptionMessages.NoConfigurationForGuild);
 
-        embedBuilder.AddField(EmbedFieldNames.Message, message.Content);
+        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
+
+        embedBuilder.WithTitle("Message");
+        embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new {user, guild}));
+        embedBuilder.AddField("Message", message.Content);
         embedBuilder.AddModMailNotice();
 
         return embedBuilder;
@@ -95,10 +116,18 @@ internal sealed class MessageService
 
     private async Task<StaffMessage> CreateStaffMessageAsync(DiscordUser recipient, DiscordMember staffMember, string message)
     {
+        var staffMessage = new StaffMessage
+        {
+            StaffMemberId = staffMember.Id,
+            RecipientId = recipient.Id,
+            GuildId = staffMember.Guild.Id,
+            Content = message,
+            SentAt = DateTimeOffset.Now
+        };
+
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        EntityEntry<StaffMessage> entry =
-            await context.AddAsync(new StaffMessage(staffMember, recipient, message)).ConfigureAwait(false);
+        EntityEntry<StaffMessage> entry = await context.AddAsync(staffMessage).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
         return entry.Entity;

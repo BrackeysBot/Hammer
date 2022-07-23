@@ -1,10 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using BrackeysBot.Core.API.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
+using Hammer.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Hammer.Services;
@@ -52,13 +50,14 @@ internal sealed class StaffReactionService : BackgroundService
         }
 
         DiscordUser author = message.Author;
-        GuildConfiguration configuration = _configurationService.GetGuildConfiguration(guild);
-
-        var staffMember = (DiscordMember) e.User;
-        if (!staffMember.IsStaffMember(guild))
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? configuration))
             return;
 
-        ReactionConfiguration reactionConfiguration = configuration.ReactionConfiguration;
+        var staffMember = (DiscordMember) e.User;
+        if (!staffMember.IsStaffMember(configuration))
+            return;
+
+        ReactionConfiguration reactionConfiguration = configuration.Reactions;
         DiscordEmoji emoji = e.Emoji;
         string reaction = emoji.GetDiscordName();
 

@@ -1,5 +1,4 @@
-﻿using DSharpPlus;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -10,17 +9,6 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infraction>
 {
-    private readonly DiscordClient _discordClient;
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="InfractionConfiguration" /> class.
-    /// </summary>
-    /// <param name="discordClient">The Discord client.</param>
-    public InfractionConfiguration(DiscordClient discordClient)
-    {
-        _discordClient = discordClient;
-    }
-
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Infraction> builder)
     {

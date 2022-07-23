@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
+﻿using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using Hammer.Configuration;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,8 +18,13 @@ internal sealed class NoteAutocompleteProvider : IAutocompleteProvider
     public async Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext context)
     {
         var noteService = context.Services.GetRequiredService<MemberNoteService>();
+        var configurationService = context.Services.GetRequiredService<ConfigurationService>();
+        
+        if (!configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
+            return ArraySegment<DiscordAutoCompleteChoice>.Empty;
+        
         ConfiguredCancelableAsyncEnumerable<MemberNote> notes =
-            context.Member.GetPermissionLevel(context.Guild) < PermissionLevel.Moderator
+            context.Member.GetPermissionLevel(guildConfiguration) < PermissionLevel.Moderator
                 ? noteService.GetNotesAsync(context.Guild, MemberNoteType.Guru).ConfigureAwait(false)
                 : noteService.GetNotesAsync(context.Guild).ConfigureAwait(false);
 

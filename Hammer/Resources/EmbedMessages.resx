@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <root>
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
-                xmlns="">
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
         <xsd:element name="root" msdata:IsDataSet="true">
 
         </xsd:element>
@@ -23,28 +23,17 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+
     <data name="BanDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **indefinitely banned** from **{guild.Name}**.</value>
     </data>
     <data name="DmModMail" xml:space="preserve">
         <value>If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel.</value>
     </data>
-    <data name="GeneratingTrackLog" xml:space="preserve">
-        <value>The interaction history of {user.Mention} is being collected. This may take a few minutes.</value>
-    </data>
-    <data name="InfractionRedacted" xml:space="preserve">
-        <value>{infraction.Type} #{infraction.Id} for {user.Mention} has been redacted.</value>
-    </data>
-    <data name="InvalidNoteType" xml:space="preserve">
-        <value>The specified note type {type} is invalid. Please use one of the following types: {validTypes}</value>
-    </data>
     <data name="KickDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
 
 Please take some time to reflect on the reason for this action, and return when you feel you are ready.</value>
-    </data>
-    <data name="MessageDeleted" xml:space="preserve">
-        <value>A message in {channel.Mention} was deleted by a staff member.</value>
     </data>
     <data name="MessageDeletionDescription" xml:space="preserve">
         <value>{user.Mention}, your message was deleted from {channel.Mention} as it was deemed either off-topic or violated our server rules.</value>
@@ -52,32 +41,14 @@ Please take some time to reflect on the reason for this action, and return when 
     <data name="MessageFromStaff" xml:space="preserve">
         <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
     </data>
-    <data name="MessageReported" xml:space="preserve">
-        <value>{user.Mention} reported a message in {channel.Mention}.</value>
-    </data>
     <data name="MessageReportFeedback" xml:space="preserve">
         <value>{user.Mention}, thank you for your report.
 
 The reported message has been brought to the attention of staff. __**No further action is required on your part.**__
 If you'd like to discuss this report with staff, please DM ModMail instead of posting about it in a public channel.</value>
     </data>
-    <data name="MessageReportNoDuplicates" xml:space="preserve">
-        <value>Reporting this message again will have no impact.</value>
-    </data>
     <data name="MuteDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **indefinitely muted** from **{guild.Name}**.</value>
-    </data>
-    <data name="NoSuchNote" xml:space="preserve">
-        <value>No note with the ID {id} could be found.</value>
-    </data>
-    <data name="NoSuchUser" xml:space="preserve">
-        <value>No user with the ID {id} could be found.</value>
-    </data>
-    <data name="NotInGuild" xml:space="preserve">
-        <value>User {user.Id} ({user.Mention}) was found, but is not in this guild.</value>
-    </data>
-    <data name="StaffSentMessage" xml:space="preserve">
-        <value>Staff member {staffMember.Mention} sent a message to {user.Mention}.</value>
     </data>
     <data name="TemporaryBanDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **temporarily banned** from **{guild.Name}**.</value>
@@ -85,30 +56,6 @@ If you'd like to discuss this report with staff, please DM ModMail instead of po
     <data name="TemporaryMuteDescription" xml:space="preserve">
         <value>{user.Mention}, you have been **temporarily muted** from **{guild.Name}**. A temporary mute is a way for staff to let you cool off and reflect on your behaviour.
 Failing to follow the rules in future will result in further infractions. Accumulating too many infractions may lead to an indefinite removal from the server.</value>
-    </data>
-    <data name="TrackingDisabled" xml:space="preserve">
-        <value>Tracking disabled for {user.Mention}.</value>
-    </data>
-    <data name="TrackingEnabled" xml:space="preserve">
-        <value>Tracking enabled for {user.Mention}.</value>
-    </data>
-    <data name="UserAlreadyBlocked" xml:space="preserve">
-        <value>{user.Mention} is already blocked from reporting messages.</value>
-    </data>
-    <data name="UserBlocked" xml:space="preserve">
-        <value>{user.Mention} will no longer be able to make message reports.</value>
-    </data>
-    <data name="UserHasNoTrackHistory" xml:space="preserve">
-        <value>{user.Mention} has no tracked interactions.</value>
-    </data>
-    <data name="UserNotBlocked" xml:space="preserve">
-        <value>{user.Mention} was not previously blocked from reporting messages.</value>
-    </data>
-    <data name="UserUnbanned" xml:space="preserve">
-        <value>{user.Mention} has been unbanned.</value>
-    </data>
-    <data name="UserUnblocked" xml:space="preserve">
-        <value>{user.Mention} has been unblocked. Their message reports will now be acknowledged.</value>
     </data>
     <data name="WarningDescription" xml:space="preserve">
         <value>{user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.

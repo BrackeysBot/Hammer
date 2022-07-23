@@ -1,11 +1,8 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
 using Microsoft.Extensions.Hosting;
-using NLog;
 
 namespace Hammer.Services;
 
@@ -14,7 +11,6 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class UserReactionService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly ConfigurationService _configurationService;
     private readonly DiscordClient _discordClient;
     private readonly MessageReportService _messageReportService;
@@ -45,7 +41,10 @@ internal sealed class UserReactionService : BackgroundService
         if (e.Guild is not { } guild || e.User.IsBot)
             return;
 
-        ReactionConfiguration reactionConfiguration = _configurationService.GetGuildConfiguration(e.Guild).ReactionConfiguration;
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            return;
+        
+        ReactionConfiguration reactionConfiguration = guildConfiguration.Reactions;
         string reaction = e.Emoji.GetDiscordName();
         if (reaction == reactionConfiguration.ReportReaction)
             await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User).ConfigureAwait(false);

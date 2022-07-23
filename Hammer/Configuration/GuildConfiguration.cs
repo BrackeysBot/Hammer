@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Hammer.Configuration;
+﻿namespace Hammer.Configuration;
 
 /// <summary>
 ///     Represents a guild configuration.
@@ -8,30 +6,49 @@ namespace Hammer.Configuration;
 internal sealed class GuildConfiguration
 {
     /// <summary>
+    ///     Gets or sets the ID of the log channel.
+    /// </summary>
+    public ulong LogChannel { get; set; }
+
+    /// <summary>
     ///     Gets or sets the mute configuration.
     /// </summary>
     /// <value>The mute configuration.</value>
-    [JsonPropertyName("mute")]
-    public MuteConfiguration MuteConfiguration { get; set; } = new();
+    public MuteConfiguration Mute { get; set; } = new();
+
+    /// <summary>
+    ///     Gets or sets the guild's primary color.
+    /// </summary>
+    /// <value>The guild's primary color, in 24-bit RGB format.</value>
+    public int PrimaryColor { get; set; } = 0x7837FF;
 
     /// <summary>
     ///     Gets or sets the reaction configuration.
     /// </summary>
     /// <value>The reaction configuration.</value>
-    [JsonPropertyName("reactions")]
-    public ReactionConfiguration ReactionConfiguration { get; set; } = new();
+    public ReactionConfiguration Reactions { get; set; } = new();
 
     /// <summary>
     ///     Gets or sets the role configuration.
     /// </summary>
     /// <value>The role configuration.</value>
-    [JsonPropertyName("roles")]
-    public RoleConfiguration RoleConfiguration { get; set; } = new();
+    public RoleConfiguration Roles { get; set; } = new();
+
+    /// <summary>
+    ///     Gets or sets the guild's secondary color.
+    /// </summary>
+    /// <value>The guild's secondary color, in 24-bit RGB format.</value>
+    public int SecondaryColor { get; set; } = 0xE33C6C;
+
+    /// <summary>
+    ///     Gets or sets the guild's tertiary color.
+    /// </summary>
+    /// <value>The guild's tertiary color, in 24-bit RGB format.</value>
+    public int TertiaryColor { get; set; } = 0xFFE056;
 
     /// <summary>
     ///     Gets or sets the threshold before a message report is considered urgent.
     /// </summary>
     /// <value>The urgent report threshold.</value>
-    [JsonPropertyName("urgentReportThreshold")]
     public int UrgentReportThreshold { get; set; } = 5;
 }

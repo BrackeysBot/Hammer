@@ -1,17 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using SmartFormat;
+using X10D.DSharpPlus;
+using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -22,17 +19,21 @@ internal sealed class MessageDeletionService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ICorePlugin _corePlugin;
-    private readonly DiscordClient _discordClient;
+    private readonly ConfigurationService _configurationService;
+    private readonly DiscordLogService _logService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageDeletionService" /> class.
     /// </summary>
-    public MessageDeletionService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient)
+    public MessageDeletionService(
+        IServiceScopeFactory scopeFactory,
+        ConfigurationService configurationService,
+        DiscordLogService logService
+    )
     {
         _scopeFactory = scopeFactory;
-        _corePlugin = corePlugin;
-        _discordClient = discordClient;
+        _configurationService = configurationService;
+        _logService = logService;
     }
 
     /// <summary>
@@ -62,9 +63,6 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
-        message = await message.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         DiscordGuild guild = message.Channel.Guild;
 
         if (guild != staffMember.Guild)
@@ -73,13 +71,16 @@ internal sealed class MessageDeletionService
         if (message.Author is not DiscordMember author)
             throw new NotSupportedException(ExceptionMessages.CannotDeleteNonGuildMessage);
 
-        if (!staffMember.IsStaffMember(guild))
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            return;
+
+        if (!staffMember.IsStaffMember(guildConfiguration))
         {
             throw new InvalidOperationException(
                 ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild}));
         }
 
-        if (author.IsHigherLevelThan(staffMember, guild))
+        if (author.IsHigherLevelThan(staffMember, guildConfiguration))
         {
             throw new InvalidOperationException(
                 ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
@@ -90,11 +91,11 @@ internal sealed class MessageDeletionService
 
         if (notifyAuthor)
         {
-            DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message);
+            DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
             await author.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
         }
 
-        DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember);
+        DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember, guildConfiguration);
 
         var deletedMessage = DeletedMessage.Create(message, staffMember);
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
@@ -102,17 +103,17 @@ internal sealed class MessageDeletionService
         await context.AddAsync(deletedMessage).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
-        Logger.Info(LoggerMessages.MessageDeleted.FormatSmart(new {message, staffMember}));
+        Logger.Info($"{message} in channel {message.Channel} was deleted by {staffMember}");
         await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
-        await _corePlugin.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
+        await _logService.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
     }
 
-    private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message)
+    private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message, GuildConfiguration guildConfiguration)
     {
         DiscordUser author = message.Author;
         if (message.Interaction is not null)
             author = message.Interaction.User;
-        
+
         var formatObject = new {user = author, channel = message.Channel};
         string description = EmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
 
@@ -122,16 +123,20 @@ internal sealed class MessageDeletionService
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return message.Channel.Guild.CreateDefaultEmbed()
+        return message.Channel.Guild.CreateDefaultEmbed(guildConfiguration)
             .WithColor(0xFF0000)
-            .WithTitle(EmbedTitles.MessageDeleted)
+            .WithTitle("Message Deleted")
             .WithDescription(description)
-            .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
-            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments)
+            .AddFieldIf(hasContent, "Content", content)
+            .AddFieldIf(hasAttachments, "Attachments", attachments)
             .AddModMailNotice();
     }
 
-    private static DiscordEmbed CreateMessageDeletionToStaffLogEmbed(DiscordMessage message, DiscordMember staffMember)
+    private static DiscordEmbed CreateMessageDeletionToStaffLogEmbed(
+        DiscordMessage message,
+        DiscordMember staffMember,
+        GuildConfiguration guildConfiguration
+    )
     {
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
@@ -139,23 +144,23 @@ internal sealed class MessageDeletionService
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return message.Channel.Guild.CreateDefaultEmbed(false)
+        return message.Channel.Guild.CreateDefaultEmbed(guildConfiguration, false)
             .WithColor(0xFF0000)
-            .WithTitle(EmbedTitles.MessageDeleted)
-            .WithDescription(EmbedMessages.MessageDeleted.FormatSmart(new {channel = message.Channel}))
-            .AddField(EmbedFieldNames.Channel, message.Channel.Mention, true)
-            .AddField(EmbedFieldNames.Author, () =>
+            .WithTitle("Message Deleted")
+            .WithDescription($"A message in {message.Channel.Mention} was deleted by a staff member.")
+            .AddField("Channel", message.Channel.Mention, true)
+            .AddField("Author", () =>
             {
                 if (message.Author.IsBot && message.Interaction is not null)
                     return $"{message.Interaction.User.Mention} via {message.Author.Mention}";
 
                 return message.Author.Mention;
             }, true)
-            .AddField(EmbedFieldNames.StaffMember, staffMember.Mention, true)
-            .AddField(EmbedFieldNames.MessageID, message.Id, true)
-            .AddField(EmbedFieldNames.MessageTime, Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
+            .AddField("Staff Member", staffMember.Mention, true)
+            .AddField("Message ID", message.Id, true)
+            .AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
                 true)
-            .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
-            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
+            .AddFieldIf(hasContent, "Content", content)
+            .AddFieldIf(hasAttachments, "Attachments", attachments);
     }
 }

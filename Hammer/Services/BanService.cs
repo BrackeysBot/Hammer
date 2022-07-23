@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
-using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
+﻿using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-using Hammer.API;
 using Hammer.Data;
-using Hammer.Data.Infractions;
-using Hammer.Resources;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SmartFormat;
+using X10D.DSharpPlus;
 using X10D.Text;
 using Timer = System.Timers.Timer;
 
@@ -32,20 +22,24 @@ internal sealed class BanService : BackgroundService
     private static readonly TimeSpan QueryInterval = TimeSpan.FromSeconds(30);
     private readonly List<TemporaryBan> _temporaryBans = new();
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ICorePlugin _corePlugin;
     private readonly DiscordClient _discordClient;
+    private readonly DiscordLogService _logService;
     private readonly InfractionService _infractionService;
     private readonly Timer _timer = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BanService" /> class.
     /// </summary>
-    public BanService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
-        InfractionService infractionService)
+    public BanService(
+        IServiceScopeFactory scopeFactory,
+        DiscordClient discordClient,
+        DiscordLogService logService,
+        InfractionService infractionService
+    )
     {
         _scopeFactory = scopeFactory;
-        _corePlugin = corePlugin;
         _discordClient = discordClient;
+        _logService = logService;
         _infractionService = infractionService;
 
         _timer.Interval = QueryInterval.TotalMilliseconds;
@@ -90,9 +84,6 @@ internal sealed class BanService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(issuer);
 
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        issuer = await issuer.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         var options = new InfractionOptions
         {
             NotifyUser = true,
@@ -105,20 +96,20 @@ internal sealed class BanService : BackgroundService
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
-        reason = AuditLogReasons.BannedUser.FormatSmart(new {staffMember = issuer, reason});
+        reason = $"Banned by {issuer.GetUsernameWithDiscriminator()}: {reason}";
         await issuer.Guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Red);
         embed.WithAuthor(user);
         embed.WithTitle("User banned");
-        embed.AddField(EmbedFieldNames.User, user.Mention, true);
-        embed.AddField(EmbedFieldNames.UserID, user.Id, true);
-        embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
-        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("User ID", user.Id, true);
+        embed.AddField("Staff Member", issuer.Mention, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
+        embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.WithFooter($"Infraction {infraction.Id}");
-        await _corePlugin.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
 
         return infraction;
     }
@@ -174,9 +165,6 @@ internal sealed class BanService : BackgroundService
         if (member.Guild != staffMember.Guild)
             throw new ArgumentException("The member and staff member must be in the same guild.");
 
-        member = await member.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        staffMember = await staffMember.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         var options = new InfractionOptions
         {
             NotifyUser = true,
@@ -188,7 +176,7 @@ internal sealed class BanService : BackgroundService
             .ConfigureAwait(false);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
-        reason = AuditLogReasons.KickedUser.FormatSmart(new {staffMember, reason});
+        reason = $"Kicked by {staffMember.GetUsernameWithDiscriminator()}: {reason}";
         await member.RemoveAsync(reason).ConfigureAwait(false);
 
         return infraction;
@@ -210,9 +198,6 @@ internal sealed class BanService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (revoker is null) throw new ArgumentNullException(nameof(revoker));
 
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        revoker = await revoker.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
         TemporaryBan? temporaryBan =
@@ -233,14 +218,14 @@ internal sealed class BanService : BackgroundService
         embed.WithColor(DiscordColor.SpringGreen);
         embed.WithAuthor(user);
         embed.WithTitle("User unbanned");
-        embed.AddField(EmbedFieldNames.User, user.Mention, true);
-        embed.AddField(EmbedFieldNames.UserID, user.Id, true);
-        embed.AddField(EmbedFieldNames.StaffMember, revoker.Mention, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), EmbedFieldNames.Reason, reason);
-        await _corePlugin.LogAsync(revoker.Guild, embed).ConfigureAwait(false);
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("User ID", user.Id, true);
+        embed.AddField("Staff Member", revoker.Mention, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
+        await _logService.LogAsync(revoker.Guild, embed).ConfigureAwait(false);
 
         reason = reason.WithWhiteSpaceAlternative("No reason specified");
-        reason = AuditLogReasons.UnbannedUser.FormatSmart(new {staffMember = revoker, reason});
+        reason = $"Unbanned by {revoker.GetUsernameWithDiscriminator()}: {reason}";
         await revoker.Guild.UnbanMemberAsync(user, reason).ConfigureAwait(false);
     }
 
@@ -263,9 +248,6 @@ internal sealed class BanService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
 
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        issuer = await issuer.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
         var options = new InfractionOptions
         {
             NotifyUser = true,
@@ -283,22 +265,21 @@ internal sealed class BanService : BackgroundService
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
-        reason = AuditLogReasons.TempBannedUser.FormatSmart(new {staffMember = issuer, reason, duration = duration.Humanize()});
+        reason = $"Temp-Banned by {issuer.GetUsernameWithDiscriminator()} ({duration.Humanize()}): {reason}";
         await guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Red);
         embed.WithAuthor(user);
         embed.WithTitle("User temporarily banned");
-        embed.AddField(EmbedFieldNames.User, user.Mention, true);
-        embed.AddField(EmbedFieldNames.UserID, user.Id, true);
-        embed.AddField(EmbedFieldNames.StaffMember, issuer.Mention, true);
-        embed.AddField(EmbedFieldNames.ExpirationTime,
-            Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
-        embed.AddFieldIf(infractionCount > 0, EmbedFieldNames.TotalUserInfractions, infractionCount, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), EmbedFieldNames.Reason, options.Reason);
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("User ID", user.Id, true);
+        embed.AddField("Staff Member", issuer.Mention, true);
+        embed.AddField("Expiration Time", Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
+        embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
-        await _corePlugin.LogAsync(guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
 
         return infraction;
     }

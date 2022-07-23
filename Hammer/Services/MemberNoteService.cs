@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
-using DSharpPlus;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
+using Hammer.Configuration;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SmartFormat;
-using PermissionLevel = BrackeysBot.Core.API.PermissionLevel;
+using X10D.DSharpPlus;
+using PermissionLevel = Hammer.Data.PermissionLevel;
 
 namespace Hammer.Services;
 
@@ -24,18 +18,22 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MemberNoteService : BackgroundService
 {
-    private readonly ICorePlugin _corePlugin;
-    private readonly DiscordClient _discordClient;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ConfigurationService _configurationService;
+    private readonly DiscordLogService _logService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MemberNoteService" /> class.
     /// </summary>
-    public MemberNoteService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient)
+    public MemberNoteService(
+        IServiceScopeFactory scopeFactory,
+        ConfigurationService configurationService,
+        DiscordLogService logService
+    )
     {
         _scopeFactory = scopeFactory;
-        _corePlugin = corePlugin;
-        _discordClient = discordClient;
+        _configurationService = configurationService;
+        _logService = logService;
     }
 
     /// <summary>
@@ -50,7 +48,9 @@ internal sealed class MemberNoteService : BackgroundService
     ///     -or-
     ///     <para><paramref name="author" /> is <see langword="null" />.</para>
     /// </exception>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="InvalidOperationException">
+    ///     <paramref name="author" /> is not a <see cref="PermissionLevel.Guru" />.
+    /// </exception>
     public async Task<MemberNote> CreateNoteAsync(DiscordUser user, DiscordMember author, string content)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
@@ -59,11 +59,11 @@ internal sealed class MemberNoteService : BackgroundService
         string? trimmedContent = content?.Trim();
         if (string.IsNullOrWhiteSpace(trimmedContent)) throw new ArgumentNullException(nameof(content));
 
-        user = await user.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-        author = await author.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
+        if (!_configurationService.TryGetGuildConfiguration(author.Guild, out GuildConfiguration? guildConfiguration))
+            throw new InvalidOperationException("No guild configuration found for the guild.");
 
         DiscordGuild guild = author.Guild;
-        PermissionLevel permissionLevel = author.GetPermissionLevel(guild);
+        PermissionLevel permissionLevel = author.GetPermissionLevel(guildConfiguration);
 
         var noteType = MemberNoteType.Staff;
         if (permissionLevel < PermissionLevel.Moderator)
@@ -85,15 +85,15 @@ internal sealed class MemberNoteService : BackgroundService
             await context.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
+        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
         embed.WithTitle("Note Created");
-        embed.AddField(EmbedFieldNames.NoteID, note.Id, true);
-        embed.AddField(EmbedFieldNames.NoteType, note.Type.ToString("G"), true);
-        embed.AddField(EmbedFieldNames.User, user.Mention, true);
-        embed.AddField(EmbedFieldNames.Author, author.Mention, true);
-        embed.AddField(EmbedFieldNames.Content, note.Content);
+        embed.AddField("Note ID", note.Id, true);
+        embed.AddField("Note Type", note.Type.ToString("G"), true);
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("Author", author.Mention, true);
+        embed.AddField("Content", note.Content);
 
-        await _corePlugin.LogAsync(guild, embed);
+        await _logService.LogAsync(guild, embed);
         return note;
     }
 

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Configuration;
-using BrackeysBot.Core.API.Extensions;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
+using Hammer.Configuration;
 using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -21,16 +14,16 @@ namespace Hammer.Services;
 internal sealed class RuleService : BackgroundService
 {
     private readonly Dictionary<ulong, List<Rule>> _guildRules = new();
-    private readonly ICorePlugin _corePlugin;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ConfigurationService _configurationService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuleService" /> class.
     /// </summary>
-    public RuleService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin)
+    public RuleService(IServiceScopeFactory scopeFactory, ConfigurationService configurationService)
     {
-        _corePlugin = corePlugin;
         _scopeFactory = scopeFactory;
+        _configurationService = configurationService;
     }
 
     /// <summary>
@@ -67,7 +60,7 @@ internal sealed class RuleService : BackgroundService
     /// <returns>A <see cref="DiscordEmbed" /> stating the rule cannot be found.</returns>
     public DiscordEmbed CreateRuleNotFoundEmbed(DiscordGuild guild, int ruleId)
     {
-        DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(false);
+        var embed = new DiscordEmbedBuilder();
         embed.WithColor(0xFF0000);
         embed.WithTitle("Rule Not Found");
         embed.WithDescription($"A rule with ID {ruleId} could not be found.");
@@ -265,7 +258,7 @@ internal sealed class RuleService : BackgroundService
         var builder = new DiscordMessageBuilder();
         var index = 0;
 
-        if (_corePlugin.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+        if (_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
             color = guildConfiguration.PrimaryColor;
 
         foreach (Rule[] ruleChunk in rules.Chunk(25)) // embeds cannot have more than 25 fields

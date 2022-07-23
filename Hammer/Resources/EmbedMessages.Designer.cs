@@ -79,33 +79,6 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The interaction history of {user.Mention} is being collected. This may take a few minutes..
-        /// </summary>
-        internal static string GeneratingTrackLog {
-            get {
-                return ResourceManager.GetString("GeneratingTrackLog", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {infraction.Type} #{infraction.Id} for {user.Mention} has been redacted..
-        /// </summary>
-        internal static string InfractionRedacted {
-            get {
-                return ResourceManager.GetString("InfractionRedacted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified note type {type} is invalid. Please use one of the following types: {validTypes}.
-        /// </summary>
-        internal static string InvalidNoteType {
-            get {
-                return ResourceManager.GetString("InvalidNoteType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
         ///
         ///Please take some time to reflect on the reason for this action, and return when you feel you are ready..
@@ -113,15 +86,6 @@ namespace Hammer.Resources {
         internal static string KickDescription {
             get {
                 return ResourceManager.GetString("KickDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A message in {channel.Mention} was deleted by a staff member..
-        /// </summary>
-        internal static string MessageDeleted {
-            get {
-                return ResourceManager.GetString("MessageDeleted", resourceCulture);
             }
         }
         
@@ -144,15 +108,6 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} reported a message in {channel.Mention}..
-        /// </summary>
-        internal static string MessageReported {
-            get {
-                return ResourceManager.GetString("MessageReported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, thank you for your report.
         ///
         ///The reported message has been brought to the attention of staff. __**No further action is required on your part.**__
@@ -165,74 +120,11 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Reporting this message again will have no impact..
-        /// </summary>
-        internal static string MessageReportNoDuplicates {
-            get {
-                return ResourceManager.GetString("MessageReportNoDuplicates", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You took too long to respond. The migration procedure has been canceled..
-        /// </summary>
-        internal static string MigrationTimeout {
-            get {
-                return ResourceManager.GetString("MigrationTimeout", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Please attach the v3 `users.json` database, which will be used to migrate infractions..
-        /// </summary>
-        internal static string MigrationUploadUsersJson {
-            get {
-                return ResourceManager.GetString("MigrationUploadUsersJson", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {user.Mention}, you have been **indefinitely muted** from **{guild.Name}**..
         /// </summary>
         internal static string MuteDescription {
             get {
                 return ResourceManager.GetString("MuteDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No note with the ID {id} could be found..
-        /// </summary>
-        internal static string NoSuchNote {
-            get {
-                return ResourceManager.GetString("NoSuchNote", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No user with the ID {id} could be found..
-        /// </summary>
-        internal static string NoSuchUser {
-            get {
-                return ResourceManager.GetString("NoSuchUser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to User {user.Id} ({user.Mention}) was found, but is not in this guild..
-        /// </summary>
-        internal static string NotInGuild {
-            get {
-                return ResourceManager.GetString("NotInGuild", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Staff member {staffMember.Mention} sent a message to {user.Mention}..
-        /// </summary>
-        internal static string StaffSentMessage {
-            get {
-                return ResourceManager.GetString("StaffSentMessage", resourceCulture);
             }
         }
         
@@ -252,78 +144,6 @@ namespace Hammer.Resources {
         internal static string TemporaryMuteDescription {
             get {
                 return ResourceManager.GetString("TemporaryMuteDescription", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Tracking disabled for {user.Mention}..
-        /// </summary>
-        internal static string TrackingDisabled {
-            get {
-                return ResourceManager.GetString("TrackingDisabled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Tracking enabled for {user.Mention}..
-        /// </summary>
-        internal static string TrackingEnabled {
-            get {
-                return ResourceManager.GetString("TrackingEnabled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} is already blocked from reporting messages..
-        /// </summary>
-        internal static string UserAlreadyBlocked {
-            get {
-                return ResourceManager.GetString("UserAlreadyBlocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} will no longer be able to make message reports..
-        /// </summary>
-        internal static string UserBlocked {
-            get {
-                return ResourceManager.GetString("UserBlocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} has no tracked interactions..
-        /// </summary>
-        internal static string UserHasNoTrackHistory {
-            get {
-                return ResourceManager.GetString("UserHasNoTrackHistory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} was not previously blocked from reporting messages..
-        /// </summary>
-        internal static string UserNotBlocked {
-            get {
-                return ResourceManager.GetString("UserNotBlocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} has been unbanned..
-        /// </summary>
-        internal static string UserUnbanned {
-            get {
-                return ResourceManager.GetString("UserUnbanned", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {user.Mention} has been unblocked. Their message reports will now be acknowledged..
-        /// </summary>
-        internal static string UserUnblocked {
-            get {
-                return ResourceManager.GetString("UserUnblocked", resourceCulture);
             }
         }
         

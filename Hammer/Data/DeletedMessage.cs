@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 
@@ -14,55 +11,83 @@ internal sealed class DeletedMessage : IEquatable<DeletedMessage>
     ///     Gets the attachments of the deleted message.
     /// </summary>
     /// <value>The attachments.</value>
-    public IReadOnlyList<Uri> Attachments { get; private set; } = ArraySegment<Uri>.Empty;
+    public IReadOnlyList<Uri> Attachments { get; internal set; } = ArraySegment<Uri>.Empty;
 
     /// <summary>
     ///     Gets the ID of the user who sent the message.
     /// </summary>
     /// <value>The author's user ID.</value>
-    public ulong AuthorId { get; private set; }
+    public ulong AuthorId { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the channel in which this message was sent.
     /// </summary>
     /// <value>The channel ID.</value>
-    public ulong ChannelId { get; private set; }
+    public ulong ChannelId { get; internal set; }
 
     /// <summary>
     ///     Gets the content of the message.
     /// </summary>
     /// <value>The message content.</value>
-    public string? Content { get; private set; }
+    public string? Content { get; internal set; }
 
     /// <summary>
     ///     Gets the date and time at which the message was created.
     /// </summary>
     /// <value>The creation timestamp.</value>
-    public DateTimeOffset CreationTimestamp { get; private set; }
+    public DateTimeOffset CreationTimestamp { get; internal set; }
 
     /// <summary>
     ///     Gets the date and time at which the message was deleted.
     /// </summary>
     /// <value>The deletion timestamp.</value>
-    public DateTimeOffset DeletionTimestamp { get; private set; }
+    public DateTimeOffset DeletionTimestamp { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the guild in which this message was sent.
     /// </summary>
     /// <value>The guild ID.</value>
-    public ulong GuildId { get; private set; }
+    public ulong GuildId { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the deleted message.
     /// </summary>
     /// <value>The message ID.</value>
-    public ulong MessageId { get; private set; }
+    public ulong MessageId { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the staff member who deleted the message.
     /// </summary>
     /// <value>The staff member's user ID.</value>
-    public ulong StaffMemberId { get; private set; }
+    public ulong StaffMemberId { get; internal set; }
+
+    /// <summary>
+    ///     Determines whether two <see cref="DeletedMessage" /> instances are equal.
+    /// </summary>
+    /// <param name="left">The first message.</param>
+    /// <param name="right">The second message.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is equal to <paramref name="right" />; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
+    public static bool operator ==(DeletedMessage? left, DeletedMessage? right)
+    {
+        return Equals(left, right);
+    }
+
+    /// <summary>
+    ///     Determines whether two <see cref="DeletedMessage" /> instances are not equal.
+    /// </summary>
+    /// <param name="left">The first message.</param>
+    /// <param name="right">The second message.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="left" /> is not equal to <paramref name="right" />; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
+    public static bool operator !=(DeletedMessage? left, DeletedMessage? right)
+    {
+        return !Equals(left, right);
+    }
 
     /// <summary>
     ///     Constructs a new instance of the <see cref="DeletedMessage" /> class.
@@ -104,15 +129,5 @@ internal sealed class DeletedMessage : IEquatable<DeletedMessage>
     {
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         return MessageId.GetHashCode();
-    }
-
-    public static bool operator ==(DeletedMessage? left, DeletedMessage? right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(DeletedMessage? left, DeletedMessage? right)
-    {
-        return !Equals(left, right);
     }
 }

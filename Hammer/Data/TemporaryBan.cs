@@ -1,5 +1,4 @@
-﻿using System;
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 
 namespace Hammer.Data;
 

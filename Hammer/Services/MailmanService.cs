@@ -1,15 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-using Hammer.API;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
 using Humanizer;
 using SmartFormat;
+using X10D.DSharpPlus;
 using X10D.Text;
 
 namespace Hammer.Services;
@@ -19,16 +16,14 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MailmanService
 {
-    private readonly HammerPlugin _hammerPlugin;
     private readonly DiscordClient _discordClient;
     private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MailmanService" /> class.
     /// </summary>
-    public MailmanService(HammerPlugin hammerPlugin, DiscordClient discordClient, RuleService ruleService)
+    public MailmanService(DiscordClient discordClient, RuleService ruleService)
     {
-        _hammerPlugin = hammerPlugin;
         _discordClient = discordClient;
         _ruleService = ruleService;
     }
@@ -37,9 +32,10 @@ internal sealed class MailmanService
     ///     Sends an infraction notice to the applicable member, if possible.
     /// </summary>
     /// <param name="infraction">The infraction to notify.</param>
+    /// <param name="infractionCount">The infraction count to display on the embed.</param>
     /// <returns>The message which was sent to the member, or <see langword="null" /> if the message could not be sent.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
-    public async Task<DiscordMessage?> SendInfractionAsync(IInfraction infraction)
+    public async Task<DiscordMessage?> SendInfractionAsync(Infraction infraction, int infractionCount)
     {
         if (infraction is null) throw new ArgumentNullException(nameof(infraction));
 
@@ -57,7 +53,7 @@ internal sealed class MailmanService
 
         try
         {
-            DiscordEmbed? embed = await CreatePrivateInfractionEmbedAsync(infraction).ConfigureAwait(false);
+            DiscordEmbed? embed = await CreatePrivateInfractionEmbedAsync(infraction, infractionCount).ConfigureAwait(false);
             if (embed is not null)
                 return await member.SendMessageAsync(embed).ConfigureAwait(false);
 
@@ -71,7 +67,7 @@ internal sealed class MailmanService
         }
     }
 
-    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(IInfraction infraction)
+    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(Infraction infraction, int infractionCount)
     {
         if (infraction.Type == InfractionType.Gag)
             throw new ArgumentException(ExceptionMessages.NoEmbedForGag, nameof(infraction));
@@ -88,8 +84,6 @@ internal sealed class MailmanService
             // bots can only DM users who are in the guild, and if the guild is valid
             return null;
         }
-
-        int infractionCount = _hammerPlugin.GetInfractionCount(infraction.UserId, infraction.GuildId);
 
         string? description = infraction.Type switch
         {
@@ -114,9 +108,9 @@ internal sealed class MailmanService
             .WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}))
             .WithThumbnail(guild.IconUrl)
             .WithFooter(guild.Name, guild.IconUrl)
-            .AddFieldIf(rule is not null, EmbedFieldNames.RuleBroken, () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
-            .AddField(EmbedFieldNames.TotalInfractions, infractionCount, true)
-            .AddField(EmbedFieldNames.Reason, reason)
+            .AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true)
+            .AddField("Total Infractions", infractionCount, true)
+            .AddField("Reason", reason)
             .AddModMailNotice();
     }
 }

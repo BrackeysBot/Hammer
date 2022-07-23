@@ -70,24 +70,6 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Expiration time cannot be in the past..
-        /// </summary>
-        internal static string ExpirationTimeInPast {
-            get {
-                return ResourceManager.GetString("ExpirationTimeInPast", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified guild is invalid..
-        /// </summary>
-        internal static string InvalidGuild {
-            get {
-                return ResourceManager.GetString("InvalidGuild", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Message does not appear in the same guild as the staff member..
         /// </summary>
         internal static string MessageStaffMemberGuildMismatch {
@@ -106,20 +88,20 @@ namespace Hammer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The operation cannot execute because the guild configuration is missing..
+        /// </summary>
+        internal static string NoConfigurationForGuild {
+            get {
+                return ResourceManager.GetString("NoConfigurationForGuild", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An embed cannot be built for a Gag infraction..
         /// </summary>
         internal static string NoEmbedForGag {
             get {
                 return ResourceManager.GetString("NoEmbedForGag", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The duration of an infraction cannot be negative..
-        /// </summary>
-        internal static string NoNegativeDuration {
-            get {
-                return ResourceManager.GetString("NoNegativeDuration", resourceCulture);
             }
         }
         
@@ -147,15 +129,6 @@ namespace Hammer.Resources {
         internal static string StaffIsHigherLevel {
             get {
                 return ResourceManager.GetString("StaffIsHigherLevel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified staff member do not belong to the specified guild..
-        /// </summary>
-        internal static string StaffMemberGuildMismatch {
-            get {
-                return ResourceManager.GetString("StaffMemberGuildMismatch", resourceCulture);
             }
         }
         

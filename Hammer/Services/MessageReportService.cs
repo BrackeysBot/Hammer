@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using BrackeysBot.API.Extensions;
-using BrackeysBot.Core.API;
-using BrackeysBot.Core.API.Extensions;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Hammer.Data;
-using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
-using SmartFormat;
-using CoreGuildConfiguration = BrackeysBot.Core.API.Configuration.GuildConfiguration;
+using X10D.DSharpPlus;
+using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -30,7 +21,7 @@ internal sealed class MessageReportService : BackgroundService
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
-    private readonly ICorePlugin _corePlugin;
+    private readonly DiscordLogService _logService;
     private readonly DiscordClient _discordClient;
     private readonly MessageTrackingService _messageTrackingService;
     private readonly List<ReportedMessage> _reportedMessages = new();
@@ -39,12 +30,12 @@ internal sealed class MessageReportService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageReportService(IServiceScopeFactory scopeFactory, ICorePlugin corePlugin, DiscordClient discordClient,
-        ConfigurationService configurationService, MessageTrackingService messageTrackingService)
+    public MessageReportService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
+        ConfigurationService configurationService, DiscordLogService logService, MessageTrackingService messageTrackingService)
     {
         _scopeFactory = scopeFactory;
         _configurationService = configurationService;
-        _corePlugin = corePlugin;
+        _logService = logService;
         _discordClient = discordClient;
         _messageTrackingService = messageTrackingService;
     }
@@ -148,21 +139,17 @@ internal sealed class MessageReportService : BackgroundService
 
         if (IsUserBlocked(reporter, reporter.Guild))
         {
-            Logger.Info(LoggerMessages.MessageReportBlocked.FormatSmart(new {user = reporter}));
+            Logger.Info($"{reporter} reported a message, but is blocked from doing so");
             return false;
         }
 
         if (message.Author is null)
             message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
-        else
-            message = await message.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
-
-        reporter = await reporter.NormalizeClientAsync(_discordClient).ConfigureAwait(false);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
         {
-            Logger.Warn(LoggerMessages.UserReportedDeletedMessage.FormatSmart(new {reporter, message}));
+            Logger.Warn($"{reporter} attempted to report {message} but the message is deleted!");
 
             // we can stop tracking reports for a message which is deleted
             _reportedMessages.RemoveAll(m => m.MessageId == message.Id);
@@ -172,14 +159,17 @@ internal sealed class MessageReportService : BackgroundService
         bool duplicateReport = HasUserReportedMessage(message, reporter);
         if (duplicateReport)
         {
-            Logger.Info(LoggerMessages.DuplicateMessageReport.FormatSmart(new {user = reporter, message}));
+            Logger.Info($"{reporter} attempted to create a duplicate report on " +
+                        $"{message} by {message.Author} in {message.Channel} - this report will not be logged in Discord.");
             return false;
         }
 
-        Logger.Info(LoggerMessages.MessageReported.FormatSmart(new {user = reporter, message}));
+        Logger.Info($"{reporter} reported {message} by {message.Author} in {message.Channel}");
         await CreateNewMessageReportAsync(message, reporter).ConfigureAwait(false);
 
-        GuildConfiguration guildConfiguration = _configurationService.GetGuildConfiguration(message.Channel.Guild);
+        if (!_configurationService.TryGetGuildConfiguration(message.Channel.Guild, out GuildConfiguration? guildConfiguration))
+            return false;
+
         int urgentReportThreshold = guildConfiguration.UrgentReportThreshold;
         int reportCount = GetReportCount(message);
 
@@ -190,7 +180,7 @@ internal sealed class MessageReportService : BackgroundService
         else
             notificationOptions = StaffNotificationOptions.Here;
 
-        await _corePlugin.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions)
+        await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions)
             .ConfigureAwait(false);
         return true;
     }
@@ -256,8 +246,6 @@ internal sealed class MessageReportService : BackgroundService
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)
     {
         DiscordColor color = DiscordColor.Orange;
-        if (_corePlugin.TryGetGuildConfiguration(reporter.Guild, out CoreGuildConfiguration? guildConfiguration))
-            color = guildConfiguration.PrimaryColor;
 
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
@@ -265,17 +253,17 @@ internal sealed class MessageReportService : BackgroundService
         string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
-        return reporter.Guild.CreateDefaultEmbed()
+        return new DiscordEmbedBuilder()
             .WithColor(color)
-            .WithTitle(EmbedTitles.MessageReported)
-            .WithDescription(EmbedMessages.MessageReported.FormatSmart(new {user = reporter, channel = message.Channel}))
-            .AddField(EmbedFieldNames.Channel, message.Channel.Mention, true)
-            .AddField(EmbedFieldNames.Author, message.Author.Mention, true)
-            .AddField(EmbedFieldNames.Reporter, reporter.Mention, true)
-            .AddField(EmbedFieldNames.MessageID, Formatter.MaskedUrl(message.Id.ToString(), message.JumpLink), true)
-            .AddField(EmbedFieldNames.MessageTime, Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
+            .WithTitle("Message Reported")
+            .WithDescription($"{reporter.Mention} reported a message in {message.Channel.Mention}")
+            .AddField("Channel", message.Channel.Mention, true)
+            .AddField("Author", message.Author.Mention, true)
+            .AddField("Reporter", reporter.Mention, true)
+            .AddField("Message ID", Formatter.MaskedUrl(message.Id.ToString(), message.JumpLink), true)
+            .AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
                 true)
-            .AddFieldIf(hasContent, EmbedFieldNames.Content, content)
-            .AddFieldIf(hasAttachments, EmbedFieldNames.Attachments, attachments);
+            .AddFieldIf(hasContent, "Content", content)
+            .AddFieldIf(hasAttachments, "Attachments", attachments);
     }
 }
