@@ -270,7 +270,7 @@ internal sealed class RuleService : BackgroundService
             embed.WithColor(color);
 
             if (index == 0)
-                embed.WithDescription("Welcome to the official Brackeys Discord Server!\n\n" +
+                embed.WithDescription($"Welcome to {channel.Guild.Name}!\n\n" +
                                       "To ensure that every one of us here are all happy, please take note and follow these " +
                                       "rules:");
 
