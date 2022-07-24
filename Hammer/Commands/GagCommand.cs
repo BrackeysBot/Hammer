@@ -42,6 +42,8 @@ internal sealed class GagCommand : ApplicationCommandModule
             return;
         }
 
+        await context.DeferAsync(true).ConfigureAwait(false);
+
         try
         {
             await _infractionService.GagAsync(user, staffMember).ConfigureAwait(false);
@@ -82,6 +84,8 @@ internal sealed class GagCommand : ApplicationCommandModule
             await context.CreateResponseAsync("Cannot perform this action outside of a guild.", true).ConfigureAwait(false);
             return;
         }
+
+        await context.DeferAsync(true).ConfigureAwait(false);
 
         try
         {
