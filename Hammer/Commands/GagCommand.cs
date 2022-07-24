@@ -4,6 +4,8 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
+using NLog;
+using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
@@ -12,6 +14,7 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class GagCommand : ApplicationCommandModule
 {
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly InfractionService _infractionService;
 
     /// <summary>
@@ -27,8 +30,11 @@ internal sealed class GagCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task GagAsync(ContextMenuContext context)
     {
+        var builder = new DiscordEmbedBuilder();
+        var message = new DiscordWebhookBuilder();
+
         DiscordMember staffMember = context.Member;
-        DiscordMember? member = context.Interaction.Data.Resolved.Members.First().Value;
+        DiscordUser user = context.Interaction.Data.Resolved.Users.First().Value;
 
         if (staffMember is null)
         {
@@ -36,21 +42,27 @@ internal sealed class GagCommand : ApplicationCommandModule
             return;
         }
 
-        if (member is null)
-        {
-            await context.CreateResponseAsync("You must target a user to gag them.", true).ConfigureAwait(false);
-            return;
-        }
-
         try
         {
-            await _infractionService.GagAsync(member, staffMember).ConfigureAwait(false);
-            await context.CreateResponseAsync($"{member.Mention} has been gagged", true).ConfigureAwait(false);
+            await _infractionService.GagAsync(user, staffMember).ConfigureAwait(false);
+
+            builder.WithColor(DiscordColor.Orange);
+            builder.WithAuthor(user);
+            builder.WithTitle("User gagged");
+            builder.WithDescription($"{user.Mention} has been gagged.");
         }
-        catch (UnauthorizedException)
+        catch (Exception exception)
         {
-            await context.CreateResponseAsync($"I cannot gag {member.Mention}", true).ConfigureAwait(false);
+            Logger.Error(exception, $"Could not issue gag to {user}");
+
+            builder.WithColor(DiscordColor.Red);
+            builder.WithTitle("⚠️ Error issuing gag");
+            builder.WithDescription($"{exception.GetType().Name} was thrown while issuing the gag.");
+            builder.WithFooter("See log for further details.");
         }
+
+        message.AddEmbed(builder);
+        await context.EditResponseAsync(message).ConfigureAwait(false);
     }
 
     [SlashCommand("gag", "Temporarily gags a user, so that a more final infraction can be issued.", false)]
@@ -61,6 +73,8 @@ internal sealed class GagCommand : ApplicationCommandModule
         [Option("duration", "The duration of the gag. Defaults to 5 minutes")] TimeSpan? duration = null
     )
     {
+        var builder = new DiscordEmbedBuilder();
+        var message = new DiscordWebhookBuilder();
         DiscordMember staffMember = context.Member;
 
         if (staffMember is null)
@@ -72,11 +86,23 @@ internal sealed class GagCommand : ApplicationCommandModule
         try
         {
             await _infractionService.GagAsync(user, staffMember).ConfigureAwait(false);
-            await context.CreateResponseAsync($"{user.Mention} has been gagged", true).ConfigureAwait(false);
+
+            builder.WithColor(DiscordColor.Orange);
+            builder.WithAuthor(user);
+            builder.WithTitle("User gagged");
+            builder.WithDescription($"{user.Mention} has been gagged.");
         }
-        catch (UnauthorizedException)
+        catch (Exception exception)
         {
-            await context.CreateResponseAsync($"I cannot gag {user.Mention}", true).ConfigureAwait(false);
+            Logger.Error(exception, $"Could not issue gag to {user}");
+
+            builder.WithColor(DiscordColor.Red);
+            builder.WithTitle("⚠️ Error issuing gag");
+            builder.WithDescription($"{exception.GetType().Name} was thrown while issuing the gag.");
+            builder.WithFooter("See log for further details.");
         }
+
+        message.AddEmbed(builder);
+        await context.EditResponseAsync(message).ConfigureAwait(false);
     }
 }
