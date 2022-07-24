@@ -41,13 +41,26 @@ internal sealed class MessageCommand : ApplicationCommandModule
         }
         else
         {
-            await _messageService.MessageMemberAsync(member, context.Member, message).ConfigureAwait(false);
+            bool success = await _messageService.MessageMemberAsync(member, context.Member, message).ConfigureAwait(false);
 
-            embed.WithColor(DiscordColor.Green);
-            embed.WithAuthor(user);
-            embed.WithTitle("Message Sent");
-            embed.AddField("Content", message);
-            await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
+            if (success)
+            {
+                embed.WithColor(DiscordColor.Green);
+                embed.WithAuthor(user);
+                embed.WithTitle("Message Sent");
+                embed.AddField("Content", message);
+                await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
+            }
+            else
+            {
+                embed.WithColor(DiscordColor.Red);
+                embed.WithAuthor(user);
+                embed.WithTitle("Failed to send message");
+                embed.WithDescription($"The message could not be sent to {user.Mention}. " +
+                                      "This is likely due to DMs being disabled for this user.");
+                embed.AddField("Content", message);
+                await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
@@ -55,7 +56,7 @@ internal sealed class MessageService
     ///     -or-
     ///     <para><paramref name="message" /> is <see langword="null" />, empty, or consists of only whitespace characters.</para>
     /// </exception>
-    public async Task MessageMemberAsync(DiscordMember recipient, DiscordMember staffMember, string message)
+    public async Task<bool> MessageMemberAsync(DiscordMember recipient, DiscordMember staffMember, string message)
     {
         if (recipient is null) throw new ArgumentNullException(nameof(recipient));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
@@ -71,10 +72,19 @@ internal sealed class MessageService
         Logger.Info($"{staffMember} sent a message to {recipient} from {staffMember.Guild}. Contents: {message}");
 
         DiscordEmbed embed = await CreateUserEmbedAsync(staffMessage).ConfigureAwait(false);
-        await recipient.SendMessageAsync(embed).ConfigureAwait(false);
-        
+
+        try
+        {
+            await recipient.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+        catch (UnauthorizedException)
+        {
+            return false;
+        }
+
         embed = await CreateStaffLogEmbedAsync(staffMessage).ConfigureAwait(false);
         await _logService.LogAsync(recipient.Guild, embed).ConfigureAwait(false);
+        return true;
     }
 
     private async Task<DiscordEmbed> CreateStaffLogEmbedAsync(StaffMessage message)
