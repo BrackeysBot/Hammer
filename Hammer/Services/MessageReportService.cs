@@ -1,4 +1,4 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.Configuration;
@@ -30,13 +30,18 @@ internal sealed class MessageReportService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageReportService(IServiceScopeFactory scopeFactory, DiscordClient discordClient,
-        ConfigurationService configurationService, DiscordLogService logService, MessageTrackingService messageTrackingService)
+    public MessageReportService(
+        IServiceScopeFactory scopeFactory,
+        DiscordClient discordClient,
+        ConfigurationService configurationService,
+        DiscordLogService logService,
+        MessageTrackingService messageTrackingService
+    )
     {
         _scopeFactory = scopeFactory;
+        _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
-        _discordClient = discordClient;
         _messageTrackingService = messageTrackingService;
     }
 
@@ -45,8 +50,15 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="user">The user whose reports to block.</param>
     /// <param name="staffMember">The staff member who issued the block.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
     public async Task BlockUserAsync(DiscordUser user, DiscordMember staffMember)
     {
+        if (user is null) throw new ArgumentNullException(nameof(user));
+        if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
         if (IsUserBlocked(user, staffMember.Guild)) return;
 
         var blockedReporter = new BlockedReporter
@@ -94,8 +106,10 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="message">The message whose report count to retrieve.</param>
     /// <returns>The number of reports made on <paramref name="message" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="message" /> is <see langword="null" />.</exception>
     public int GetReportCount(DiscordMessage message)
     {
+        if (message is null) throw new ArgumentNullException(nameof(message));
         return _reportedMessages.Count(m => m.MessageId == message.Id);
     }
 
@@ -108,8 +122,16 @@ internal sealed class MessageReportService : BackgroundService
     ///     <see langword="true" /> if <paramref name="reporter" /> has already reported <paramref name="message" />; otherwise,
     ///     <see langword="false" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="message" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="reporter" /> is <see langword="null" />.</para>
+    /// </exception>
     public bool HasUserReportedMessage(DiscordMessage message, DiscordMember reporter)
     {
+        if (message is null) throw new ArgumentNullException(nameof(message));
+        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+
         return _reportedMessages.Exists(m => m.MessageId == message.Id && m.ReporterId == reporter.Id);
     }
 
@@ -122,8 +144,16 @@ internal sealed class MessageReportService : BackgroundService
     ///     <see langword="true" /> if <paramref name="user" /> is blocked from making reports in <paramref name="guild" />;
     ///     otherwise, <see langword="false" />.
     /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
     public bool IsUserBlocked(DiscordUser user, DiscordGuild guild)
     {
+        if (user is null) throw new ArgumentNullException(nameof(user));
+        if (guild is null) throw new ArgumentNullException(nameof(guild));
+
         return _blockedReporters.Exists(r => r.UserId == user.Id && r.GuildId == guild.Id);
     }
 
