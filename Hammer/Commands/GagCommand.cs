@@ -1,5 +1,6 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
@@ -41,8 +42,15 @@ internal sealed class GagCommand : ApplicationCommandModule
             return;
         }
 
-        await _infractionService.GagAsync(member, staffMember).ConfigureAwait(false);
-        await context.CreateResponseAsync($"{member.Mention} has been gagged", true).ConfigureAwait(false);
+        try
+        {
+            await _infractionService.GagAsync(member, staffMember).ConfigureAwait(false);
+            await context.CreateResponseAsync($"{member.Mention} has been gagged", true).ConfigureAwait(false);
+        }
+        catch (UnauthorizedException)
+        {
+            await context.CreateResponseAsync($"I cannot gag {member.Mention}", true).ConfigureAwait(false);
+        }
     }
 
     [SlashCommand("gag", "Temporarily gags a user, so that a more final infraction can be issued.", false)]
@@ -61,7 +69,14 @@ internal sealed class GagCommand : ApplicationCommandModule
             return;
         }
 
-        await _infractionService.GagAsync(user, staffMember, duration: duration).ConfigureAwait(false);
-        await context.CreateResponseAsync($"{user.Mention} has been gagged", true).ConfigureAwait(false);
+        try
+        {
+            await _infractionService.GagAsync(user, staffMember).ConfigureAwait(false);
+            await context.CreateResponseAsync($"{user.Mention} has been gagged", true).ConfigureAwait(false);
+        }
+        catch (UnauthorizedException)
+        {
+            await context.CreateResponseAsync($"I cannot gag {user.Mention}", true).ConfigureAwait(false);
+        }
     }
 }
