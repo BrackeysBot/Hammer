@@ -52,6 +52,7 @@ internal sealed class BotService : BackgroundService
         Logger.Info("Registering commands...");
         slashCommands.RegisterCommands<BanCommand>();
         slashCommands.RegisterCommands<DeleteMessageCommand>();
+        slashCommands.RegisterCommands<GagCommand>();
         slashCommands.RegisterCommands<HistoryCommand>();
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
