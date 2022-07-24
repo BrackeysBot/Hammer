@@ -1,4 +1,4 @@
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
 
@@ -61,7 +61,39 @@ internal static class DiscordUserExtensions
         ArgumentNullException.ThrowIfNull(other);
         ArgumentNullException.ThrowIfNull(guildConfiguration);
 
-        return GetPermissionLevel(member, guildConfiguration) > GetPermissionLevel(other, guildConfiguration);
+        if (GetPermissionLevel(member, guildConfiguration) > GetPermissionLevel(other, guildConfiguration))
+            return true;
+
+        return member.Roles.Min(r => r.Position) < other.Roles.Min(r => r.Position);
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the member is a higher or equal permission level than another member.
+    /// </summary>
+    /// <param name="member">The member whose permission level to check.</param>
+    /// <param name="other">The member whose permission level to compare with.</param>
+    /// <param name="guildConfiguration">The guild configuration.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="member" /> is a higher or equal permission level than
+    ///     <paramref name="other"/>; otherwise, <see langword="false" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="member" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="other" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guildConfiguration" /> is <see langword="null" />.</para>
+    /// </exception>
+    public static bool IsHigherOrSameLevel(this DiscordMember member, DiscordMember other, GuildConfiguration guildConfiguration)
+    {
+        ArgumentNullException.ThrowIfNull(member);
+        ArgumentNullException.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(guildConfiguration);
+
+        if (GetPermissionLevel(member, guildConfiguration) >= GetPermissionLevel(other, guildConfiguration))
+            return true;
+
+        return member.Roles.Min(r => r.Position) <= other.Roles.Min(r => r.Position);
     }
 
     /// <summary>
