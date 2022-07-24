@@ -25,6 +25,7 @@ internal sealed class BanService : BackgroundService
     private readonly DiscordClient _discordClient;
     private readonly DiscordLogService _logService;
     private readonly InfractionService _infractionService;
+    private readonly MailmanService _mailmanService;
     private readonly Timer _timer = new();
 
     /// <summary>
@@ -34,13 +35,15 @@ internal sealed class BanService : BackgroundService
         IServiceScopeFactory scopeFactory,
         DiscordClient discordClient,
         DiscordLogService logService,
-        InfractionService infractionService
+        InfractionService infractionService,
+        MailmanService mailmanService
     )
     {
         _scopeFactory = scopeFactory;
         _discordClient = discordClient;
         _logService = logService;
         _infractionService = infractionService;
+        _mailmanService = mailmanService;
 
         _timer.Interval = QueryInterval.TotalMilliseconds;
         _timer.Elapsed += TimerOnElapsed;
@@ -86,7 +89,7 @@ internal sealed class BanService : BackgroundService
 
         var options = new InfractionOptions
         {
-            NotifyUser = true,
+            NotifyUser = false,
             Reason = reason.AsNullIfWhiteSpace(),
             RuleBroken = ruleBroken
         };
@@ -110,6 +113,7 @@ internal sealed class BanService : BackgroundService
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
+        await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
         return infraction;
     }
@@ -167,7 +171,7 @@ internal sealed class BanService : BackgroundService
 
         var options = new InfractionOptions
         {
-            NotifyUser = true,
+            NotifyUser = false,
             Reason = reason.AsNullIfWhiteSpace(),
             RuleBroken = ruleBroken
         };
@@ -177,6 +181,7 @@ internal sealed class BanService : BackgroundService
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Kicked by {staffMember.GetUsernameWithDiscriminator()}: {reason}";
+
         await member.RemoveAsync(reason).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
@@ -188,6 +193,9 @@ internal sealed class BanService : BackgroundService
         embed.AddField("Staff Member", staffMember.Mention, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
         await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
+
+        int infractionCount = _infractionService.GetInfractionCount(member, staffMember.Guild);
+        await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
         return infraction;
     }
