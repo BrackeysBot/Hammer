@@ -180,7 +180,7 @@ internal sealed class BanService : BackgroundService
         await member.RemoveAsync(reason).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
-        embed.WithColor(DiscordColor.SpringGreen);
+        embed.WithColor(DiscordColor.Red);
         embed.WithAuthor(member);
         embed.WithTitle("User kicked");
         embed.AddField("User", member.Mention, true);
