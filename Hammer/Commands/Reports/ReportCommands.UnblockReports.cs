@@ -11,7 +11,7 @@ internal sealed partial class ReportCommands
     [SlashRequireGuild]
     public async Task UnblockReportsAsync(InteractionContext context, [Option("user", "The user to unblock.")] DiscordUser user)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync(true).ConfigureAwait(false);
 
         DiscordGuild guild = context.Guild;
 
@@ -23,7 +23,7 @@ internal sealed partial class ReportCommands
             embed.WithColor(0xFF0000);
             embed.WithTitle("User Unblocked");
             embed.WithDescription($"{user.Mention} has been unblocked. Their message reports will now be acknowledged.");
-            await _reportService.UnblockUserAsync(user, guild).ConfigureAwait(false);
+            await _reportService.UnblockUserAsync(user, context.Member).ConfigureAwait(false);
         }
         else
         {

@@ -1,4 +1,4 @@
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.Configuration;
@@ -76,6 +76,16 @@ internal sealed class MessageReportService : BackgroundService
         await context.SaveChangesAsync().ConfigureAwait(false);
 
         _blockedReporters.Add(blockedReporter);
+
+        var embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.Red);
+        embed.WithAuthor(user);
+        embed.WithTitle("User reports blocked");
+        embed.WithDescription($"Message reports will no longer be received by {user.Mention}.");
+        embed.AddField("User", user.Mention, true);
+        embed.AddField("User ID", user.Id, true);
+        embed.AddField("Staff Member", staffMember.Mention, true);
+        await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -219,16 +229,24 @@ internal sealed class MessageReportService : BackgroundService
     ///     Unblocks a user from making reports in a specified guild, allowing them to report again.
     /// </summary>
     /// <param name="user">The user whose reports to unblock.</param>
-    /// <param name="guild">The guild in which to unblock the user.</param>
-    public async Task UnblockUserAsync(DiscordUser user, DiscordGuild guild)
+    /// <param name="staffMember">The staff member who unblocked the user.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="staffMember" /> is <see langword="null" />.</para>
+    /// </exception>
+    public async Task UnblockUserAsync(DiscordUser user, DiscordMember staffMember)
     {
-        if (!IsUserBlocked(user, guild)) return;
+        if (user is null) throw new ArgumentNullException(nameof(user));
+        if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
+
+        if (!IsUserBlocked(user, staffMember.Guild)) return;
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
 
         BlockedReporter? blockedReporter =
-            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == guild.Id)
+            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == staffMember.Guild.Id)
                 .ConfigureAwait(false);
 
         if (blockedReporter is null)
@@ -238,6 +256,16 @@ internal sealed class MessageReportService : BackgroundService
             _blockedReporters.Remove(blockedReporter);
             context.Remove(blockedReporter);
             await context.SaveChangesAsync().ConfigureAwait(false);
+
+            var embed = new DiscordEmbedBuilder();
+            embed.WithColor(DiscordColor.Green);
+            embed.WithAuthor(user);
+            embed.WithTitle("User reports unblocked");
+            embed.WithDescription($"Message reports by {user.Mention} will now be logged.");
+            embed.AddField("User", user.Mention, true);
+            embed.AddField("User ID", user.Id, true);
+            embed.AddField("Staff Member", staffMember.Mention, true);
+            await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
         }
     }
 
