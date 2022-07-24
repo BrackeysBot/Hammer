@@ -333,16 +333,28 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="user">The user to warn.</param>
     /// <param name="staffMember">The staff member responsible for the warning.</param>
     /// <param name="sourceMessage">The message to which the staff member reacted.</param>
+    /// <param name="duration">
+    ///     The duration of the gag. If <see langword="null" />, the duration as specified in the configuration file is used.
+    /// </param>
     /// <returns>The newly-created infraction, or <see langword="null" /> if the infraction could not be created.</returns>
-    public async Task<Infraction?> GagAsync(DiscordUser user, DiscordMember staffMember, DiscordMessage? sourceMessage = null)
+    public async Task<Infraction?> GagAsync(
+        DiscordUser user,
+        DiscordMember staffMember,
+        DiscordMessage? sourceMessage = null,
+        TimeSpan? duration = null
+    )
     {
         DiscordGuild guild = staffMember.Guild;
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
             return null;
 
-        long gagDurationMilliseconds = guildConfiguration.Mute.GagDuration;
-        TimeSpan gagDuration = TimeSpan.FromMilliseconds(gagDurationMilliseconds);
-        DateTimeOffset gagUntil = DateTimeOffset.UtcNow + gagDuration;
+        if (!duration.HasValue)
+        {
+            long gagDurationMilliseconds = guildConfiguration.Mute.GagDuration;
+            duration = TimeSpan.FromMilliseconds(gagDurationMilliseconds);
+        }
+
+        DateTimeOffset gagUntil = DateTimeOffset.UtcNow + duration.Value;
 
         try
         {
@@ -360,7 +372,7 @@ internal sealed class InfractionService : BackgroundService
         embed.WithTitle("User Gagged");
         embed.AddField("User", user.Mention, true);
         embed.AddField("Staff Member", staffMember.Mention, true);
-        embed.AddField("Duration", gagDuration.Humanize(), true);
+        embed.AddField("Duration", duration.Value.Humanize(), true);
 
         if (sourceMessage is not null)
         {

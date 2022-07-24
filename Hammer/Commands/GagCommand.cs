@@ -42,6 +42,26 @@ internal sealed class GagCommand : ApplicationCommandModule
         }
 
         await _infractionService.GagAsync(member, staffMember).ConfigureAwait(false);
-        await context.CreateResponseAsync($"{member.Username} has been gagged").ConfigureAwait(false);
+        await context.CreateResponseAsync($"{member.Mention} has been gagged", true).ConfigureAwait(false);
+    }
+
+    [SlashCommand("gag", "Temporarily gags a user, so that a more final infraction can be issued.", false)]
+    [SlashRequireGuild]
+    public async Task GagAsync(
+        InteractionContext context,
+        [Option("user", "The user to gag.")] DiscordUser user,
+        [Option("duration", "The duration of the gag. Defaults to 5 minutes")] TimeSpan? duration = null
+    )
+    {
+        DiscordMember staffMember = context.Member;
+
+        if (staffMember is null)
+        {
+            await context.CreateResponseAsync("Cannot perform this action outside of a guild.", true).ConfigureAwait(false);
+            return;
+        }
+
+        await _infractionService.GagAsync(user, staffMember, duration: duration).ConfigureAwait(false);
+        await context.CreateResponseAsync($"{user.Mention} has been gagged", true).ConfigureAwait(false);
     }
 }
