@@ -67,10 +67,17 @@ internal sealed class MuteCommand : ApplicationCommandModule
         }
 
         TimeSpan? duration = durationRaw?.ToTimeSpan() ?? null;
+        var message = new DiscordWebhookBuilder();
 
         Rule? rule = null;
         if (ruleBroken.HasValue)
-            rule = _ruleService.GetRuleById(context.Guild, (int) ruleBroken.Value);
+        {
+            var ruleId = (int) ruleBroken.Value;
+            if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                rule = _ruleService.GetRuleById(context.Guild, ruleId);
+            else
+                message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
+        }
 
         Task<Infraction> infractionTask = duration is null
             ? _muteService.MuteAsync(user, context.Member!, reason, rule)
@@ -107,7 +114,6 @@ internal sealed class MuteCommand : ApplicationCommandModule
             builder.WithFooter("See log for further details.");
         }
 
-        var message = new DiscordWebhookBuilder();
         message.AddEmbed(builder);
         await context.EditResponseAsync(message).ConfigureAwait(false);
     }

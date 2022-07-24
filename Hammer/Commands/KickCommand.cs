@@ -86,7 +86,13 @@ internal sealed class KickCommand : ApplicationCommandModule
         {
             Rule? rule = null;
             if (ruleBroken.HasValue)
-                rule = _ruleService.GetRuleById(context.Guild, (int) ruleBroken.Value);
+            {
+                var ruleId = (int) ruleBroken.Value;
+                if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                    rule = _ruleService.GetRuleById(context.Guild, ruleId);
+                else
+                    message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
+            }
 
             infraction = await _banService.KickAsync(member, context.Member!, reason, rule).ConfigureAwait(false);
 
