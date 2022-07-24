@@ -29,7 +29,7 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
         await context.DeferAsync(true).ConfigureAwait(false);
         var builder = new DiscordWebhookBuilder();
 
-        DiscordMessage? message = context.Interaction.Data.Resolved.Messages.FirstOrDefault().Value;
+        DiscordMessage? message = context.TargetMessage;
         if (message is null)
         {
             builder.WithContent("The specified message could not be retrieved.");
