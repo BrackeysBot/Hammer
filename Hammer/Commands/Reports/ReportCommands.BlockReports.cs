@@ -19,13 +19,13 @@ internal sealed partial class ReportCommands
 
         if (_reportService.IsUserBlocked(user, guild))
         {
-            embed.WithColor(0xFF9800);
+            embed.WithColor(DiscordColor.Orange);
             embed.WithTitle("User Already Blocked");
             embed.WithDescription($"{user.Mention} is already blocked from reporting messages.");
         }
         else
         {
-            embed.WithColor(0xFF0000);
+            embed.WithColor(DiscordColor.Red);
             embed.WithTitle("User Blocked");
             embed.WithDescription($"{user.Mention} will no longer be able to make message reports.");
             await _reportService.BlockUserAsync(user, context.Member).ConfigureAwait(false);

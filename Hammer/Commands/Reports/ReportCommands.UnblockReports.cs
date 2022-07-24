@@ -20,14 +20,14 @@ internal sealed partial class ReportCommands
 
         if (_reportService.IsUserBlocked(user, guild))
         {
-            embed.WithColor(0xFF0000);
+            embed.WithColor(DiscordColor.Green);
             embed.WithTitle("User Unblocked");
             embed.WithDescription($"{user.Mention} has been unblocked. Their message reports will now be acknowledged.");
             await _reportService.UnblockUserAsync(user, context.Member).ConfigureAwait(false);
         }
         else
         {
-            embed.WithColor(0x4CAF50);
+            embed.WithColor(DiscordColor.Orange);
             embed.WithTitle("User Not Blocked");
             embed.WithDescription($"{user.Mention} was not previously blocked from reporting messages.");
         }
