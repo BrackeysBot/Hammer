@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
+using Hammer.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
@@ -106,14 +107,12 @@ internal sealed class RuleService : BackgroundService
     /// <param name="guildId">The ID of the guild whose rules to retrieve.</param>
     /// <param name="id">The ID of the rule to retrieve.</param>
     /// <returns>The matching rule, if found.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="id" /> is less than 1, or greater than the count of the guild rules.
-    /// </exception>
-    public Rule? GetRuleById(ulong guildId, int id)
+    /// <exception cref="RuleNotFoundException">No rule with the specified ID was found.</exception>
+    public Rule GetRuleById(ulong guildId, int id)
     {
-        if (!GuildHasRule(guildId, id)) return null;
+        if (!GuildHasRule(guildId, id)) throw new RuleNotFoundException(id);
 
-        return _guildRules[guildId].FirstOrDefault(r => r.Id == id);
+        return _guildRules[guildId].First(r => r.Id == id);
     }
 
     /// <summary>
@@ -123,15 +122,13 @@ internal sealed class RuleService : BackgroundService
     /// <param name="id">The ID of the rule to retrieve.</param>
     /// <returns>The matching rule, if found.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="id" /> is less than 1, or greater than the count of the guild rules.
-    /// </exception>
-    public Rule? GetRuleById(DiscordGuild guild, int id)
+    /// <exception cref="RuleNotFoundException">No rule with the specified ID was found.</exception>
+    public Rule GetRuleById(DiscordGuild guild, int id)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
-        if (!GuildHasRule(guild, id)) return null;
+        if (!GuildHasRule(guild, id)) throw new RuleNotFoundException(id);
 
-        return _guildRules[guild.Id].FirstOrDefault(r => r.Id == id);
+        return _guildRules[guild.Id].First(r => r.Id == id);
     }
 
     /// <summary>
