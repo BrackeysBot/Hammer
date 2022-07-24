@@ -18,7 +18,6 @@ namespace Hammer.Commands;
 internal sealed class MuteCommand : ApplicationCommandModule
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly ConfigurationService _configurationService;
     private readonly InfractionCooldownService _cooldownService;
     private readonly InfractionService _infractionService;
     private readonly MuteService _muteService;
@@ -27,20 +26,17 @@ internal sealed class MuteCommand : ApplicationCommandModule
     /// <summary>
     ///     Initializes a new instance of the <see cref="MuteCommand" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
     /// <param name="cooldownService">The cooldown service.</param>
     /// <param name="infractionService">The infraction service.</param>
     /// <param name="muteService">The mute service.</param>
     /// <param name="ruleService">The rule service.</param>
     public MuteCommand(
-        ConfigurationService configurationService,
         InfractionCooldownService cooldownService,
         InfractionService infractionService,
         MuteService muteService,
         RuleService ruleService
     )
     {
-        _configurationService = configurationService;
         _cooldownService = cooldownService;
         _infractionService = infractionService;
         _muteService = muteService;
