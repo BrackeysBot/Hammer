@@ -89,7 +89,7 @@ internal sealed class GagCommand : ApplicationCommandModule
 
         try
         {
-            await _infractionService.GagAsync(user, staffMember).ConfigureAwait(false);
+            await _infractionService.GagAsync(user, staffMember, duration: duration).ConfigureAwait(false);
 
             builder.WithColor(DiscordColor.Orange);
             builder.WithAuthor(user);
