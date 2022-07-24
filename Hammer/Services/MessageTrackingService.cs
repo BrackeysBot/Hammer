@@ -165,6 +165,9 @@ internal sealed class MessageTrackingService : BackgroundService
 
     private async Task DiscordClientOnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
     {
+        if (e.Message.Channel.Guild is null)
+            return;
+        
         if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked)
             return;
 
