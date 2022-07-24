@@ -19,6 +19,7 @@ internal sealed class InfractionAutocompleteProvider : IAutocompleteProvider
     {
         var infractionService = context.Services.GetRequiredService<InfractionService>();
         IEnumerable<Infraction> infractions = infractionService.EnumerateInfractions(context.Guild);
+
         return Task.FromResult(infractions.OrderByDescending(i => i.IssuedAt).Take(10).Select(infraction =>
         {
             string summary = GetInfractionSummary(context.Client, infraction);

@@ -32,7 +32,7 @@ internal sealed class ConfigurationService
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public GuildConfiguration? GetGuildConfiguration(DiscordGuild guild)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
         return _configuration.GetSection(guild.Id.ToString())?.Get<GuildConfiguration>();
     }
 

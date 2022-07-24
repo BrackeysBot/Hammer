@@ -37,7 +37,7 @@ internal sealed class MailmanService
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
     public async Task<DiscordMessage?> SendInfractionAsync(Infraction infraction, int infractionCount)
     {
-        if (infraction is null) throw new ArgumentNullException(nameof(infraction));
+        ArgumentNullException.ThrowIfNull(infraction);
 
         DiscordMember member;
         try

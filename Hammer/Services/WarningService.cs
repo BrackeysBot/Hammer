@@ -34,8 +34,7 @@ internal sealed class WarningService
     /// </exception>
     public async Task<Infraction> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken)
     {
-        if (string.IsNullOrWhiteSpace(reason))
-            throw new ArgumentNullException(nameof(reason));
+        if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("The reason cannot be empty", nameof(reason));
 
         var options = new InfractionOptions
         {

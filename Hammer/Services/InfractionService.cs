@@ -184,7 +184,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
     public async Task<DiscordEmbed> CreateInfractionEmbedAsync(Infraction infraction)
     {
-        if (infraction is null) throw new ArgumentNullException(nameof(infraction));
+        ArgumentNullException.ThrowIfNull(infraction);
 
         DiscordUser? user;
         try
@@ -280,7 +280,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public IEnumerable<Infraction> EnumerateInfractions(DiscordGuild guild)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             yield break;
@@ -317,8 +317,8 @@ internal sealed class InfractionService : BackgroundService
     /// </exception>
     public IEnumerable<Infraction> EnumerateInfractions(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             yield break;
@@ -413,7 +413,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public int GetInfractionCount(DiscordGuild guild)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
         return _infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache) ? cache.Count : 0;
     }
 
@@ -430,8 +430,8 @@ internal sealed class InfractionService : BackgroundService
     /// </exception>
     public int GetInfractionCount(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return 0;
@@ -480,7 +480,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
@@ -504,8 +504,8 @@ internal sealed class InfractionService : BackgroundService
     /// </exception>
     public IReadOnlyList<Infraction> GetInfractions(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
@@ -538,8 +538,8 @@ internal sealed class InfractionService : BackgroundService
     /// </exception>
     public async Task LogInfractionAsync(DiscordGuild guild, Infraction infraction)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
-        if (infraction is null) throw new ArgumentNullException(nameof(infraction));
+        ArgumentNullException.ThrowIfNull(guild);
+        ArgumentNullException.ThrowIfNull(infraction);
 
         DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
@@ -575,7 +575,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
     public async Task RemoveInfractionAsync(Infraction infraction)
     {
-        if (infraction is null) throw new ArgumentNullException(nameof(infraction));
+        ArgumentNullException.ThrowIfNull(infraction);
 
         _cooldownService.StopCooldown(infraction.UserId);
         _infractionCache[infraction.GuildId].Remove(infraction);
@@ -593,7 +593,7 @@ internal sealed class InfractionService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="infractions" /> is <see langword="null" />.</exception>
     public async Task RemoveInfractionsAsync(IEnumerable<Infraction> infractions)
     {
-        if (infractions is null) throw new ArgumentNullException(nameof(infractions));
+        ArgumentNullException.ThrowIfNull(infractions);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();

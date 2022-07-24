@@ -17,9 +17,20 @@ internal static class DiscordGuildExtensions
     ///     <see langword="true" /> to include the guild icon as a thumbnail; otherwise, <see langword="false" />.
     /// </param>
     /// <returns>A new <see cref="DiscordEmbedBuilder" /> with the footer and thumbnail assigned the guild's branding.</returns>
-    public static DiscordEmbedBuilder CreateDefaultEmbed(this DiscordGuild guild, GuildConfiguration guildConfiguration,
-        bool addThumbnail = true)
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guildConfiguration" /> is <see langword="null" />.</para>
+    /// </exception>
+    public static DiscordEmbedBuilder CreateDefaultEmbed(
+        this DiscordGuild guild,
+        GuildConfiguration guildConfiguration,
+        bool addThumbnail = true
+    )
     {
+        ArgumentNullException.ThrowIfNull(guild);
+        ArgumentNullException.ThrowIfNull(guildConfiguration);
+
         return new DiscordEmbedBuilder().WithColor(guildConfiguration.PrimaryColor).WithGuildInfo(guild, addThumbnail);
     }
 }

@@ -57,8 +57,9 @@ internal sealed class MessageReportService : BackgroundService
     /// </exception>
     public async Task BlockUserAsync(DiscordUser user, DiscordMember staffMember)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(staffMember);
+
         if (IsUserBlocked(user, staffMember.Guild)) return;
 
         var blockedReporter = new BlockedReporter
@@ -96,8 +97,8 @@ internal sealed class MessageReportService : BackgroundService
     /// <returns>The reported message.</returns>
     public async Task<ReportedMessage> CreateNewMessageReportAsync(DiscordMessage message, DiscordMember reporter)
     {
-        if (message is null) throw new ArgumentNullException(nameof(message));
-        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -119,7 +120,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="message" /> is <see langword="null" />.</exception>
     public int GetReportCount(DiscordMessage message)
     {
-        if (message is null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
         return _reportedMessages.Count(m => m.MessageId == message.Id);
     }
 
@@ -139,8 +140,8 @@ internal sealed class MessageReportService : BackgroundService
     /// </exception>
     public bool HasUserReportedMessage(DiscordMessage message, DiscordMember reporter)
     {
-        if (message is null) throw new ArgumentNullException(nameof(message));
-        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         return _reportedMessages.Exists(m => m.MessageId == message.Id && m.ReporterId == reporter.Id);
     }
@@ -161,8 +162,8 @@ internal sealed class MessageReportService : BackgroundService
     /// </exception>
     public bool IsUserBlocked(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         return _blockedReporters.Exists(r => r.UserId == user.Id && r.GuildId == guild.Id);
     }
@@ -172,10 +173,15 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="message">The message to report.</param>
     /// <param name="reporter">The member who reported the message.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="message" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="reporter" /> is <see langword="null" />.</para>
+    /// </exception>
     public async Task<bool> ReportMessageAsync(DiscordMessage message, DiscordMember reporter)
     {
-        if (message is null) throw new ArgumentNullException(nameof(message));
-        if (reporter is null) throw new ArgumentNullException(nameof(reporter));
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (IsUserBlocked(reporter, reporter.Guild))
         {
@@ -237,8 +243,8 @@ internal sealed class MessageReportService : BackgroundService
     /// </exception>
     public async Task UnblockUserAsync(DiscordUser user, DiscordMember staffMember)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(staffMember);
 
         if (!IsUserBlocked(user, staffMember.Guild)) return;
 

@@ -17,7 +17,8 @@ internal static class DiscordEmbedBuilderExtensions
     /// <exception cref="ArgumentNullException"><paramref name="embedBuilder" /> is <see langword="null" />.</exception>
     public static DiscordEmbedBuilder AddModMailNotice(this DiscordEmbedBuilder embedBuilder)
     {
-        if (embedBuilder is null) throw new ArgumentNullException(nameof(embedBuilder));
+        ArgumentNullException.ThrowIfNull(embedBuilder);
+
         embedBuilder.AddField("\u200B", EmbedMessages.DmModMail);
         return embedBuilder;
     }
@@ -32,14 +33,20 @@ internal static class DiscordEmbedBuilderExtensions
     ///     <see langword="true" /> to show the guild's icon as the embed thumbnail; otherwise, <see langword="false" />.
     /// </param>
     /// <returns><paramref name="embedBuilder" />, to allow for method chaining.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="embedBuilder" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="embedBuilder" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
     public static DiscordEmbedBuilder WithGuildInfo(
         this DiscordEmbedBuilder embedBuilder,
         DiscordGuild guild,
         bool addThumbnail = true
     )
     {
-        if (embedBuilder is null) throw new ArgumentNullException(nameof(embedBuilder));
+        ArgumentNullException.ThrowIfNull(embedBuilder);
+        ArgumentNullException.ThrowIfNull(guild);
+
         embedBuilder.WithFooter(guild.Name, iconUrl: guild.IconUrl);
         if (addThumbnail) embedBuilder.WithThumbnail(guild.IconUrl);
         return embedBuilder;

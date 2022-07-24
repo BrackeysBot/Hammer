@@ -68,7 +68,17 @@ internal sealed class MessageDeletionService
         if (guild != staffMember.Guild)
             throw new ArgumentException(ExceptionMessages.MessageStaffMemberGuildMismatch);
 
-        if (message.Author is not DiscordMember author)
+        DiscordMember? author;
+        try
+        {
+            author = await staffMember.Guild.GetMemberAsync(message.Author.Id).ConfigureAwait(false);
+        }
+        catch
+        {
+            author = null;
+        }
+
+        if (author is null)
             throw new NotSupportedException(ExceptionMessages.CannotDeleteNonGuildMessage);
 
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))

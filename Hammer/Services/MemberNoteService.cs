@@ -53,8 +53,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async Task<MemberNote> CreateNoteAsync(DiscordUser user, DiscordMember author, string content)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (author is null) throw new ArgumentNullException(nameof(author));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(author);
 
         string? trimmedContent = content?.Trim();
         if (string.IsNullOrWhiteSpace(trimmedContent)) throw new ArgumentNullException(nameof(content));
@@ -173,8 +173,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async Task<int> GetNoteCountAsync(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -201,8 +201,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async Task<int> GetNoteCountAsync(DiscordUser user, DiscordGuild guild, MemberNoteType type)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
@@ -222,7 +222,7 @@ internal sealed class MemberNoteService : BackgroundService
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
     public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordGuild guild)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -246,7 +246,7 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordGuild guild, MemberNoteType type)
     {
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
@@ -272,8 +272,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordUser user, DiscordGuild guild)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -302,8 +302,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </exception>
     public async IAsyncEnumerable<MemberNote> GetNotesAsync(DiscordUser user, DiscordGuild guild, MemberNoteType type)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (guild is null) throw new ArgumentNullException(nameof(guild));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();

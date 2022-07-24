@@ -60,7 +60,6 @@ internal sealed class MessageTrackingService : BackgroundService
                                                                     && m.GuildId == guildId);
 
         if (trackedMessage is null) return MessageTrackState.NotTracked;
-
         if (trackedMessage.IsDeleted) return MessageTrackState.Tracked | MessageTrackState.Deleted;
 
         return MessageTrackState.Tracked;
@@ -165,11 +164,8 @@ internal sealed class MessageTrackingService : BackgroundService
 
     private async Task DiscordClientOnMessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
     {
-        if (e.Message.Channel.Guild is null)
-            return;
-        
-        if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked)
-            return;
+        if (e.Message.Channel.Guild is null) return;
+        if (GetMessageTrackState(e.Message) != MessageTrackState.Tracked) return;
 
         TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message).ConfigureAwait(false);
         trackedMessage.Content = e.Message.Content;

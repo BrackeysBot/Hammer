@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
 
@@ -22,8 +22,8 @@ internal static class DiscordUserExtensions
     /// </exception>
     public static PermissionLevel GetPermissionLevel(this DiscordMember member, GuildConfiguration guildConfiguration)
     {
-        if (member is null) throw new ArgumentNullException(nameof(member));
-        if (guildConfiguration is null) throw new ArgumentNullException(nameof(guildConfiguration));
+        ArgumentNullException.ThrowIfNull(member);
+        ArgumentNullException.ThrowIfNull(guildConfiguration);
 
         if ((member.Permissions & DSharpPlus.Permissions.Administrator) != 0)
             return PermissionLevel.Administrator;
@@ -57,9 +57,9 @@ internal static class DiscordUserExtensions
     /// </exception>
     public static bool IsHigherLevelThan(this DiscordMember member, DiscordMember other, GuildConfiguration guildConfiguration)
     {
-        if (member is null) throw new ArgumentNullException(nameof(member));
-        if (other is null) throw new ArgumentNullException(nameof(other));
-        if (guildConfiguration is null) throw new ArgumentNullException(nameof(guildConfiguration));
+        ArgumentNullException.ThrowIfNull(member);
+        ArgumentNullException.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(guildConfiguration);
 
         return GetPermissionLevel(member, guildConfiguration) > GetPermissionLevel(other, guildConfiguration);
     }
@@ -79,8 +79,8 @@ internal static class DiscordUserExtensions
     /// </exception>
     public static bool IsStaffMember(this DiscordMember member, GuildConfiguration guildConfiguration)
     {
-        if (member is null) throw new ArgumentNullException(nameof(member));
-        if (guildConfiguration is null) throw new ArgumentNullException(nameof(guildConfiguration));
+        ArgumentNullException.ThrowIfNull(member);
+        ArgumentNullException.ThrowIfNull(guildConfiguration);
 
         return GetPermissionLevel(member, guildConfiguration) >= PermissionLevel.Moderator;
     }

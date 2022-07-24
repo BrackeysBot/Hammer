@@ -163,8 +163,8 @@ internal sealed class BanService : BackgroundService
     /// </exception>
     public async Task<Infraction> KickAsync(DiscordMember member, DiscordMember staffMember, string? reason, Rule? ruleBroken)
     {
-        if (member is null) throw new ArgumentNullException(nameof(member));
-        if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
+        ArgumentNullException.ThrowIfNull(member);
+        ArgumentNullException.ThrowIfNull(staffMember);
 
         if (member.Guild != staffMember.Guild)
             throw new ArgumentException("The member and staff member must be in the same guild.");
@@ -213,8 +213,8 @@ internal sealed class BanService : BackgroundService
     /// </exception>
     public async Task RevokeBanAsync(DiscordUser user, DiscordMember revoker, string? reason)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (revoker is null) throw new ArgumentNullException(nameof(revoker));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(revoker);
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
@@ -263,8 +263,8 @@ internal sealed class BanService : BackgroundService
     public async Task<Infraction> TemporaryBanAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration,
         Rule? ruleBroken)
     {
-        if (user is null) throw new ArgumentNullException(nameof(user));
-        if (issuer is null) throw new ArgumentNullException(nameof(issuer));
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(issuer);
 
         var options = new InfractionOptions
         {
