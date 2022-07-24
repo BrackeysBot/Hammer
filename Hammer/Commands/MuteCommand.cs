@@ -60,7 +60,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
-            Logger.Info($"User {user.Username} is on cooldown. Prompting for confirmation");
+            Logger.Info($"{user} is on cooldown. Prompting for confirmation");
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;

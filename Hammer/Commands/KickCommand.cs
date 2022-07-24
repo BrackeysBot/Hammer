@@ -57,7 +57,6 @@ internal sealed class KickCommand : ApplicationCommandModule
         {
             Logger.Info($"{user} is on cooldown. Prompting for confirmation");
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-            Logger.Debug($"Infraction embed created. Sending confirmation to {context.User}");
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
         }
