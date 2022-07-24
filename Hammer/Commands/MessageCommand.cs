@@ -42,6 +42,12 @@ internal sealed class MessageCommand : ApplicationCommandModule
         else
         {
             await _messageService.MessageMemberAsync(member, context.Member, message).ConfigureAwait(false);
+
+            embed.WithColor(DiscordColor.Green);
+            embed.WithAuthor(user);
+            embed.WithTitle("Message Sent");
+            embed.AddField("Content", message);
+            await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
         }
     }
 }

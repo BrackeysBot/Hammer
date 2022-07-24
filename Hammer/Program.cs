@@ -27,6 +27,7 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<MailmanService>();
+        services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
         services.AddSingleton<WarningService>();
 
