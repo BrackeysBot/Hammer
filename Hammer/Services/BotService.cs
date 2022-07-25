@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using System.Reflection;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -45,6 +46,10 @@ internal sealed class BotService : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var attribute = typeof(BotService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        string version = attribute?.InformationalVersion ?? "Unknown";
+        Logger.Info($"Hammer v{version} is starting...");
+
         _discordClient.UseInteractivity();
 
         SlashCommandsExtension slashCommands = _discordClient.UseSlashCommands(new SlashCommandsConfiguration
@@ -88,7 +93,7 @@ internal sealed class BotService : BackgroundService
     {
         slashCommands.AutocompleteErrored += (_, args) =>
         {
-            Logger.Error(args.Exception, $"An exception was thrown when performing autocomplete");
+            Logger.Error(args.Exception, "An exception was thrown when performing autocomplete");
             if (args.Exception is DiscordException discordException)
                 Logger.Error($"API response: {discordException.JsonMessage}");
 
