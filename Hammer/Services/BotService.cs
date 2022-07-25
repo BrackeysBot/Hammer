@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Hammer.Commands;
 using Hammer.Commands.Infractions;
@@ -44,7 +45,7 @@ internal sealed class BotService : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // _discordClient.UseInteractivity();
+        _discordClient.UseInteractivity();
 
         SlashCommandsExtension slashCommands = _discordClient.UseSlashCommands(new SlashCommandsConfiguration
         {
