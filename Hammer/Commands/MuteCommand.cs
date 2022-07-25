@@ -89,9 +89,6 @@ internal sealed class MuteCommand : ApplicationCommandModule
             if (!dmSuccess)
                 importantNotes.Add("The mute was successfully issued, but the user could not be DM'd.");
 
-            if (importantNotes.Count > 0)
-                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
-
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Red);
             builder.WithDescription(reason);
@@ -106,8 +103,12 @@ internal sealed class MuteCommand : ApplicationCommandModule
             else
             {
                 builder.WithTitle("Temporarily muted user");
+                builder.AddField("Duration", duration.Value.Humanize());
                 Logger.Info($"{context.Member} temporarily muted {user} for {duration.Value.Humanize()}. Reason: {reason}");
             }
+
+            if (importantNotes.Count > 0)
+                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
         }
         catch (Exception exception)
         {

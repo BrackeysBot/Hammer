@@ -87,9 +87,6 @@ internal sealed class BanCommand : ApplicationCommandModule
 
             if (!dmSuccess)
                 importantNotes.Add("The ban was successfully issued, but the user could not be DM'd.");
-            
-            if (importantNotes.Count > 0)
-                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Red);
@@ -106,8 +103,12 @@ internal sealed class BanCommand : ApplicationCommandModule
             else
             {
                 builder.WithTitle("Temporarily banned user");
+                builder.AddField("Duration", duration.Value.Humanize());
                 Logger.Info($"{context.Member} temporarily banned {user} for {duration.Value.Humanize()}. Reason: {reason}");
             }
+
+            if (importantNotes.Count > 0)
+                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
         }
         catch (Exception exception)
         {
