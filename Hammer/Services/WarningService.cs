@@ -29,10 +29,13 @@ internal sealed class WarningService
     /// <param name="issuer">The staff member who issued the warning.</param>
     /// <param name="reason">The reason for the warning.</param>
     /// <param name="ruleBroken">The rule broken, if any.</param>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.
     /// </exception>
-    public async Task<Infraction> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken)
     {
         if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("The reason cannot be empty", nameof(reason));
 
@@ -43,7 +46,7 @@ internal sealed class WarningService
             RuleBroken = ruleBroken
         };
 
-        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
+        (Infraction infraction, bool success) = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
@@ -59,6 +62,6 @@ internal sealed class WarningService
         embed.WithFooter($"Infraction {infraction.Id}");
 
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
-        return infraction;
+        return (infraction, success);
     }
 }

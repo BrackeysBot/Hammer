@@ -139,11 +139,18 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="options">
     ///     An instance of <see cref="InfractionOptions" /> containing additional information regarding the infraction.
     /// </param>
-    /// <returns>The newly-created infraction.</returns>
-    public async Task<Infraction> CreateInfractionAsync(InfractionType type, DiscordUser user, DiscordMember staffMember,
-        InfractionOptions options)
+    /// <returns>
+    ///     A tuple containing the newly-created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
+    public async Task<(Infraction Infraction, bool DmSuccess)> CreateInfractionAsync(
+        InfractionType type,
+        DiscordUser user,
+        DiscordMember staffMember,
+        InfractionOptions options
+    )
     {
         string? reason = options.Reason.AsNullIfWhiteSpace();
+        var result = true;
 
         DiscordGuild guild = staffMember.Guild;
         DateTimeOffset? expirationTime = options.ExpirationTime;
@@ -170,11 +177,12 @@ internal sealed class InfractionService : BackgroundService
         if (type != InfractionType.Gag && options.NotifyUser)
         {
             int infractionCount = GetInfractionCount(user, staffMember.Guild);
-            await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+            if (dm is null) result = false;
         }
 
         _cooldownService.StartCooldown(infraction);
-        return infraction;
+        return (infraction, result);
     }
 
     /// <summary>
@@ -337,7 +345,7 @@ internal sealed class InfractionService : BackgroundService
     ///     The duration of the gag. If <see langword="null" />, the duration as specified in the configuration file is used.
     /// </param>
     /// <returns>The newly-created infraction, or <see langword="null" /> if the infraction could not be created.</returns>
-    public async Task<Infraction?> GagAsync(
+    public async Task<(Infraction?, bool)> GagAsync(
         DiscordUser user,
         DiscordMember staffMember,
         DiscordMessage? sourceMessage = null,
@@ -346,7 +354,7 @@ internal sealed class InfractionService : BackgroundService
     {
         DiscordGuild guild = staffMember.Guild;
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
-            return null;
+            return (null, false);
 
         if (!duration.HasValue)
         {

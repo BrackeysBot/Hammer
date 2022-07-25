@@ -75,7 +75,11 @@ internal sealed class WarnCommand : ApplicationCommandModule
                     message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
             }
 
-            infraction = await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
+            (infraction, bool dmSuccess) =
+                await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
+
+            if (!dmSuccess)
+                builder.AddField("⚠️ Important", "The warning was successfully issued, but the user could not be DM'd.");
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Orange);

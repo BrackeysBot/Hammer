@@ -77,12 +77,16 @@ internal sealed class BanService : BackgroundService
     /// <param name="issuer">The staff member who issued the ban.</param>
     /// <param name="reason">The reason for the ban.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> BanAsync(DiscordUser user, DiscordMember issuer, string? reason, Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> BanAsync(DiscordUser user, DiscordMember issuer, string? reason,
+        Rule? ruleBroken)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(issuer);
@@ -94,7 +98,8 @@ internal sealed class BanService : BackgroundService
             RuleBroken = ruleBroken
         };
 
-        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Ban, user, issuer, options)
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.Ban, user, issuer, options)
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
@@ -115,7 +120,7 @@ internal sealed class BanService : BackgroundService
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
-        return infraction;
+        return (infraction, success);
     }
 
     public TemporaryBan? GetTemporaryBan(DiscordUser user, DiscordGuild guild)
@@ -152,7 +157,9 @@ internal sealed class BanService : BackgroundService
     /// <param name="staffMember">The staff member who issued the kick.</param>
     /// <param name="reason">The reason for the kick.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
-    /// <returns>The newly created infraction.</returns>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="member" /> is <see langword="null" />.</para>
     ///     -or-
@@ -161,7 +168,12 @@ internal sealed class BanService : BackgroundService
     /// <exception cref="ArgumentException">
     ///     <paramref name="member" /> and <paramref name="staffMember" /> are not in the same guild.
     /// </exception>
-    public async Task<Infraction> KickAsync(DiscordMember member, DiscordMember staffMember, string? reason, Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSucess)> KickAsync(
+        DiscordMember member,
+        DiscordMember staffMember,
+        string? reason,
+        Rule? ruleBroken
+    )
     {
         ArgumentNullException.ThrowIfNull(member);
         ArgumentNullException.ThrowIfNull(staffMember);
@@ -176,7 +188,8 @@ internal sealed class BanService : BackgroundService
             RuleBroken = ruleBroken
         };
 
-        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Kick, member, staffMember, options)
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.Kick, member, staffMember, options)
             .ConfigureAwait(false);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
@@ -197,7 +210,7 @@ internal sealed class BanService : BackgroundService
         int infractionCount = _infractionService.GetInfractionCount(member, staffMember.Guild);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
-        return infraction;
+        return (infraction, success);
     }
 
     /// <summary>
@@ -255,13 +268,21 @@ internal sealed class BanService : BackgroundService
     /// <param name="reason">The reason for the ban.</param>
     /// <param name="duration">The duration of the ban.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> TemporaryBanAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration,
-        Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> TemporaryBanAsync(
+        DiscordUser user,
+        DiscordMember issuer,
+        string? reason,
+        TimeSpan duration,
+        Rule? ruleBroken
+    )
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(issuer);
@@ -277,9 +298,10 @@ internal sealed class BanService : BackgroundService
         DiscordGuild guild = issuer.Guild;
         await CreateTemporaryBanAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
 
-        Infraction infraction =
-            await _infractionService.CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options)
-                .ConfigureAwait(false);
+
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options)
+            .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
@@ -299,7 +321,7 @@ internal sealed class BanService : BackgroundService
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
 
-        return infraction;
+        return (infraction, success);
     }
 
     /// <inheritdoc />

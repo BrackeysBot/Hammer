@@ -103,12 +103,16 @@ internal sealed class MuteService : BackgroundService
     /// <param name="issuer">The staff member who issued the mute.</param>
     /// <param name="reason">The reason for the mute.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> MuteAsync(DiscordUser user, DiscordMember issuer, string? reason, Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> MuteAsync(DiscordUser user, DiscordMember issuer, string? reason,
+        Rule? ruleBroken)
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -138,8 +142,11 @@ internal sealed class MuteService : BackgroundService
             RuleBroken = ruleBroken
         };
 
-        Infraction infraction = await _infractionService.CreateInfractionAsync(InfractionType.Mute, user, issuer, options)
+
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.Mute, user, issuer, options)
             .ConfigureAwait(false);
+
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
@@ -170,7 +177,7 @@ internal sealed class MuteService : BackgroundService
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
 
-        return infraction;
+        return (infraction, success);
     }
 
     /// <summary>
@@ -239,13 +246,21 @@ internal sealed class MuteService : BackgroundService
     /// <param name="reason">The reason for the mute.</param>
     /// <param name="duration">The duration of the mute.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <returns>
+    ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
+    /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="issuer" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<Infraction> TemporaryMuteAsync(DiscordUser user, DiscordMember issuer, string? reason, TimeSpan duration,
-        Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> TemporaryMuteAsync(
+        DiscordUser user,
+        DiscordMember issuer,
+        string? reason,
+        TimeSpan duration,
+        Rule? ruleBroken
+    )
     {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (issuer is null) throw new ArgumentNullException(nameof(issuer));
@@ -273,8 +288,10 @@ internal sealed class MuteService : BackgroundService
 
         await CreateTemporaryMuteAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
 
-        Infraction infraction =
-            await _infractionService.CreateInfractionAsync(InfractionType.TemporaryMute, user, issuer, options);
+
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.TemporaryMute, user, issuer, options)
+            .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, guild);
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
@@ -306,7 +323,7 @@ internal sealed class MuteService : BackgroundService
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
 
-        return infraction;
+        return (infraction, success);
     }
 
     /// <summary>

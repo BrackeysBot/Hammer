@@ -77,12 +77,15 @@ internal sealed class BanCommand : ApplicationCommandModule
                 message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
         }
 
-        Task<Infraction> infractionTask = duration is null
+        Task<(Infraction, bool)> infractionTask = duration is null
             ? _banService.BanAsync(user, context.Member!, reason, rule)
             : _banService.TemporaryBanAsync(user, context.Member!, reason, duration.Value, rule);
         try
         {
-            infraction = await infractionTask.ConfigureAwait(false);
+            (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
+
+            if (!dmSuccess)
+                builder.AddField("⚠️ Important", "The warning was successfully issued, but the user could not be DM'd.");
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Red);
