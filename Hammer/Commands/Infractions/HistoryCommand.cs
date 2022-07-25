@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
@@ -19,6 +20,20 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     public HistoryCommand(InfractionService infractionService)
     {
         _infractionService = infractionService;
+    }
+
+    [ContextMenu(ApplicationCommandType.UserContextMenu, "View Infraction History", false)]
+    [SlashRequireGuild]
+    public async Task HistoryAsync(ContextMenuContext context)
+    {
+        DiscordUser user = context.Interaction.Data.Resolved.Users.First().Value;
+
+        await context.DeferAsync(true).ConfigureAwait(false);
+        DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(user, context.Guild, true);
+
+        var builder = new DiscordWebhookBuilder();
+        builder.AddEmbed(embed);
+        await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 
     [SlashCommand("history", "Views the infraction history for a user.", false)]
