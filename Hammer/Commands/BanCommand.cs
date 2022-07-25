@@ -85,7 +85,7 @@ internal sealed class BanCommand : ApplicationCommandModule
             (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
 
             if (!dmSuccess)
-                builder.AddField("⚠️ Important", "The warning was successfully issued, but the user could not be DM'd.");
+                builder.AddField("⚠️ Important", "The ban was successfully issued, but the user could not be DM'd.");
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Red);

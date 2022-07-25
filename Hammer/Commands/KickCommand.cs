@@ -98,7 +98,7 @@ internal sealed class KickCommand : ApplicationCommandModule
                 await _banService.KickAsync(member, context.Member!, reason, rule).ConfigureAwait(false);
 
             if (!dmSuccess)
-                builder.AddField("⚠️ Important", "The warning was successfully issued, but the user could not be DM'd.");
+                builder.AddField("⚠️ Important", "The kick was successfully issued, but the user could not be DM'd.");
 
             builder.WithAuthor(member);
             builder.WithColor(DiscordColor.Red);
