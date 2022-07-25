@@ -62,6 +62,7 @@ internal sealed class WarnCommand : ApplicationCommandModule
 
         var builder = new DiscordEmbedBuilder();
         var message = new DiscordWebhookBuilder();
+        var importantNotes = new List<string>();
 
         try
         {
@@ -72,14 +73,17 @@ internal sealed class WarnCommand : ApplicationCommandModule
                 if (_ruleService.GuildHasRule(context.Guild, ruleId))
                     rule = _ruleService.GetRuleById(context.Guild, ruleId);
                 else
-                    message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
+                    importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
             }
 
             (infraction, bool dmSuccess) =
                 await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
 
             if (!dmSuccess)
-                builder.AddField("⚠️ Important", "The warning was successfully issued, but the user could not be DM'd.");
+                importantNotes.Add("The warning was successfully issued, but the user could not be DM'd.");
+            
+            if (importantNotes.Count > 0)
+                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Orange);

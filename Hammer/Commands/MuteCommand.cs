@@ -64,6 +64,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
 
         TimeSpan? duration = durationRaw?.ToTimeSpan() ?? null;
         var message = new DiscordWebhookBuilder();
+        var importantNotes = new List<string>();
 
         Rule? rule = null;
         if (ruleBroken.HasValue)
@@ -72,7 +73,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
             if (_ruleService.GuildHasRule(context.Guild, ruleId))
                 rule = _ruleService.GetRuleById(context.Guild, ruleId);
             else
-                message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
+                importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
         }
 
         Task<(Infraction, bool)> infractionTask = duration is null
@@ -80,12 +81,16 @@ internal sealed class MuteCommand : ApplicationCommandModule
             : _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
 
         var builder = new DiscordEmbedBuilder();
+
         try
         {
             (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
 
             if (!dmSuccess)
-                builder.AddField("⚠️ Important", "The mute was successfully issued, but the user could not be DM'd.");
+                importantNotes.Add("The mute was successfully issued, but the user could not be DM'd.");
+
+            if (importantNotes.Count > 0)
+                builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
 
             builder.WithAuthor(user);
             builder.WithColor(DiscordColor.Red);
