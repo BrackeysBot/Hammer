@@ -61,11 +61,19 @@ internal sealed class WarnCommand : ApplicationCommandModule
         }
 
         var builder = new DiscordEmbedBuilder();
+        var message = new DiscordWebhookBuilder();
+
         try
         {
             Rule? rule = null;
             if (ruleBroken.HasValue)
-                rule = _ruleService.GetRuleById(context.Guild, (int) ruleBroken.Value);
+            {
+                var ruleId = (int) ruleBroken.Value;
+                if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                    rule = _ruleService.GetRuleById(context.Guild, ruleId);
+                else
+                    message.WithContent("The specified rule does not exist - it will be omitted from the infraction.");
+            }
 
             infraction = await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
 
@@ -88,6 +96,6 @@ internal sealed class WarnCommand : ApplicationCommandModule
             builder.WithFooter("See log for further details.");
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(builder)).ConfigureAwait(false);
+        await context.EditResponseAsync(message.AddEmbed(builder)).ConfigureAwait(false);
     }
 }
