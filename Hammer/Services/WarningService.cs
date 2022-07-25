@@ -57,8 +57,8 @@ internal sealed class WarningService
         embed.AddField("User", user.Mention, true);
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", issuer.Mention, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
 
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
