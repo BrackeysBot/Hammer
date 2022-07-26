@@ -12,8 +12,8 @@ internal sealed partial class InfractionCommand
     [SlashCommand("delete", "Deletes an infraction.", false)]
     [SlashRequireGuild]
     public async Task DeleteAsync(InteractionContext context,
-        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("infraction", "The infraction to delete.")]
-        long infractionId)
+        [Option("infraction", "The infraction to delete.")] long infractionId
+    )
     {
         await context.DeferAsync(true).ConfigureAwait(false);
         var embed = new DiscordEmbedBuilder();

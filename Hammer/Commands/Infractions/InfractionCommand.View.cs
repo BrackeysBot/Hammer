@@ -12,8 +12,8 @@ internal sealed partial class InfractionCommand
     [SlashCommand("view", "Views an infraction.", false)]
     [SlashRequireGuild]
     public async Task ViewAsync(InteractionContext context,
-        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("infraction", "The infraction to view.")]
-        long infractionId)
+        [Option("infraction", "The infraction to view.")] long infractionId
+    )
     {
         await context.DeferAsync(true).ConfigureAwait(false);
         var embed = new DiscordEmbedBuilder();

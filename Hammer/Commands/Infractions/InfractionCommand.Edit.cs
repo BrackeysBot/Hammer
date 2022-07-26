@@ -11,13 +11,13 @@ internal sealed partial class InfractionCommand
     [SlashCommand("edit", "Edits an infraction.", false)]
     [SlashRequireGuild]
     public async Task EditAsync(InteractionContext context,
-        [Autocomplete(typeof(InfractionAutocompleteProvider))] [Option("infraction", "The infraction to modify.")]
-        long infractionId,
+        [Option("infraction", "The infraction to modify.")] long infractionId,
         [Option("reason", "The new reason for the infraction. To remove the reason, enter a single hyphen ( - ).")]
         string? reason = null,
         [Autocomplete(typeof(RuleAutocompleteProvider))]
         [Option("rule", "The new rule which was broken. To remove the rule, enter 0.")]
-        long? ruleId = null)
+        long? ruleId = null
+    )
     {
         await context.DeferAsync(true).ConfigureAwait(false);
         var embed = new DiscordEmbedBuilder();
