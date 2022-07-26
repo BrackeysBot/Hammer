@@ -366,7 +366,7 @@ internal sealed class MuteService : BackgroundService
         }
     }
 
-    private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)H
+    private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
     {
         if (IsUserMuted(e.Member, e.Guild))
         {
