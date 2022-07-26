@@ -10,6 +10,7 @@ using Hammer.Commands.Infractions;
 using Hammer.Commands.Notes;
 using Hammer.Commands.Reports;
 using Hammer.Commands.Rules;
+using Hammer.Commands.V3Migration;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using ILogger = NLog.ILogger;
@@ -65,6 +66,7 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MessageCommand>();
+        slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<NoteCommand>();
         slashCommands.RegisterCommands<ReportCommands>();
