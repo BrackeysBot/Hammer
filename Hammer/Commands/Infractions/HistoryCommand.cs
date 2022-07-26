@@ -1,4 +1,4 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
@@ -28,7 +28,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     {
         DiscordUser user = context.Interaction.Data.Resolved.Users.First().Value;
 
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync().ConfigureAwait(false);
         DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(user, context.Guild, true);
 
         var builder = new DiscordWebhookBuilder();
@@ -41,7 +41,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     public async Task HistoryAsync(InteractionContext context,
         [Option("user", "The user whose history to view.")] DiscordUser user)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync().ConfigureAwait(false);
         DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(user, context.Guild, true);
 
         var builder = new DiscordWebhookBuilder();
