@@ -239,13 +239,14 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="guild">The guild in which this history was requested.</param>
     /// <param name="staffRequested">
     ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.</param>
+    /// <param name="page">The zero-based page index of infractions to create.</param>
     /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="user" /> is <see langword="guild" />.</para>
     /// </exception>
-    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild, bool staffRequested)
+    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild, bool staffRequested, int page)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
@@ -256,10 +257,17 @@ internal sealed class InfractionService : BackgroundService
         embed.WithColor(DiscordColor.Orange);
         embed.WithAuthor(user);
 
+        const int infractionsPerPage = 10;
+        page = (int) Math.Clamp(page, 0, MathF.Ceiling(infractions.Count / 10.0f));
+
         if (infractions.Count > 0)
         {
             embed.AddField($"__{infractions.Count} Infractions on Record__",
-                string.Join('\n', infractions.OrderByDescending(i => i.IssuedAt).Select(BuildInfractionString)));
+                string.Join('\n',
+                    infractions.OrderByDescending(i => i.IssuedAt)
+                        .Skip(infractionsPerPage * page)
+                        .Take(infractionsPerPage)
+                        .Select(BuildInfractionString)));
         }
         else
             embed.AddField("__Infraction Record__", "✅ No infractions on record");
