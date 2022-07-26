@@ -241,9 +241,21 @@ internal sealed class InfractionService : BackgroundService
     ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.</param>
     /// <param name="page">The page of infractions to retrieve.</param>
     /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
-    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild, bool staffRequested,
-        int page = 0)
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="user" /> is <see langword="guild" />.</para>
+    /// </exception>
+    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(
+        DiscordUser user,
+        DiscordGuild guild,
+        bool staffRequested,
+        int page = 0
+    )
     {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
+
         const int infractionsPerPage = 10;
 
         IReadOnlyList<Infraction> infractions = GetInfractions(user, guild);
@@ -252,14 +264,14 @@ internal sealed class InfractionService : BackgroundService
         embed.WithColor(DiscordColor.Orange);
         embed.WithAuthor(user);
 
-        string underlinedFieldName = Formatter.Underline("Infraction Record");
         if (infractions.Count > 0)
         {
             IEnumerable<Infraction> infractionList = infractions.Skip(page * infractionsPerPage).Take(infractionsPerPage);
-            embed.AddField(underlinedFieldName, string.Join("\n\n", infractionList.Select(BuildInfractionString)));
+            embed.AddField($"__{infractions.Count} Infractions on Record__",
+                string.Join("\n\n", infractionList.Select(BuildInfractionString)));
         }
         else
-            embed.AddField(underlinedFieldName, "✅ No infractions on record");
+            embed.AddField("__Infraction Record__", "✅ No infractions on record");
 
         return embed;
 
@@ -268,13 +280,12 @@ internal sealed class InfractionService : BackgroundService
             var builder = new StringBuilder();
 
             builder.Append(Formatter.Bold($"ID: {(staffRequested ? infraction.Id : index + 1)}")).Append(" \u2022 ");
-            builder.AppendLine($"Issued at {Formatter.Timestamp(infraction.IssuedAt, TimestampFormat.ShortDate)}");
-            builder.Append($"Punishment: {infraction.Type.Humanize()}");
+            builder.Append(infraction.Type.Humanize()).Append(" \u2022 ");
+            if (infraction.Reason is { } reason) builder.Append(reason);
+            else builder.Append("<none>");
 
-            if (staffRequested)
-                builder.Append($" by {MentionUtility.MentionUser(infraction.StaffMemberId)}");
-
-            builder.AppendLine().AppendLine(infraction.Reason);
+            builder.Append(" \u2022 ");
+            builder.Append(Formatter.Timestamp(infraction.IssuedAt, TimestampFormat.ShortDate));
 
             return builder.ToString().Trim();
         }
