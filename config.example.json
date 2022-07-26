@@ -7,7 +7,7 @@
     "urgentReportThreshold": 5,
     "mute": {
       "gagDuration": 300000,
-      "maxModeratorMuteDuration": 1.21e+9
+      "maxModeratorMuteDuration": 1210000000
     },
     "reactions": {
       "deleteMessageReaction": ":wastebasket:",
