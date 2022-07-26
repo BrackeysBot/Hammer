@@ -34,7 +34,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
         builder.WithContent("Please wait...");
         DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
 
-        await _infractionService.DisplayInfractionHistoryAsync(message, context.User, user, context.Guild, true)
+        await _infractionService.DisplayInfractionHistoryAsync(message, user, context.User, context.Guild, true)
             .ConfigureAwait(false);
     }
 
@@ -49,7 +49,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
         builder.WithContent("Please wait...");
         DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
 
-        await _infractionService.DisplayInfractionHistoryAsync(message, context.User, user, context.Guild, true)
+        await _infractionService.DisplayInfractionHistoryAsync(message, user, context.User, context.Guild, true)
             .ConfigureAwait(false);
     }
 }

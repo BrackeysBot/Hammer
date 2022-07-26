@@ -8,7 +8,6 @@ namespace Hammer.Data;
 /// </summary>
 internal sealed class InfractionHistoryResponse
 {
-    private const int InfractionsPerPage = 10;
     private readonly InfractionService _infractionService;
 
     private int _page;
