@@ -34,12 +34,11 @@ internal sealed class SelfHistoryCommand : ApplicationCommandModule
         try
         {
             message = await context.Member.SendMessageAsync("Please wait...").ConfigureAwait(false);
-
-            builder.WithContent("Unable to send infraction history. Please make sure you have DMs enabled for this server.");
-            await context.EditResponseAsync(builder).ConfigureAwait(false);
         }
         catch (UnauthorizedException)
         {
+            builder.WithContent("Unable to send infraction history. Please make sure you have DMs enabled for this server.");
+            await context.EditResponseAsync(builder).ConfigureAwait(false);
             return;
         }
 
