@@ -259,7 +259,7 @@ internal sealed class InfractionService : BackgroundService
         if (infractions.Count > 0)
         {
             embed.AddField($"__{infractions.Count} Infractions on Record__",
-                string.Join('\n', infractions.Select(BuildInfractionString)));
+                string.Join('\n', infractions.OrderByDescending(i => i.IssuedAt).Select(BuildInfractionString)));
         }
         else
             embed.AddField("__Infraction Record__", "✅ No infractions on record");
