@@ -349,12 +349,12 @@ internal sealed class InfractionService : BackgroundService
         {
             string previousId = $"ih-{response.Id:N}-prv";
             var previousEmoji = new DiscordComponentEmoji(DiscordEmoji.FromUnicode("⬅️"));
-            var previousButton = new DiscordButtonComponent(ButtonStyle.Secondary, previousId, "Previous", response.Page > 0,
+            var previousButton = new DiscordButtonComponent(ButtonStyle.Secondary, previousId, "Previous", response.Page == 0,
                 previousEmoji);
 
             string nextId = $"ih-{response.Id:N}-nxt";
             var nextEmoji = new DiscordComponentEmoji(DiscordEmoji.FromUnicode("➡️"));
-            var nextButton = new DiscordButtonComponent(ButtonStyle.Secondary, nextId, "Next", response.Page < response.Pages - 1,
+            var nextButton = new DiscordButtonComponent(ButtonStyle.Secondary, nextId, "Next", response.Page == response.Pages - 1,
                 nextEmoji);
 
             builder.AddComponents(previousButton, nextButton);
