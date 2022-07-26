@@ -22,7 +22,8 @@ await Host.CreateDefaultBuilder(args)
         services.AddSingleton(new DiscordClient(new DiscordConfiguration
         {
             Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN"),
-            LoggerFactory = new NLogLoggerFactory()
+            LoggerFactory = new NLogLoggerFactory(),
+            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
         }));
 
         services.AddSingleton<HttpClient>();
