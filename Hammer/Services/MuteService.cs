@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Timers;
 using DSharpPlus;
@@ -352,7 +352,18 @@ internal sealed class MuteService : BackgroundService
         _discordClient.GuildMemberAdded += DiscordClientOnGuildMemberAdded;
 
         _timer.Start();
-        return Task.CompletedTask;
+        return UpdateFromDatabaseAsync();
+    }
+
+    private async Task UpdateFromDatabaseAsync()
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        lock (_mutes)
+        {
+            _mutes.Clear();
+            _mutes.AddRange(context.Mutes);
+        }
     }
 
     private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
