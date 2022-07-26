@@ -340,7 +340,7 @@ internal sealed class InfractionService : BackgroundService
         ArgumentNullException.ThrowIfNull(response);
 
         var builder = new DiscordMessageBuilder();
-        DiscordEmbed embed = BuildInfractionHistoryEmbed(response.TargetUser, response.Guild, response.StaffRequested, 0);
+        DiscordEmbed embed = BuildInfractionHistoryEmbed(response.TargetUser, response.Guild, response.StaffRequested, response.Page);
 
         builder.Clear();
         builder.AddEmbed(embed);
