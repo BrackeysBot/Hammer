@@ -20,7 +20,7 @@ internal sealed partial class InfractionCommand
             return;
         }
 
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync().ConfigureAwait(false);
 
         IEnumerable<Infraction> infractions = _infractionService.EnumerateInfractions(source, context.Guild);
         var count = 0;

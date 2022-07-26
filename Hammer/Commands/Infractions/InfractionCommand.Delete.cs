@@ -15,7 +15,7 @@ internal sealed partial class InfractionCommand
         [Option("infraction", "The infraction to delete.")] long infractionId
     )
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync().ConfigureAwait(false);
         var embed = new DiscordEmbedBuilder();
 
         Infraction? infraction = _infractionService.GetInfraction(infractionId);

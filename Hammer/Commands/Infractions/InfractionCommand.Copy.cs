@@ -19,8 +19,8 @@ internal sealed partial class InfractionCommand
             await context.CreateResponseAsync("You can't copy infractions to the same user.", true).ConfigureAwait(false);
             return;
         }
-        
-        await context.DeferAsync(true).ConfigureAwait(false);
+
+        await context.DeferAsync().ConfigureAwait(false);
 
         IEnumerable<Infraction> infractions = _infractionService.EnumerateInfractions(source, context.Guild);
         List<Infraction> copies = infractions.Select(infraction => new Infraction(infraction) {UserId = destination.Id}).ToList();
