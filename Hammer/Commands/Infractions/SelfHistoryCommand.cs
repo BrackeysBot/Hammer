@@ -1,4 +1,5 @@
 ﻿using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
@@ -27,11 +28,25 @@ internal sealed class SelfHistoryCommand : ApplicationCommandModule
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
+        DiscordMessage message;
         var builder = new DiscordWebhookBuilder();
-        builder.WithContent("Please wait...");
-        DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
+
+        try
+        {
+            message = await context.Member.SendMessageAsync("Please wait...").ConfigureAwait(false);
+
+            builder.WithContent("Unable to send infraction history. Please make sure you have DMs enabled for this server.");
+            await context.EditResponseAsync(builder).ConfigureAwait(false);
+        }
+        catch (UnauthorizedException)
+        {
+            return;
+        }
 
         await _infractionService.DisplayInfractionHistoryAsync(message, context.User, context.User, context.Guild, false)
             .ConfigureAwait(false);
+
+        builder.WithContent("Your infraction history has been sent to your DMs.");
+        await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 }
