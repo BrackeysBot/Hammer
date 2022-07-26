@@ -239,24 +239,16 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="guild">The guild in which this history was requested.</param>
     /// <param name="staffRequested">
     ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.</param>
-    /// <param name="page">The page of infractions to retrieve.</param>
     /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="user" /> is <see langword="guild" />.</para>
     /// </exception>
-    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(
-        DiscordUser user,
-        DiscordGuild guild,
-        bool staffRequested,
-        int page = 0
-    )
+    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(DiscordUser user, DiscordGuild guild, bool staffRequested)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
-
-        const int infractionsPerPage = 10;
 
         IReadOnlyList<Infraction> infractions = GetInfractions(user, guild);
 
@@ -266,9 +258,8 @@ internal sealed class InfractionService : BackgroundService
 
         if (infractions.Count > 0)
         {
-            IEnumerable<Infraction> infractionList = infractions.Skip(page * infractionsPerPage).Take(infractionsPerPage);
             embed.AddField($"__{infractions.Count} Infractions on Record__",
-                string.Join("\n\n", infractionList.Select(BuildInfractionString)));
+                string.Join('\n', infractions.Select(BuildInfractionString)));
         }
         else
             embed.AddField("__Infraction Record__", "✅ No infractions on record");
@@ -285,7 +276,7 @@ internal sealed class InfractionService : BackgroundService
             else builder.Append("<none>");
 
             builder.Append(" \u2022 ");
-            builder.Append(Formatter.Timestamp(infraction.IssuedAt, TimestampFormat.ShortDate));
+            builder.Append(Formatter.Timestamp(infraction.IssuedAt));
 
             return builder.ToString().Trim();
         }
