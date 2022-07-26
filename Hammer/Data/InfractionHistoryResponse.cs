@@ -19,6 +19,7 @@ internal sealed class InfractionHistoryResponse
     /// <param name="message">The response message.</param>
     /// <param name="targetUser">The user whose infractions are being displayed.</param>
     /// <param name="user">The user who triggered this response.</param>
+    /// <param name="guild">The guild in which the history was requested.</param>
     /// <param name="staffRequested">
     ///     <see langword="true" /> if a staff member requested the history; otherwise, <see langword="false" />.
     /// </param>
@@ -36,6 +37,7 @@ internal sealed class InfractionHistoryResponse
         DiscordMessage message,
         DiscordUser targetUser,
         DiscordUser user,
+        DiscordGuild guild,
         bool staffRequested
     )
     {
@@ -43,12 +45,13 @@ internal sealed class InfractionHistoryResponse
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(targetUser);
         ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
 
         _infractionService = infractionService;
-        Guild = message.Channel.Guild;
         Message = message;
         TargetUser = targetUser;
         User = user;
+        Guild = guild;
         StaffRequested = staffRequested;
     }
 

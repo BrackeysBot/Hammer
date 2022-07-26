@@ -325,7 +325,7 @@ internal sealed class InfractionService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
-        var response = new InfractionHistoryResponse(this, message, targetUser, user, staffRequested);
+        var response = new InfractionHistoryResponse(this, message, targetUser, user, guild, staffRequested);
         return await DisplayInfractionHistoryAsync(response).ConfigureAwait(false);
     }
 
