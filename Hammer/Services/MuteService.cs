@@ -142,6 +142,7 @@ internal sealed class MuteService : BackgroundService
             RuleBroken = ruleBroken
         };
 
+        await CreateMuteAsync(user, guild, null).ConfigureAwait(false);
 
         (Infraction infraction, bool success) = await _infractionService
             .CreateInfractionAsync(InfractionType.Mute, user, issuer, options)
@@ -286,7 +287,7 @@ internal sealed class MuteService : BackgroundService
             RuleBroken = ruleBroken
         };
 
-        await CreateTemporaryMuteAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
+        await CreateMuteAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
 
 
         (Infraction infraction, bool success) = await _infractionService
@@ -383,7 +384,7 @@ internal sealed class MuteService : BackgroundService
         return Task.CompletedTask;
     }
 
-    private async Task CreateTemporaryMuteAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
+    private async Task CreateMuteAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset? expirationTime)
     {
         var temporaryMute = Mute.Create(user, guild, expirationTime);
 
