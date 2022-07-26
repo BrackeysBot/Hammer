@@ -37,6 +37,7 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddHostedSingleton<BotService>();
         services.AddHostedSingleton<BanService>();
+        services.AddHostedSingleton<ChannelPermissionService>();
         services.AddHostedSingleton<DatabaseService>();
         services.AddHostedSingleton<DiscordLogService>();
         services.AddHostedSingleton<InfractionService>();
