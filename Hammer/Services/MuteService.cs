@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Timers;
 using DSharpPlus;
@@ -366,10 +366,19 @@ internal sealed class MuteService : BackgroundService
         }
     }
 
-    private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
+    private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)H
     {
-        if (IsUserMuted(e.Member, e.Guild) && TryGetMutedRole(e.Guild, out DiscordRole? mutedRole))
+        if (IsUserMuted(e.Member, e.Guild))
+        {
+            if (!TryGetMutedRole(e.Guild, out DiscordRole? mutedRole))
+            {
+                Logger.Warn($"{e.Member} is muted, but no muted role was found in {e.Guild}!");
+                return Task.CompletedTask;
+            }
+
+            Logger.Info($"{e.Member} is muted. Applying muted role");
             return e.Member.GrantRoleAsync(mutedRole, "Reapplying muted role for rejoined user");
+        }
 
         return Task.CompletedTask;
     }
