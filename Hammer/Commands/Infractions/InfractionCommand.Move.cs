@@ -14,6 +14,12 @@ internal sealed partial class InfractionCommand
         [Option("source", "The user whose infractions to move.")] DiscordUser source,
         [Option("destination", "The user who will acquire the moved infractions.")] DiscordUser destination)
     {
+        if (source == destination)
+        {
+            await context.CreateResponseAsync("You can't move infractions to the same user.", true).ConfigureAwait(false);
+            return;
+        }
+
         await context.DeferAsync(true).ConfigureAwait(false);
 
         IEnumerable<Infraction> infractions = _infractionService.EnumerateInfractions(source, context.Guild);
