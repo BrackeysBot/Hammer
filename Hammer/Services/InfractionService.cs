@@ -26,6 +26,7 @@ internal sealed class InfractionService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly Dictionary<ulong, List<Infraction>> _infractionCache = new();
+    private readonly Dictionary<Guid, InfractionHistoryResponse> _historyResponses = new();
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
@@ -238,7 +239,8 @@ internal sealed class InfractionService : BackgroundService
     /// <param name="user">The user whose infractions to display.</param>
     /// <param name="guild">The guild in which this history was requested.</param>
     /// <param name="staffRequested">
-    ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.</param>
+    ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.
+    /// </param>
     /// <param name="page">The zero-based page index of infractions to create.</param>
     /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
     /// <exception cref="ArgumentNullException">
@@ -288,6 +290,80 @@ internal sealed class InfractionService : BackgroundService
 
             return builder.ToString().Trim();
         }
+    }
+
+    /// <summary>
+    ///     Displays the infraction history embed.
+    /// </summary>
+    /// <param name="message">The message to modify.</param>
+    /// <param name="targetUser">The user whose infractions to display.</param>
+    /// <param name="user">The user who requested this history.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <param name="staffRequested">
+    ///     <see langword="true" /> if this history was requested by a staff member; otherwise, <see langword="false" />.
+    /// </param>
+    /// <returns>An <see cref="InfractionHistoryResponse" /> object containing the state of the response.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="message" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="targetUser" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
+    public async Task<InfractionHistoryResponse> DisplayInfractionHistoryAsync(
+        DiscordMessage message,
+        DiscordUser targetUser,
+        DiscordUser user,
+        DiscordGuild guild,
+        bool staffRequested
+    )
+    {
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(targetUser);
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var response = new InfractionHistoryResponse(this, message, targetUser, user, staffRequested);
+        return await DisplayInfractionHistoryAsync(response).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Displays the infraction history embed.
+    /// </summary>
+    /// <param name="response">The response to modify.</param>
+    /// <returns>The <see cref="InfractionHistoryResponse" /> passed to this method.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="response" /> is <see langword="null" />.</exception>
+    public async Task<InfractionHistoryResponse> DisplayInfractionHistoryAsync(InfractionHistoryResponse response)
+    {
+        ArgumentNullException.ThrowIfNull(response);
+
+        var builder = new DiscordMessageBuilder();
+        DiscordEmbed embed = BuildInfractionHistoryEmbed(response.TargetUser, response.Guild, response.StaffRequested, 0);
+
+        builder.Clear();
+        builder.AddEmbed(embed);
+
+        if (response.Pages > 0)
+        {
+            string previousId = $"ih-{response.Id:N}-prv";
+            var previousEmoji = new DiscordComponentEmoji(DiscordEmoji.FromUnicode("⬅️"));
+            var previousButton = new DiscordButtonComponent(ButtonStyle.Secondary, previousId, "Previous", response.Page > 0,
+                previousEmoji);
+
+            string nextId = $"ih-{response.Id:N}-nxt";
+            var nextEmoji = new DiscordComponentEmoji(DiscordEmoji.FromUnicode("➡️"));
+            var nextButton = new DiscordButtonComponent(ButtonStyle.Secondary, nextId, "Next", response.Page < response.Pages - 1,
+                nextEmoji);
+
+            builder.AddComponents(previousButton, nextButton);
+        }
+
+        await response.Message.ModifyAsync(builder).ConfigureAwait(false);
+        _historyResponses[response.Id] = response;
+
+        return response;
     }
 
     /// <summary>
@@ -633,7 +709,10 @@ internal sealed class InfractionService : BackgroundService
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _discordClient.GuildAvailable += DiscordClientOnGuildAvailable;
+        _discordClient.GuildAvailable += OnGuildAvailable;
+        _discordClient.MessageDeleted += OnMessageDeleted;
+        _discordClient.ComponentInteractionCreated += OnComponentInteractionCreated;
+
         return Task.CompletedTask;
     }
 
@@ -654,8 +733,43 @@ internal sealed class InfractionService : BackgroundService
         Logger.Info($"Retrieved {cache.Count} infractions for {guild}");
     }
 
-    private Task DiscordClientOnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    private async Task OnComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        string[] tokens = e.Id.Split('-', 3);
+        if (tokens.Length != 3) return;
+        if (tokens[0] != "ih") return;
+        if (!Guid.TryParse(tokens[1], out Guid id)) return;
+
+        bool isPrevious = tokens[2] == "prv";
+        bool isNext = tokens[2] == "nxt";
+
+        if (!isPrevious && !isNext) return;
+
+        if (_historyResponses.TryGetValue(id, out InfractionHistoryResponse? response))
+        {
+            e.Handled = true;
+            response.Page = isNext ? response.Page + 1 : response.Page - 1;
+            await DisplayInfractionHistoryAsync(response).ConfigureAwait(false);
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage).ConfigureAwait(false);
+        }
+    }
+
+    private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
         return LoadGuildInfractions(e.Guild);
+    }
+
+    private Task OnMessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
+    {
+        foreach ((Guid id, InfractionHistoryResponse response) in _historyResponses.ToArray())
+        {
+            if (e.Message == response.Message)
+            {
+                _historyResponses.Remove(id);
+                break;
+            }
+        }
+
+        return Task.CompletedTask;
     }
 }
