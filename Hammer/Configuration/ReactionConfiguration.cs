@@ -28,10 +28,4 @@ internal sealed class ReactionConfiguration
     /// </summary>
     /// <value>The report reaction.</value>
     public string ReportReaction { get; set; } = ":triangular_flag_on_post:";
-
-    /// <summary>
-    ///     Gets or sets the track reaction.
-    /// </summary>
-    /// <value>The track reaction.</value>
-    public string TrackReaction { get; set; } = ":mag:";
 }
