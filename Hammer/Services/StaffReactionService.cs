@@ -63,8 +63,15 @@ internal sealed class StaffReactionService : BackgroundService
 
         if (reaction == reactionConfiguration.GagReaction)
         {
-            await e.Message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
+            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
             await _infractionService.GagAsync(author, staffMember, message).ConfigureAwait(false);
+        }
+        else if (reaction == reactionConfiguration.HistoryReaction)
+        {
+            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
+            message = await staffMember.SendMessageAsync("Please wait...").ConfigureAwait(false);
+            await _infractionService.DisplayInfractionHistoryAsync(message, author, staffMember, guild, true)
+                .ConfigureAwait(false);
         }
         else if (reaction == reactionConfiguration.DeleteMessageReaction)
         {
