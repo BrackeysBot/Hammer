@@ -37,7 +37,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("Not In Guild");
             embed.WithDescription($"User {user.Id} ({user.Mention}) was found, but is not in this guild.");
-            await context.CreateResponseAsync(embed).ConfigureAwait(false);
+            await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
         }
         else
         {
