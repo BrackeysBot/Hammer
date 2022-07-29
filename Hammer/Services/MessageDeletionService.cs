@@ -101,8 +101,15 @@ internal sealed class MessageDeletionService
 
         if (notifyAuthor)
         {
-            DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
-            await author.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
+            try
+            {
+                DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
+                await author.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember, guildConfiguration);
