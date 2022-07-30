@@ -35,7 +35,7 @@ internal sealed class MigrationProcessMutesState : ConversationState
     /// <inheritdoc />
     public override async Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
     {
-        _total = _userDataEntries.Sum(u => u.TemporaryInfractions.Count(b => b.Type == TemporaryInfractionType.TempBan));
+        _total = _userDataEntries.Sum(u => u.TemporaryInfractions.Count(b => b.Type == TemporaryInfractionType.TempMute));
         _total += _userDataEntries.Sum(u => u.Infractions.Count(b => b.Type == InfractionType.Mute));
 
         var cancellationTokenSource = new CancellationTokenSource();
