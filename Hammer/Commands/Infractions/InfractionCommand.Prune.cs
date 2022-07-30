@@ -36,13 +36,23 @@ internal sealed partial class InfractionCommand
 
         builder.Clear();
         builder.ClearComponents();
-        builder.AddEmbed(embed);
 
         if (result.TimedOut)
         {
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("Prune cancelled");
             embed.WithDescription("The pruning process was cancelled because no action was taken.");
+            builder.AddEmbed(embed);
+            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            return;
+        }
+
+        if (result.Result.Id == "prune-cancel")
+        {
+            embed.WithColor(DiscordColor.Red);
+            embed.WithTitle("Prune cancelled");
+            embed.WithDescription("The pruning process was cancelled.");
+            builder.AddEmbed(embed);
             await context.EditResponseAsync(builder).ConfigureAwait(false);
             return;
         }
@@ -50,6 +60,7 @@ internal sealed partial class InfractionCommand
         embed.WithColor(DiscordColor.Blurple);
         embed.WithTitle("Prune in progress");
         embed.WithDescription("Please wait while stale infractions are being pruned. This process may take several minutes.");
+        builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
 
         int count = await _infractionService.PruneStaleInfractionsAsync().ConfigureAwait(false);
@@ -57,6 +68,7 @@ internal sealed partial class InfractionCommand
         embed.WithColor(DiscordColor.Green);
         embed.WithTitle("Prune complete");
         embed.WithDescription($"{count} stale infractions were pruned.");
+        builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 }
