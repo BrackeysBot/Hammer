@@ -12,9 +12,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01157"/>
-        <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01157"/>
-        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01157"/>
+        <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01160"/>
+        <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01160"/>
+        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01160"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0"/>
