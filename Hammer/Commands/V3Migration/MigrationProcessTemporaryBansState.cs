@@ -79,7 +79,7 @@ internal sealed class MigrationProcessTemporaryBansState : ConversationState
 
         var builder = new DiscordWebhookBuilder();
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (_completed < _total || !cancellationToken.IsCancellationRequested)
         {
             float progress = (float) _completed / _total;
             embed.WithDescription($"Migrated {_completed} / {_total} temporary bans");
