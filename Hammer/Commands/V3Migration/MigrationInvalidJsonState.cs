@@ -18,7 +18,6 @@ internal sealed class MigrationInvalidJsonState : ConversationState
     public MigrationInvalidJsonState(Conversation conversation)
         : base(conversation)
     {
-        Conversation.Services.GetRequiredService<V3ToV4UpgradeService>();
     }
 
     /// <inheritdoc />

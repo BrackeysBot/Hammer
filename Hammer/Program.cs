@@ -32,7 +32,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddSingleton<MailmanService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
-        services.AddSingleton<V3ToV4UpgradeService>();
         services.AddSingleton<WarningService>();
 
         services.AddHostedSingleton<BotService>();
