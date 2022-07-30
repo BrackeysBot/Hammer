@@ -20,7 +20,7 @@ internal sealed partial class InfractionCommand
         embed.WithColor(DiscordColor.Orange);
         embed.WithTitle("Prune infractions?");
         embed.WithDescription("All stale infractions (infractions for users which no longer exist) " +
-                              "will be pruned from the database. This action cannot be undone. Are you sure you want to proceed?");
+                              "will be pruned from the database.\n\nThis action cannot be undone. Are you sure you want to proceed?");
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
@@ -59,7 +59,7 @@ internal sealed partial class InfractionCommand
 
         embed.WithColor(DiscordColor.Blurple);
         embed.WithTitle("Prune in progress");
-        embed.WithDescription("Please wait while stale infractions are being pruned. This process may take several minutes.");
+        embed.WithDescription("Please wait while stale infractions are being pruned.\nThis process may take several minutes.");
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
 
@@ -67,7 +67,8 @@ internal sealed partial class InfractionCommand
 
         embed.WithColor(DiscordColor.Green);
         embed.WithTitle("Prune complete");
-        embed.WithDescription($"{count} stale infractions were pruned.");
+        embed.WithDescription($"{count:N0} stale infractions were pruned.");
+        builder.Clear();
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
