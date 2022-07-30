@@ -60,6 +60,6 @@ internal sealed class MigrationConfirmState : ConversationState
         if (result.TimedOut || result.Result.Id == cancelId)
             return new MigrationCanceledState(Conversation);
 
-        return new MigrationInvalidUsersState(_userDataEntries, Conversation);
+        return new MigrationProcessInfractionsState(_userDataEntries, Conversation);
     }
 }

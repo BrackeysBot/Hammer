@@ -15,7 +15,6 @@ namespace Hammer.Commands.V3Migration;
 internal sealed class MigrationProcessMutesState : ConversationState
 {
     private readonly List<UserData> _userDataEntries;
-    private readonly bool _forceInvalid;
     private readonly MuteService _muteService;
     private int _completed;
     private int _total;
@@ -24,15 +23,11 @@ internal sealed class MigrationProcessMutesState : ConversationState
     ///     Initializes a new instance of the <see cref="MigrationProcessMutesState" /> class.
     /// </summary>
     /// <param name="userDataEntries">The legacy <see cref="UserData" /> entries.</param>
-    /// <param name="forceInvalid">
-    ///     <see langword="true" /> to force migration of invalid infractions; otherwise, <see langword="false" />.
-    /// </param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationProcessMutesState(List<UserData> userDataEntries, bool forceInvalid, Conversation conversation)
+    public MigrationProcessMutesState(List<UserData> userDataEntries, Conversation conversation)
         : base(conversation)
     {
         _userDataEntries = userDataEntries;
-        _forceInvalid = forceInvalid;
 
         _muteService = conversation.Services.GetRequiredService<MuteService>();
     }
@@ -53,9 +48,6 @@ internal sealed class MigrationProcessMutesState : ConversationState
                 cancellationTokenSource.Cancel();
                 break;
             }
-
-            if (userData.Invalid && !_forceInvalid)
-                continue;
 
             IEnumerable<TemporaryInfraction> temporaryMutes =
                 userData.TemporaryInfractions.Where(i => i.Type == TemporaryInfractionType.TempMute);

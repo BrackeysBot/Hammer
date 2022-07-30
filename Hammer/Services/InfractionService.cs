@@ -340,7 +340,8 @@ internal sealed class InfractionService : BackgroundService
         ArgumentNullException.ThrowIfNull(response);
 
         var builder = new DiscordMessageBuilder();
-        DiscordEmbed embed = BuildInfractionHistoryEmbed(response.TargetUser, response.Guild, response.StaffRequested, response.Page);
+        DiscordEmbed embed =
+            BuildInfractionHistoryEmbed(response.TargetUser, response.Guild, response.StaffRequested, response.Page);
 
         builder.Clear();
         builder.AddEmbed(embed);
@@ -354,7 +355,8 @@ internal sealed class InfractionService : BackgroundService
 
             string nextId = $"ih-{response.Id:N}-nxt";
             var nextEmoji = new DiscordComponentEmoji(DiscordEmoji.FromUnicode("➡️"));
-            var nextButton = new DiscordButtonComponent(ButtonStyle.Secondary, nextId, "Next", response.Page == response.Pages - 1,
+            var nextButton = new DiscordButtonComponent(ButtonStyle.Secondary, nextId, "Next",
+                response.Page == response.Pages - 1,
                 nextEmoji);
 
             builder.AddComponents(previousButton, nextButton);
@@ -660,6 +662,40 @@ internal sealed class InfractionService : BackgroundService
         action(infraction);
         context.Update(infraction);
         await context.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Prunes all stale infractions from the database.
+    /// </summary>
+    public async Task<int> PruneStaleInfractionsAsync()
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        var pruneInfractions = new List<Infraction>();
+
+        await foreach (Infraction infraction in context.Infractions)
+        {
+            try
+            {
+                DiscordUser user = await _discordClient.GetUserAsync(infraction.UserId).ConfigureAwait(false);
+                if (user is null)
+                    pruneInfractions.Add(infraction);
+            }
+            catch (NotFoundException)
+            {
+                pruneInfractions.Add(infraction);
+            }
+        }
+
+        foreach (Infraction infraction in pruneInfractions)
+        {
+            if (_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
+                cache.Remove(infraction);
+            context.Remove(infraction);
+        }
+
+        await context.SaveChangesAsync().ConfigureAwait(false);
+        return pruneInfractions.Count;
     }
 
     /// <summary>

@@ -29,32 +29,6 @@ internal class V3ToV4UpgradeService
     }
 
     /// <summary>
-    ///     Returns a number indicating how many of the <see cref="UserData" /> entries are considered invalid due to a
-    ///     non-existent user.
-    /// </summary>
-    /// <param name="userDatas">The user data objects</param>
-    /// <returns>The number of non-existent users.</returns>
-    public async Task<int> GetInvalidUserCountAsync(IEnumerable<UserData> userDatas)
-    {
-        var count = 0;
-
-        foreach (UserData userData in userDatas)
-        {
-            try
-            {
-                await _discordClient.GetUserAsync(userData.ID).ConfigureAwait(false);
-            }
-            catch (NotFoundException)
-            {
-                count++;
-                userData.Invalid = true;
-            }
-        }
-
-        return count;
-    }
-
-    /// <summary>
     ///     Enumerates the temporary bans of the specified legacy <see cref="UserData" /> object, constructing database-managed
     ///     temporary bans.
     /// </summary>

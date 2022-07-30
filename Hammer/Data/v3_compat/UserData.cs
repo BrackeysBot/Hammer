@@ -16,9 +16,6 @@ internal class UserData
 
     [JsonPropertyName("muted")]
     public bool Muted { get; set; }
-    
-    [JsonIgnore]
-    public bool Invalid { get; set; }
 }
 
 [Obsolete("This type exists for migration purposes. Please use Hammer.Data.Infraction")]

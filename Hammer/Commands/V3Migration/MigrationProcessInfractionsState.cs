@@ -16,7 +16,6 @@ namespace Hammer.Commands.V3Migration;
 internal sealed class MigrationProcessInfractionsState : ConversationState
 {
     private readonly List<UserData> _userDataEntries;
-    private readonly bool _forceInvalid;
     private readonly InfractionService _infractionService;
     private int _completed;
     private int _total;
@@ -25,15 +24,11 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
     ///     Initializes a new instance of the <see cref="MigrationProcessInfractionsState" /> class.
     /// </summary>
     /// <param name="userDataEntries">The legacy <see cref="UserData" /> entries.</param>
-    /// <param name="forceInvalid">
-    ///     <see langword="true" /> to force migration of invalid infractions; otherwise, <see langword="false" />.
-    /// </param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationProcessInfractionsState(List<UserData> userDataEntries, bool forceInvalid, Conversation conversation)
+    public MigrationProcessInfractionsState(List<UserData> userDataEntries, Conversation conversation)
         : base(conversation)
     {
         _userDataEntries = userDataEntries;
-        _forceInvalid = forceInvalid;
 
         _infractionService = conversation.Services.GetRequiredService<InfractionService>();
     }
@@ -53,9 +48,6 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
                 cancellationTokenSource.Cancel();
                 break;
             }
-
-            if (userData.Invalid && !_forceInvalid)
-                continue;
 
             foreach (LegacyInfraction legacyInfraction in userData.Infractions)
             {
@@ -92,7 +84,7 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
         }
 
         cancellationTokenSource.Cancel();
-        return new MigrationProcessTemporaryBansState(_userDataEntries, _forceInvalid, Conversation);
+        return new MigrationProcessTemporaryBansState(_userDataEntries, Conversation);
     }
 
     private async Task UpdateEmbedAsync(BaseDiscordClient client, DiscordInteraction interaction,
