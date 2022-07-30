@@ -58,9 +58,21 @@ internal sealed class BanService : BackgroundService
     public async Task<TemporaryBan> AddTemporaryBanAsync(TemporaryBan temporaryBan)
     {
         ArgumentNullException.ThrowIfNull(temporaryBan);
+        TemporaryBan? existingBan;
+
+        lock (_temporaryBans)
+        {
+            existingBan = _temporaryBans.Find(b => b.UserId == temporaryBan.UserId && b.GuildId == temporaryBan.GuildId);
+            if (existingBan is not null)
+                return existingBan;
+        }
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        existingBan = await context.TemporaryBans.FindAsync(temporaryBan.UserId, temporaryBan.GuildId).ConfigureAwait(false);
+        if (existingBan is not null)
+            return existingBan;
 
         lock (_temporaryBans)
             _temporaryBans.Add(temporaryBan);

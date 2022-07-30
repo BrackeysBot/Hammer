@@ -69,9 +69,21 @@ internal sealed class MuteService : BackgroundService
     public async Task<Mute> AddMuteAsync(Mute mute)
     {
         ArgumentNullException.ThrowIfNull(mute);
+        Mute? existingMute;
+
+        lock (_mutes)
+        {
+            existingMute = _mutes.Find(m => m.UserId == mute.UserId && m.GuildId == mute.GuildId);
+            if (existingMute is not null)
+                return existingMute;
+        }
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        existingMute = await context.Mutes.FindAsync(mute.UserId, mute.GuildId).ConfigureAwait(false);
+        if (existingMute is not null)
+            return existingMute;
 
         lock (_mutes)
             _mutes.Add(mute);
