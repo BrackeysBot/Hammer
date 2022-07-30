@@ -7,6 +7,8 @@ using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Humanizer;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
@@ -84,8 +86,26 @@ internal sealed class InfractionService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
-        await context.SaveChangesAsync();
+
+        try
+        {
+            infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception)
+        {
+            // SQLite error 19 is "constraint" - this is almost certainly due to duplicate unique key,
+            // which may happen with an attempt to migrate an infraction with an ID already used.
+            // in this case, we can set ID to 0 so that Sqlite generates a new sequential ID.
+            // if the error is not 19, or if THIS operation fails, just rethrow because it's not our concern here.
+
+            if (exception.InnerException is not SqliteException {SqliteErrorCode: 19})
+                throw;
+
+            infraction.Id = 0;
+            infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
+            await context.SaveChangesAsync();
+        }
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? infractions))
         {
@@ -671,20 +691,30 @@ internal sealed class InfractionService : BackgroundService
     {
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        var idCache = new Dictionary<ulong, bool>();
         var pruneInfractions = new List<Infraction>();
 
         await foreach (Infraction infraction in context.Infractions)
         {
-            try
+            ulong userId = infraction.UserId;
+
+            if (!idCache.TryGetValue(userId, out bool isStale))
             {
-                DiscordUser user = await _discordClient.GetUserAsync(infraction.UserId).ConfigureAwait(false);
-                if (user is null)
-                    pruneInfractions.Add(infraction);
+                try
+                {
+                    DiscordUser user = await _discordClient.GetUserAsync(userId).ConfigureAwait(false);
+                    isStale = user is null;
+                }
+                catch (NotFoundException)
+                {
+                    isStale = true;
+                }
+
+                idCache[userId] = isStale;
             }
-            catch (NotFoundException)
-            {
+
+            if (isStale)
                 pruneInfractions.Add(infraction);
-            }
         }
 
         foreach (Infraction infraction in pruneInfractions)
