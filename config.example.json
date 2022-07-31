@@ -1,0 +1,26 @@
+{
+  "GUILD_ID": {
+    "logChannel": 0,
+    "primaryColor": 7878655,
+    "secondaryColor": 14892140,
+    "tertiaryColor": 16769110,
+    "urgentReportThreshold": 5,
+    "mute": {
+      "gagDuration": 300000,
+      "maxModeratorMuteDuration": 1210000000
+    },
+    "reactions": {
+      "deleteMessageReaction": ":wastebasket:",
+      "gagReaction": ":mute:",
+      "historyReaction": ":clock4:",
+      "reportReaction": ":triangular_flag_on_post:",
+      "trackReaction": ":mag:"
+    },
+    "roles": {
+      "administratorRoleId": 0,
+      "guruRoleId": 0,
+      "moderatorRoleId": 0,
+      "mutedRoleId": 0
+    }
+  }
+}

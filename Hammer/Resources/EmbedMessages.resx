@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+
+    <data name="BanDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **indefinitely banned** from **{guild.Name}**.</value>
+    </data>
+    <data name="DmModMail" xml:space="preserve">
+        <value>If you wish to discuss this with staff or feel this action is unjustified, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
+    <data name="KickDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **kicked** from **{guild.Name}**. __This is not a permanent removal from the server__, but a way for staff to inform you that your behaviour needs to change if you wish to remain a member of the community in future.
+
+Please take some time to reflect on the reason for this action, and return when you feel you are ready.</value>
+    </data>
+    <data name="MessageDeletionDescription" xml:space="preserve">
+        <value>{user.Mention}, your message was deleted from {channel.Mention} as it was deemed either off-topic or violated our server rules.</value>
+    </data>
+    <data name="MessageFromStaff" xml:space="preserve">
+        <value>{user.Mention}, you have received a message from **{guild.Name}**. __This is not an infraction__.</value>
+    </data>
+    <data name="MessageReportFeedback" xml:space="preserve">
+        <value>{user.Mention}, thank you for your report.
+
+The reported message has been brought to the attention of staff. __**No further action is required on your part.**__
+If you'd like to discuss this report with staff, please DM ModMail instead of posting about it in a public channel.</value>
+    </data>
+    <data name="MuteDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **indefinitely muted** from **{guild.Name}**.</value>
+    </data>
+    <data name="TemporaryBanDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **temporarily banned** from **{guild.Name}**.</value>
+    </data>
+    <data name="TemporaryMuteDescription" xml:space="preserve">
+        <value>{user.Mention}, you have been **temporarily muted** from **{guild.Name}**. A temporary mute is a way for staff to let you cool off and reflect on your behaviour.
+Failing to follow the rules in future will result in further infractions. Accumulating too many infractions may lead to an indefinite removal from the server.</value>
+    </data>
+    <data name="WarningDescription" xml:space="preserve">
+        <value>{user.Mention}, you have received a **warning** from **{guild.Name}**. A warning is a way for staff to inform you that your behaviour needs to change, or further infractions will follow.
+Accumulating too many infractions may lead to an indefinite removal from the server.</value>
+    </data>
+</root>

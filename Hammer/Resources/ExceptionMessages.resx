@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+
+    <data name="CannotDeleteNonGuildMessage" xml:space="preserve">
+        <value>Cannot delete non-guild message.</value>
+    </data>
+    <data name="MessageStaffMemberGuildMismatch" xml:space="preserve">
+        <value>Message does not appear in the same guild as the staff member.</value>
+    </data>
+    <data name="ModeratorCannotPermanentlyMute" xml:space="preserve">
+        <value>Issuer cannot indefinitely mute user because they are a moderator, and the maximum moderator mute duration is set.</value>
+    </data>
+    <data name="NoConfigurationForGuild" xml:space="preserve">
+        <value>The operation cannot execute because the guild configuration is missing.</value>
+    </data>
+    <data name="NoEmbedForGag" xml:space="preserve">
+        <value>An embed cannot be built for a Gag infraction.</value>
+    </data>
+    <data name="NoSuchNote" xml:space="preserve">
+        <value>No note with the ID {id} could be found.</value>
+    </data>
+    <data name="NotAStaffMember" xml:space="preserve">
+        <value>{user.Username}#{user.Discriminator} is not a staff member of {guild.Name}.</value>
+    </data>
+    <data name="StaffIsHigherLevel" xml:space="preserve">
+        <value>{higher.Username}#{higher.Discriminator} is a higher permission level than {lower.Username}#{lower.Discriminator}.</value>
+    </data>
+    <data name="StaffMemberRecipientGuildMismatch" xml:space="preserve">
+        <value>The specified staff member and recipient do not belong to the same guild.</value>
+    </data>
+</root>

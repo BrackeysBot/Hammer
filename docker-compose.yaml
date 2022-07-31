@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  hammer:
+    container_name: Hammer
+    build: .
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /app/logs
+      - type: bind
+        source: ./data
+        target: /app/data
+    restart: always
+    env_file:
+      - .env
