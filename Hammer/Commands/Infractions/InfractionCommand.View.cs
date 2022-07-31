@@ -1,3 +1,4 @@
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
@@ -36,6 +37,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
             embed.AddField("Type", infraction.Type.ToString("G"), true);
             embed.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
+            embed.AddField("Issued", Formatter.Timestamp(infraction.IssuedAt), true);
             embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
             embed.AddFieldIf(infraction.Reason is not null, "Reason", () => infraction.Reason);
         }
