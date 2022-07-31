@@ -50,7 +50,12 @@ internal sealed class DiscordLogService : BackgroundService
         ArgumentNullException.ThrowIfNull(embed);
 
         if (_logChannels.TryGetValue(guild, out DiscordChannel? logChannel))
+        {
+            if (embed.Timestamp is null)
+                embed = new DiscordEmbedBuilder(embed).WithTimestamp(DateTimeOffset.UtcNow);
+
             await logChannel.SendMessageAsync(BuildMentionString(guild, notificationOptions), embed: embed).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
