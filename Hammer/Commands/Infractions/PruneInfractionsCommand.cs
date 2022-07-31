@@ -5,12 +5,27 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.Services;
 
 namespace Hammer.Commands.Infractions;
 
-internal sealed partial class InfractionCommand
+/// <summary>
+///     Represents a module which implements the <c>/infraction prune</c>.
+/// </summary>
+internal sealed class PruneInfractionsCommand : ApplicationCommandModule
 {
-    [SlashCommand("prune", "Prune all stale infractions for invalid users.", false)]
+    private readonly InfractionService _infractionService;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="PruneInfractionsCommand" /> class.
+    /// </summary>
+    /// <param name="infractionService">The infraction service.</param>
+    public PruneInfractionsCommand(InfractionService infractionService)
+    {
+        _infractionService = infractionService;
+    }
+
+    [SlashCommand("pruneinfractions", "Prune all stale infractions for invalid users.", false)]
     [SlashRequireGuild]
     public async Task PruneAsync(InteractionContext context)
     {
