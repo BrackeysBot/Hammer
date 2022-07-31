@@ -322,33 +322,34 @@ Modifies the in-depth description of a rule.
 
 Below is a table outlining all the commands and whether or not they have ephemeral responses.
 
-| Command                 | Ephemeral Response                                 |
-|:------------------------|:---------------------------------------------------|
-| `/ban`                  | ✅ Yes                                              |
-| `/blockreports`         | ✅ Yes                                              |
-| `/history`              | ❌ No                                               |
-| `/infraction clear`     | ❌ No                                               |
-| `/infraction copy`      | ❌ No                                               |
-| `/infraction delete`    | ❌ No                                               |
-| `/infraction edit`      | ❌ No                                               |
-| `/infraction move`      | ❌ No                                               |
-| `/infraction prune`     | ❌ No                                               |
-| `/infraction view`      | ❌ No                                               |
-| `/migrate`              | ❌ No                                               |
-| `/mute`                 | ✅ Yes                                              |
-| `/note create`          | ✅ Yes                                              |
-| `/note delete`          | ✅ Yes                                              |
-| `/note editcontent`     | ✅ Yes                                              |
-| `/note edittype`        | ✅ Yes                                              |
-| `/note view`            | ✅ Yes                                              |
-| `/note viewall`         | ✅ Yes                                              |
-| `/rule`                 | ❌ No                                               |
-| `/rules add`            | ⚠️ If guild isn't configured                       |
-| `/rules delete`         | ⚠️ If guild isn't configured                       |
-| `/rules display`        | ➖ Interaction response is, resulting embed is not. |
-| `/rules setbrief`       | ⚠️ If guild isn't configured                       |
-| `/rules setdescription` | ⚠️ If guild isn't configured                       |
-| `/unmute`               | ✅ Yes                                              |
-| `/unban`                | ✅ Yes                                              |
-| `/unblockreports`       | ✅ Yes                                              |
-| `/warn`                 | ✅ Yes                                              |
+| Command                 | Ephemeral Response                                |
+|:------------------------|:--------------------------------------------------|
+| `/ban`                  | ✅ Yes                                             |
+| `/blockreports`         | ✅ Yes                                             |
+| `/history`              | ❌ No                                              |
+| `/infraction clear`     | ❌ No                                              |
+| `/infraction copy`      | ❌ No                                              |
+| `/infraction delete`    | ❌ No                                              |
+| `/infraction edit`      | ❌ No                                              |
+| `/infraction move`      | ❌ No                                              |
+| `/infraction prune`     | ❌ No                                              |
+| `/infraction view`      | ❌ No                                              |
+| `/migrate`              | ❌ No                                              |
+| `/mute`                 | ✅ Yes                                             |
+| `/note create`          | ✅ Yes                                             |
+| `/note delete`          | ✅ Yes                                             |
+| `/note editcontent`     | ✅ Yes                                             |
+| `/note edittype`        | ✅ Yes                                             |
+| `/note view`            | ✅ Yes                                             |
+| `/note viewall`         | ✅ Yes                                             |
+| `/rule`                 | ❌ No                                              |
+| `/rules add`            | ⚠️ If guild isn't configured                      |
+| `/rules delete`         | ⚠️ If guild isn't configured                      |
+| `/rules display`        | ➖ Interaction response is, resulting embed is not |
+| `/rules setbrief`       | ⚠️ If guild isn't configured                      |
+| `/rules setdescription` | ⚠️ If guild isn't configured                      |
+| `/selfhistory`          | ➖ Response sent as DM                             |
+| `/unmute`               | ✅ Yes                                             |
+| `/unban`                | ✅ Yes                                             |
+| `/unblockreports`       | ✅ Yes                                             |
+| `/warn`                 | ✅ Yes                                             |
