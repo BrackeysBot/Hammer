@@ -300,7 +300,8 @@ internal sealed class InfractionService : BackgroundService
         {
             var builder = new StringBuilder();
 
-            builder.Append(Formatter.Bold($"ID: {(staffRequested ? infraction.Id : index + 1)}")).Append(" \u2022 ");
+            builder.Append(Formatter.Bold($"ID: {(staffRequested ? infraction.Id : index + 1 + page * infractionsPerPage)}"))
+                .Append(" \u2022 ");
             builder.Append(infraction.Type.Humanize()).Append(" \u2022 ");
             if (infraction.Reason is { } reason) builder.Append(reason);
             else builder.Append("<none>");
