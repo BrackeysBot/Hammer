@@ -37,9 +37,9 @@
         <PackageReference Include="NLog" Version="5.0.1"/>
         <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1"/>
         <PackageReference Include="SmartFormat.NET" Version="3.1.0"/>
-        <PackageReference Include="X10D" Version="3.2.0-nightly.132"/>
-        <PackageReference Include="X10D.DSharpPlus" Version="3.2.0-nightly.132"/>
-        <PackageReference Include="X10D.Hosting" Version="3.2.0-nightly.132"/>
+        <PackageReference Include="X10D" Version="3.2.0-nightly.133"/>
+        <PackageReference Include="X10D.DSharpPlus" Version="3.2.0-nightly.133"/>
+        <PackageReference Include="X10D.Hosting" Version="3.2.0-nightly.133"/>
     </ItemGroup>
 
     <ItemGroup>
