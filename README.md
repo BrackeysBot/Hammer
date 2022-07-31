@@ -18,6 +18,7 @@ To start off, clone the repository into your desired directory:
 ```bash
 git clone https://github.com/BrackeysBot/Hammer.git
 ```
+Step into the Hammer directory using `cd Hammer`, and continue with the steps below.
 
 ### Setting things up
 The bot's token is passed to the container using the `DISCORD_TOKEN` environment variable. Create a file named `.env`, and add the following line:
