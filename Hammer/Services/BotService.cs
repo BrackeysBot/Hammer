@@ -69,6 +69,7 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<NoteCommand>();
+        slashCommands.RegisterCommands<PruneInfractionsCommand>();
         slashCommands.RegisterCommands<ReportCommands>();
         slashCommands.RegisterCommands<RuleCommand>();
         slashCommands.RegisterCommands<RulesCommand>();
