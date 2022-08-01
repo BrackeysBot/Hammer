@@ -249,6 +249,7 @@ internal sealed class InfractionService : BackgroundService
         embedBuilder.AddField("Reason", reason);
         embedBuilder.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embedBuilder.AddField("Total User Infractions", infractionCount, true);
+        embedBuilder.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", () => infraction.AdditionalInformation);
 
         return embedBuilder.Build();
     }

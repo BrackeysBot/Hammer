@@ -40,6 +40,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("Issued", Formatter.Timestamp(infraction.IssuedAt), true);
             embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
             embed.AddFieldIf(infraction.Reason is not null, "Reason", () => infraction.Reason);
+            embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", () => infraction.AdditionalInformation);
         }
 
         var builder = new DiscordWebhookBuilder();
