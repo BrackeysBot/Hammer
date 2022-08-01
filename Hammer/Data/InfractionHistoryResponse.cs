@@ -81,7 +81,14 @@ internal sealed class InfractionHistoryResponse
     ///     Gets the total number of pages.
     /// </summary>
     /// <value>The page count.</value>
-    public int Pages => (int) Math.Ceiling(InfractionCount / 10.0);
+    public int Pages
+    {
+        get
+        {
+            var pages = (int) Math.Ceiling(InfractionCount / 10.0);
+            return pages < 1 ? 1 : pages;
+        }
+    }
 
     /// <summary>
     ///     Gets a value indicating whether a staff member requested this history.
