@@ -1,11 +1,9 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Hammer.Interactivity;
-using Hammer.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hammer.Commands.V3Migration;
 
