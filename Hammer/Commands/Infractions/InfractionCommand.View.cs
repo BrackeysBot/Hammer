@@ -2,8 +2,8 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using Hammer.AutocompleteProviders;
 using Hammer.Data;
+using Humanizer;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Infractions;
@@ -35,7 +35,7 @@ internal sealed partial class InfractionCommand
             embed.WithColor(DiscordColor.Orange);
             embed.WithTitle($"Infraction {infraction.Id}");
             embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
-            embed.AddField("Type", infraction.Type.ToString("G"), true);
+            embed.AddField("Type", infraction.Type.Humanize(), true);
             embed.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
             embed.AddField("Issued", Formatter.Timestamp(infraction.IssuedAt), true);
             embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
