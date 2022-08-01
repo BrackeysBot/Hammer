@@ -12,6 +12,7 @@ namespace Hammer.Commands.V3Migration;
 
 internal sealed class MigrationConfirmState : ConversationState
 {
+    private readonly bool _fullMigration;
     private readonly List<UserData> _userDataEntries;
 
     /// <summary>
@@ -19,9 +20,11 @@ internal sealed class MigrationConfirmState : ConversationState
     /// </summary>
     /// <param name="userDataEntries">The legacy <see cref="UserData" /> entries.</param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationConfirmState(IEnumerable<UserData> userDataEntries, Conversation conversation)
+    /// <param name="fullMigration">Whether or not to perform a full migration.</param>
+    public MigrationConfirmState(IEnumerable<UserData> userDataEntries, bool fullMigration, Conversation conversation)
         : base(conversation)
     {
+        _fullMigration = fullMigration;
         _userDataEntries = userDataEntries.ToList();
     }
 
@@ -60,6 +63,8 @@ internal sealed class MigrationConfirmState : ConversationState
         if (result.TimedOut || result.Result.Id == cancelId)
             return new MigrationCanceledState(Conversation);
 
-        return new MigrationProcessInfractionsState(_userDataEntries, Conversation);
+        return _fullMigration
+            ? new MigrationProcessInfractionsState(_userDataEntries, Conversation)
+            : new MigrationProcessPartialInfractionsState(_userDataEntries, Conversation);
     }
 }

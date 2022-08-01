@@ -22,12 +22,15 @@ internal sealed class MigrateCommand : ApplicationCommandModule
 
     [SlashCommand("migrate", "Migrates a v3 infraction database to a v4 infraction database.", false)]
     [SlashRequireGuild]
-    public async Task MigrateAsync(InteractionContext context)
+    public async Task MigrateAsync(
+        InteractionContext context,
+        [Option("fullMigration", "Whether or not to do a full migration.")] bool fullMigration = true
+    )
     {
         await context.DeferAsync().ConfigureAwait(false);
 
         var conversation = new Conversation(_serviceProvider);
-        var state = new MigrationWelcomeState(conversation);
+        var state = new MigrationWelcomeState(fullMigration, conversation);
 
         await conversation.ConverseAsync(state, ConversationContext.FromInteractionContext(context)).ConfigureAwait(false);
     }

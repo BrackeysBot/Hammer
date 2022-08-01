@@ -13,15 +13,18 @@ namespace Hammer.Commands.V3Migration;
 
 internal sealed class MigrationUploadState : ConversationState
 {
+    private readonly bool _fullMigration;
     private readonly HttpClient _httpClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MigrationUploadState" /> class.
     /// </summary>
+    /// <param name="fullMigration">Whether or not to perform a full migration.</param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationUploadState(Conversation conversation)
+    public MigrationUploadState(bool fullMigration, Conversation conversation)
         : base(conversation)
     {
+        _fullMigration = fullMigration;
         _httpClient = Conversation.Services.GetRequiredService<HttpClient>();
     }
 
@@ -70,11 +73,11 @@ internal sealed class MigrationUploadState : ConversationState
             UsersModel? users = await JsonSerializer.DeserializeAsync<UsersModel>(stream, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            return new MigrationConfirmState(users?.Users ?? new List<UserData>(), Conversation);
+            return new MigrationConfirmState(users?.Users ?? new List<UserData>(), _fullMigration, Conversation);
         }
         catch (JsonException)
         {
-            return new MigrationInvalidJsonState(Conversation);
+            return new MigrationInvalidJsonState(_fullMigration, Conversation);
         }
         catch (TaskCanceledException)
         {
