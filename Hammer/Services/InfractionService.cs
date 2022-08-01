@@ -186,6 +186,9 @@ internal sealed class InfractionService : BackgroundService
         builder.WithReason(reason).WithStaffMember(staffMember);
         builder.WithRule(options.RuleBroken);
 
+        if (expirationTime.HasValue)
+            builder.WithAdditionalInformation($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
+
         Infraction infraction = await AddInfractionAsync(builder.Build(), guild).ConfigureAwait(false);
 
         var logMessageBuilder = new StringBuilder();
