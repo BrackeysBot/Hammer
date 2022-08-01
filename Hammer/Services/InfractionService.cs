@@ -685,10 +685,19 @@ internal sealed class InfractionService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        infraction = context.Entry(infraction).Entity;
-        action(infraction);
-        context.Update(infraction);
+        Infraction? existing = await context.Infractions.FindAsync(infraction.Id).ConfigureAwait(false);
+        if (existing is null) return;
+
+        action(existing);
+        context.Update(existing);
         await context.SaveChangesAsync().ConfigureAwait(false);
+
+        if (_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
+        {
+            cache.Remove(infraction);
+            cache.Remove(existing);
+            cache.Add(existing);
+        }
     }
 
     /// <summary>
