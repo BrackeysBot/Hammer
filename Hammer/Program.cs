@@ -26,30 +26,32 @@ await Host.CreateDefaultBuilder(args)
             Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
         }));
 
-        services.AddSingleton<HttpClient>();
+        services.AddHostedSingleton<LoggingService>();
 
+        services.AddSingleton<HttpClient>();
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<MailmanService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
         services.AddSingleton<WarningService>();
 
-        services.AddHostedSingleton<BotService>();
+        services.AddHostedService<StaffReactionService>();
+        services.AddHostedService<UserReactionService>();
+
         services.AddHostedSingleton<BanService>();
         services.AddHostedSingleton<DatabaseService>();
         services.AddHostedSingleton<DiscordLogService>();
         services.AddHostedSingleton<InfractionService>();
         services.AddHostedSingleton<InfractionCooldownService>();
-        services.AddHostedSingleton<LoggingService>();
         services.AddHostedSingleton<MemberNoteService>();
         services.AddHostedSingleton<MessageReportService>();
         services.AddHostedSingleton<MessageTrackingService>();
         services.AddHostedSingleton<MuteService>();
         services.AddHostedSingleton<RuleService>();
-        services.AddHostedSingleton<StaffReactionService>();
-        services.AddHostedSingleton<UserReactionService>();
 
         services.AddDbContext<HammerContext>();
+
+        services.AddHostedService<BotService>();
     })
     .UseConsoleLifetime()
     .RunConsoleAsync();
