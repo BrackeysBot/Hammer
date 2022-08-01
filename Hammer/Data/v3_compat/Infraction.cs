@@ -18,7 +18,7 @@ internal struct Infraction
     public string Description { get; set; }
 
     [JsonPropertyName("additionalInfo")]
-    public string AdditionalInfo { get; set; }
+    public string? AdditionalInfo { get; set; }
 
     [JsonPropertyName("time")]
     public DateTime Time { get; set; }

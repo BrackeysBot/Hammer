@@ -9,12 +9,16 @@ namespace Hammer.Commands.V3Migration;
 
 internal sealed class MigrationWelcomeState : ConversationState
 {
+    private readonly bool _fullMigration;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="MigrationWelcomeState" /> class.
     /// </summary>
+    /// <param name="fullMigration">Whether or not to perform a full migration.</param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationWelcomeState(Conversation conversation) : base(conversation)
+    public MigrationWelcomeState(bool fullMigration, Conversation conversation) : base(conversation)
     {
+        _fullMigration = fullMigration;
     }
 
     /// <inheritdoc />
@@ -50,7 +54,7 @@ internal sealed class MigrationWelcomeState : ConversationState
             return new MigrationCanceledState(Conversation);
 
         if (result.Result.Id == startId)
-            return new MigrationUploadState(Conversation);
+            return new MigrationUploadState(_fullMigration, Conversation);
 
         return null;
     }

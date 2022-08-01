@@ -1,7 +1,6 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using X10D.DSharpPlus;
 

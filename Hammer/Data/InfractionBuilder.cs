@@ -21,6 +21,12 @@ internal sealed class InfractionBuilder
     }
 
     /// <summary>
+    ///     Gets or sets the additional information about the infraction.
+    /// </summary>
+    /// <value>The additional information.</value>
+    public string? AdditionalInformation { get; set; }
+
+    /// <summary>
     ///     Gets or sets the guild to which this infraction applies.
     /// </summary>
     /// <value>The guild.</value>
@@ -104,6 +110,7 @@ internal sealed class InfractionBuilder
 
         return new Infraction
         {
+            AdditionalInformation = AdditionalInformation,
             Type = Type,
             UserId = Target.Id,
             GuildId = Guild.Id,
@@ -112,6 +119,17 @@ internal sealed class InfractionBuilder
             IssuedAt = IssuedAt,
             RuleId = Rule?.Id
         };
+    }
+
+    /// <summary>
+    ///     Specifies the additional information about the infraction.
+    /// </summary>
+    /// <param name="additionalInformation">The additional information.</param>
+    /// <returns>This infraction builder.</returns>
+    public InfractionBuilder WithAdditionalInformation(string? additionalInformation)
+    {
+        AdditionalInformation = additionalInformation;
+        return this;
     }
 
     /// <summary>

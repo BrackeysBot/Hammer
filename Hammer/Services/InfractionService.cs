@@ -186,6 +186,9 @@ internal sealed class InfractionService : BackgroundService
         builder.WithReason(reason).WithStaffMember(staffMember);
         builder.WithRule(options.RuleBroken);
 
+        if (expirationTime.HasValue)
+            builder.WithAdditionalInformation($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
+
         Infraction infraction = await AddInfractionAsync(builder.Build(), guild).ConfigureAwait(false);
 
         var logMessageBuilder = new StringBuilder();
@@ -249,6 +252,9 @@ internal sealed class InfractionService : BackgroundService
         embedBuilder.AddField("Reason", reason);
         embedBuilder.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embedBuilder.AddField("Total User Infractions", infractionCount, true);
+        embedBuilder.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation),
+            "Additional Information",
+            () => infraction.AdditionalInformation);
 
         return embedBuilder.Build();
     }
@@ -679,10 +685,19 @@ internal sealed class InfractionService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        infraction = context.Entry(infraction).Entity;
-        action(infraction);
-        context.Update(infraction);
+        Infraction? existing = await context.Infractions.FindAsync(infraction.Id).ConfigureAwait(false);
+        if (existing is null) return;
+
+        action(existing);
+        context.Update(existing);
         await context.SaveChangesAsync().ConfigureAwait(false);
+
+        if (_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
+        {
+            cache.Remove(infraction);
+            cache.Remove(existing);
+            cache.Add(existing);
+        }
     }
 
     /// <summary>

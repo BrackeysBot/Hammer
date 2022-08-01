@@ -5,8 +5,8 @@ using Hammer.Data.v3_compat;
 using Hammer.Interactivity;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using X10D.Text;
-using Infraction = Hammer.Data.Infraction;
 using InfractionType = Hammer.Data.InfractionType;
 #pragma warning disable CS0618
 using LegacyInfraction = Hammer.Data.v3_compat.Infraction;
@@ -14,19 +14,20 @@ using LegacyInfractionType = Hammer.Data.v3_compat.InfractionType;
 
 namespace Hammer.Commands.V3Migration;
 
-internal sealed class MigrationProcessInfractionsState : ConversationState
+internal sealed class MigrationProcessPartialInfractionsState : ConversationState
 {
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly List<UserData> _userDataEntries;
     private readonly InfractionService _infractionService;
     private int _completed;
     private int _total;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MigrationProcessInfractionsState" /> class.
+    ///     Initializes a new instance of the <see cref="MigrationProcessPartialInfractionsState" /> class.
     /// </summary>
     /// <param name="userDataEntries">The legacy <see cref="UserData" /> entries.</param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationProcessInfractionsState(List<UserData> userDataEntries, Conversation conversation)
+    public MigrationProcessPartialInfractionsState(List<UserData> userDataEntries, Conversation conversation)
         : base(conversation)
     {
         _userDataEntries = userDataEntries;
@@ -46,6 +47,7 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
         {
             if (cancellationToken.IsCancellationRequested)
             {
+                Logger.Warn("Processing of partial infractions cancelled");
                 cancellationTokenSource.Cancel();
                 break;
             }
@@ -54,8 +56,15 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
+                    Logger.Warn("Processing of partial infractions cancelled");
                     cancellationTokenSource.Cancel();
                     break;
+                }
+
+                if (_infractionService.GetInfraction(legacyInfraction.ID) is not { } infraction)
+                {
+                    Logger.Warn($"Infraction {legacyInfraction.ID} could not be found in cache!");
+                    continue;
                 }
 
                 InfractionType type = legacyInfraction.Type switch
@@ -70,24 +79,24 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
                         $@"Unexpected infraction type {legacyInfraction.Type}")
                 };
 
-                var infraction = new Infraction
+                await _infractionService.ModifyInfractionAsync(infraction, instance =>
                 {
-                    Id = legacyInfraction.ID,
-                    AdditionalInformation = legacyInfraction.AdditionalInfo?.AsNullIfWhiteSpace(),
-                    Type = type,
-                    GuildId = context.Guild!.Id,
-                    IssuedAt = legacyInfraction.Time,
-                    StaffMemberId = legacyInfraction.Moderator,
-                    Reason = legacyInfraction.Description,
-                    UserId = userData.ID
-                };
-                await _infractionService.AddInfractionAsync(infraction).ConfigureAwait(false);
+                    instance.Type = type;
+                    instance.GuildId = context.Guild!.Id;
+                    instance.IssuedAt = legacyInfraction.Time;
+                    instance.StaffMemberId = legacyInfraction.Moderator;
+                    instance.Reason = legacyInfraction.Description;
+                    instance.UserId = userData.ID;
+                    instance.AdditionalInformation = legacyInfraction.AdditionalInfo?.AsNullIfWhiteSpace();
+                }).ConfigureAwait(false);
+                
+                Logger.Info($"Migrated information for infraction {infraction.Id}");
                 _completed++;
             }
         }
 
         cancellationTokenSource.Cancel();
-        return new MigrationProcessTemporaryBansState(_userDataEntries, Conversation);
+        return new MigrationCompletedState(Conversation);
     }
 
     private async Task UpdateEmbedAsync(BaseDiscordClient client, DiscordInteraction interaction,

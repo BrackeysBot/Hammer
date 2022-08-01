@@ -20,7 +20,8 @@ internal sealed class Infraction : IEquatable<Infraction>, IComparable<Infractio
     public Infraction(Infraction other)
     {
         if (other is null) throw new ArgumentNullException(nameof(other));
-        
+
+        AdditionalInformation = other.AdditionalInformation;
         GuildId = other.GuildId;
         IssuedAt = other.IssuedAt;
         Reason = other.Reason;
@@ -29,6 +30,12 @@ internal sealed class Infraction : IEquatable<Infraction>, IComparable<Infractio
         Type = other.Type;
         UserId = other.UserId;
     }
+
+    /// <summary>
+    ///     Gets or sets the additional information about the infraction, if any.
+    /// </summary>
+    /// <value>The additional information.</value>
+    public string? AdditionalInformation { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of the guild in which this infraction was issued.

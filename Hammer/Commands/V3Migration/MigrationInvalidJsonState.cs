@@ -4,20 +4,22 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Hammer.Interactivity;
-using Hammer.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hammer.Commands.V3Migration;
 
 internal sealed class MigrationInvalidJsonState : ConversationState
 {
+    private readonly bool _fullMigration;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="MigrationInvalidJsonState" /> class.
     /// </summary>
+    /// <param name="fullMigration">Whether or not to perform a full migration.</param>
     /// <param name="conversation">The owning conversation.</param>
-    public MigrationInvalidJsonState(Conversation conversation)
+    public MigrationInvalidJsonState(bool fullMigration, Conversation conversation)
         : base(conversation)
     {
+        _fullMigration = fullMigration;
     }
 
     /// <inheritdoc />
@@ -55,6 +57,6 @@ internal sealed class MigrationInvalidJsonState : ConversationState
             return new MigrationCanceledState(Conversation);
         }
 
-        return new MigrationUploadState(Conversation);
+        return new MigrationUploadState(_fullMigration, Conversation);
     }
 }
