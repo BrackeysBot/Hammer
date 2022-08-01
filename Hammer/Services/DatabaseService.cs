@@ -1,6 +1,8 @@
 ﻿using Hammer.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NLog;
 
 namespace Hammer.Services;
 
@@ -9,6 +11,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class DatabaseService : BackgroundService
 {
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
@@ -32,6 +35,11 @@ internal sealed class DatabaseService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        Logger.Info("Creating database...");
         await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+
+        Logger.Info("Applying migrations...");
+        await context.Database.MigrateAsync().ConfigureAwait(false);
     }
 }
