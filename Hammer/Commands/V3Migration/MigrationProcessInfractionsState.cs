@@ -72,6 +72,7 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
                 var infraction = new Infraction
                 {
                     Id = legacyInfraction.ID,
+                    AdditionalInformation = legacyInfraction.AdditionalInfo,
                     Type = type,
                     GuildId = context.Guild!.Id,
                     IssuedAt = legacyInfraction.Time,
