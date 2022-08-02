@@ -51,7 +51,7 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddDbContext<HammerContext>();
 
-        services.AddHostedService<BotService>();
+        services.AddHostedSingleton<BotService>();
     })
     .UseConsoleLifetime()
     .RunConsoleAsync();
