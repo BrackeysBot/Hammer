@@ -1,5 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
