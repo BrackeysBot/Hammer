@@ -279,10 +279,9 @@ Guru note.
 
 Adds a new rule to the guild.
 
-| Parameter   | Required | Type   | Description                                                                                 |
-|:------------|:---------|:-------|:--------------------------------------------------------------------------------------------|
-| description | ✅ Yes    | String | An in-depth description of the rule (i.e. a short paragraph).                               |
-| brief       | ❌ No     | String | A brief description of the rule (should be a few words / short sentence. e.g. "Don't spam") |
+| Parameter | Required | Type | Description |
+|:----------|:---------|:-----|:------------|
+| -         | -        | -    | -           |
 
 ### `/rules delete`
 
@@ -300,23 +299,13 @@ Sends an embed displaying the guild rules are they are currently defined to the 
 |:----------|:---------|:----------------------|:---------------------------------------------------------------------------------------------------------|
 | channel   | ❌ No     | Channel mention or ID | The channel to which the rules will be sent. If not specified, the embed is sent to the current channel. |
 
-### `/rules setbrief`
+### `/rules edit`
 
-Modifies the brief description of a rule.
+Modifies a rule.
 
-| Parameter | Required | Type    | Description                            |
-|:----------|:---------|:--------|:---------------------------------------|
-| rule      | ✅ Yes    | Integer | The ID of the rule to modify.          |
-| brief     | ✅ Yes    | String  | The new brief description of the rule. |
-
-### `/rules setdescription`
-
-Modifies the in-depth description of a rule.
-
-| Parameter   | Required | Type    | Description                               |
-|:------------|:---------|:--------|:------------------------------------------|
-| rule        | ✅ Yes    | Integer | The ID of the rule to modify.             |
-| description | ✅ Yes    | String  | The new in-depth description of the rule. |
+| Parameter | Required | Type    | Description                   |
+|:----------|:---------|:--------|:------------------------------|
+| rule      | ✅ Yes    | Integer | The ID of the rule to modify. |
 
 # Ephemeral responses
 
