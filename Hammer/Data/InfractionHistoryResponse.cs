@@ -16,7 +16,6 @@ internal sealed class InfractionHistoryResponse
     ///     Initializes a new instance of the <see cref="InfractionHistoryResponse" /> class.
     /// </summary>
     /// <param name="infractionService">The infraction service.</param>
-    /// <param name="message">The response message.</param>
     /// <param name="targetUser">The user whose infractions are being displayed.</param>
     /// <param name="user">The user who triggered this response.</param>
     /// <param name="guild">The guild in which the history was requested.</param>
@@ -26,15 +25,12 @@ internal sealed class InfractionHistoryResponse
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="infractionService" /> is <see langword="null" />.</para>
     ///     -or-
-    ///     <para><paramref name="message" /> is <see langword="null" />.</para>
-    ///     -or-
     ///     <para><paramref name="targetUser" /> is <see langword="null" />.</para>
     ///     -or-
     ///     <para><paramref name="user" /> is <see langword="null" />.</para>
     /// </exception>
     public InfractionHistoryResponse(
         InfractionService infractionService,
-        DiscordMessage message,
         DiscordUser targetUser,
         DiscordUser user,
         DiscordGuild guild,
@@ -42,13 +38,11 @@ internal sealed class InfractionHistoryResponse
     )
     {
         ArgumentNullException.ThrowIfNull(infractionService);
-        ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(targetUser);
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
         _infractionService = infractionService;
-        Message = message;
         TargetUser = targetUser;
         User = user;
         Guild = guild;
@@ -74,12 +68,6 @@ internal sealed class InfractionHistoryResponse
     public int InfractionCount => _infractionService.GetInfractionCount(TargetUser, Guild);
 
     /// <summary>
-    ///     Gets the message that was sent as a response.
-    /// </summary>
-    /// <value>The response message.</value>
-    public DiscordMessage Message { get; }
-
-    /// <summary>
     ///     Gets or sets the zero-based page index of infractions to display.
     /// </summary>
     /// <value>The page index.</value>
@@ -93,7 +81,14 @@ internal sealed class InfractionHistoryResponse
     ///     Gets the total number of pages.
     /// </summary>
     /// <value>The page count.</value>
-    public int Pages => (int) Math.Ceiling(InfractionCount / 10.0);
+    public int Pages
+    {
+        get
+        {
+            var pages = (int) Math.Ceiling(InfractionCount / 10.0);
+            return pages < 1 ? 1 : pages;
+        }
+    }
 
     /// <summary>
     ///     Gets a value indicating whether a staff member requested this history.

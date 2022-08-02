@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.Data;
 using Hammer.Services;
 
 namespace Hammer.Commands.Infractions;
@@ -31,11 +32,15 @@ internal sealed class HistoryCommand : ApplicationCommandModule
         await context.DeferAsync().ConfigureAwait(false);
 
         var builder = new DiscordWebhookBuilder();
-        builder.WithContent("Please wait...");
-        DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
+        var response = new InfractionHistoryResponse(_infractionService, user, context.User, context.Guild, true);
 
-        await _infractionService.DisplayInfractionHistoryAsync(message, user, context.User, context.Guild, true)
-            .ConfigureAwait(false);
+        for (var pageIndex = 0; pageIndex < response.Pages; pageIndex++)
+        {
+            DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(response, pageIndex);
+            builder.AddEmbed(embed);
+        }
+
+        await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 
     [SlashCommand("history", "Views the infraction history for a user.", false)]
@@ -46,10 +51,14 @@ internal sealed class HistoryCommand : ApplicationCommandModule
         await context.DeferAsync().ConfigureAwait(false);
 
         var builder = new DiscordWebhookBuilder();
-        builder.WithContent("Please wait...");
-        DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
+        var response = new InfractionHistoryResponse(_infractionService, user, context.User, context.Guild, true);
 
-        await _infractionService.DisplayInfractionHistoryAsync(message, user, context.User, context.Guild, true)
-            .ConfigureAwait(false);
+        for (var pageIndex = 0; pageIndex < response.Pages; pageIndex++)
+        {
+            DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(response, pageIndex);
+            builder.AddEmbed(embed);
+        }
+
+        await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 }

@@ -2,6 +2,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
+using Hammer.Data;
 using Hammer.Extensions;
 using Microsoft.Extensions.Hosting;
 
@@ -69,9 +70,17 @@ internal sealed class StaffReactionService : BackgroundService
         else if (reaction == reactionConfiguration.HistoryReaction)
         {
             await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
-            message = await staffMember.SendMessageAsync("Please wait...").ConfigureAwait(false);
-            await _infractionService.DisplayInfractionHistoryAsync(message, author, staffMember, guild, true)
-                .ConfigureAwait(false);
+
+            var builder = new DiscordMessageBuilder();
+            var response = new InfractionHistoryResponse(_infractionService, author, staffMember, guild, true);
+
+            for (var pageIndex = 0; pageIndex < response.Pages; pageIndex++)
+            {
+                DiscordEmbedBuilder embed = _infractionService.BuildInfractionHistoryEmbed(response, pageIndex);
+                builder.AddEmbed(embed);
+            }
+
+            await staffMember.SendMessageAsync(builder).ConfigureAwait(false);
         }
         else if (reaction == reactionConfiguration.DeleteMessageReaction)
         {
