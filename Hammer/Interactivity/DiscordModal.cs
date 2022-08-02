@@ -83,6 +83,6 @@ public sealed class DiscordModal
         }
 
         _taskCompletionSource.TrySetResult();
-        return Task.CompletedTask;
+        return e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource);
     }
 }
