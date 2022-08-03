@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
@@ -207,8 +207,6 @@ internal sealed class BanService : BackgroundService
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Kicked by {staffMember.GetUsernameWithDiscriminator()}: {reason}";
 
-        await member.RemoveAsync(reason).ConfigureAwait(false);
-
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Red);
         embed.WithAuthor(member);
@@ -222,6 +220,7 @@ internal sealed class BanService : BackgroundService
         int infractionCount = _infractionService.GetInfractionCount(member, staffMember.Guild);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
+        await member.RemoveAsync(reason).ConfigureAwait(false);
         return (infraction, success);
     }
 
