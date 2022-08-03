@@ -63,6 +63,7 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
+        message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         DiscordGuild guild = message.Channel.Guild;
 
         if (guild != staffMember.Guild)
@@ -78,9 +79,6 @@ internal sealed class MessageDeletionService
             author = null;
         }
 
-        if (author is null)
-            throw new NotSupportedException(ExceptionMessages.CannotDeleteNonGuildMessage);
-
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
             return;
 
@@ -90,7 +88,7 @@ internal sealed class MessageDeletionService
                 ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild}));
         }
 
-        if (author.IsHigherLevelThan(staffMember, guildConfiguration))
+        if (author is not null && author.IsHigherLevelThan(staffMember, guildConfiguration))
         {
             throw new InvalidOperationException(
                 ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
@@ -99,7 +97,7 @@ internal sealed class MessageDeletionService
         if (message.Author.IsBot && message.Interaction is not null)
             author = await message.Channel.Guild.GetMemberAsync(message.Interaction.User.Id).ConfigureAwait(false);
 
-        if (notifyAuthor)
+        if (notifyAuthor && author is not null)
         {
             try
             {
