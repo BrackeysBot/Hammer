@@ -33,9 +33,10 @@ internal sealed class MailmanService
     /// </summary>
     /// <param name="infraction">The infraction to notify.</param>
     /// <param name="infractionCount">The infraction count to display on the embed.</param>
+    /// <param name="options">The infraction options.</param>
     /// <returns>The message which was sent to the member, or <see langword="null" /> if the message could not be sent.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
-    public async Task<DiscordMessage?> SendInfractionAsync(Infraction infraction, int infractionCount)
+    public async Task<DiscordMessage?> SendInfractionAsync(Infraction infraction, int infractionCount, InfractionOptions options)
     {
         ArgumentNullException.ThrowIfNull(infraction);
 
@@ -53,7 +54,8 @@ internal sealed class MailmanService
 
         try
         {
-            DiscordEmbed? embed = await CreatePrivateInfractionEmbedAsync(infraction, infractionCount).ConfigureAwait(false);
+            DiscordEmbed? embed =
+                await CreatePrivateInfractionEmbedAsync(infraction, infractionCount, options).ConfigureAwait(false);
             if (embed is not null)
                 return await member.SendMessageAsync(embed).ConfigureAwait(false);
 
@@ -67,7 +69,11 @@ internal sealed class MailmanService
         }
     }
 
-    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(Infraction infraction, int infractionCount)
+    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(
+        Infraction infraction,
+        int infractionCount,
+        InfractionOptions options
+    )
     {
         if (infraction.Type == InfractionType.Gag)
             throw new ArgumentException(ExceptionMessages.NoEmbedForGag, nameof(infraction));
@@ -111,6 +117,29 @@ internal sealed class MailmanService
         embed.WithFooter(guild.Name, guild.IconUrl);
         embed.AddField("Reason", reason);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+
+        switch (infraction.Type)
+        {
+            case InfractionType.Warning:
+                embed.AddField("Punishment", "**WARNING**", true);
+                break;
+            case InfractionType.Kick:
+                embed.AddField("Punishment", "**KICK**", true);
+                break;
+            case InfractionType.TemporaryMute when options.Duration.HasValue:
+                embed.AddField("Punishment", $"**MUTE**\n{options.Duration.Value.Humanize()}", true);
+                break;
+            case InfractionType.Mute:
+                embed.AddField("Punishment", "**MUTE**\npermanent", true);
+                break;
+            case InfractionType.TemporaryBan when options.Duration.HasValue:
+                embed.AddField("Punishment", $"**BAN**\n{options.Duration.Value.Humanize()}", true);
+                break;
+            case InfractionType.Ban:
+                embed.AddField("Punishment", "**BAN**\npermanent", true);
+                break;
+        }
+
         embed.AddField("Total Infractions", infractionCount, true);
 
         if (infraction.Type is not InfractionType.Ban or InfractionType.TemporaryBan)

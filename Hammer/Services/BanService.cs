@@ -1,4 +1,4 @@
-using System.Timers;
+﻿using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
@@ -129,7 +129,7 @@ internal sealed class BanService : BackgroundService
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
-        await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+        await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
 
         await issuer.Guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
         return (infraction, success);
@@ -218,7 +218,7 @@ internal sealed class BanService : BackgroundService
         await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
 
         int infractionCount = _infractionService.GetInfractionCount(member, staffMember.Guild);
-        await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+        await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
 
         await member.RemoveAsync(reason).ConfigureAwait(false);
         return (infraction, success);
@@ -308,7 +308,6 @@ internal sealed class BanService : BackgroundService
 
         DiscordGuild guild = issuer.Guild;
         await CreateTemporaryBanAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
-
 
         (Infraction infraction, bool success) = await _infractionService
             .CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options)

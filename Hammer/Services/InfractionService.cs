@@ -200,7 +200,7 @@ internal sealed class InfractionService : BackgroundService
         if (type != InfractionType.Gag && options.NotifyUser)
         {
             int infractionCount = GetInfractionCount(user, staffMember.Guild);
-            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
+            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
             if (dm is null) result = false;
         }
 
