@@ -402,13 +402,18 @@ internal sealed class MuteService : BackgroundService
 
         await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
         await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        EntityEntry<Mute> entry = await context.Mutes.AddAsync(temporaryMute).ConfigureAwait(false);
-        await context.SaveChangesAsync().ConfigureAwait(false);
-
-        temporaryMute = entry.Entity;
+        if (await context.Mutes.FindAsync(user.Id, guild.Id) is null)
+        {
+            EntityEntry<Mute> entry = await context.Mutes.AddAsync(temporaryMute).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+            temporaryMute = entry.Entity;
+        }
 
         lock (_mutes)
-            _mutes.Add(temporaryMute);
+        {
+            if (!_mutes.Any(m => m.UserId == user.Id && m.GuildId == guild.Id))
+                _mutes.Add(temporaryMute);
+        }
     }
 
     private async void TimerOnElapsed(object? sender, ElapsedEventArgs e)
