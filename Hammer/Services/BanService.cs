@@ -117,7 +117,6 @@ internal sealed class BanService : BackgroundService
 
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Banned by {issuer.GetUsernameWithDiscriminator()}: {reason}";
-        await issuer.Guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Red);
@@ -132,6 +131,7 @@ internal sealed class BanService : BackgroundService
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount).ConfigureAwait(false);
 
+        await issuer.Guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
         return (infraction, success);
     }
 
