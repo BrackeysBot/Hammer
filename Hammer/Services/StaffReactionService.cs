@@ -84,6 +84,7 @@ internal sealed class StaffReactionService : BackgroundService
         }
         else if (reaction == reactionConfiguration.DeleteMessageReaction)
         {
+            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
             await _deletionService.DeleteMessageAsync(message, staffMember).ConfigureAwait(false);
         }
     }

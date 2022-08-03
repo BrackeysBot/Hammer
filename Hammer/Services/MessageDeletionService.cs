@@ -63,50 +63,50 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
+        Logger.Info($"{message} in channel {message.Channel} is requested to be deleted by {staffMember}");
+
         message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         DiscordGuild guild = message.Channel.Guild;
+
+        if (guild is null)
+            throw new InvalidOperationException(ExceptionMessages.CannotDeleteNonGuildMessage);
 
         if (guild != staffMember.Guild)
             throw new ArgumentException(ExceptionMessages.MessageStaffMemberGuildMismatch);
 
-        DiscordMember? author;
-        try
-        {
-            author = await staffMember.Guild.GetMemberAsync(message.Author.Id).ConfigureAwait(false);
-        }
-        catch
-        {
-            author = null;
-        }
-
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
-            return;
+            throw new InvalidOperationException(ExceptionMessages.NoConfigurationForGuild);
+
+        DiscordUser user = message.Author;
+        DiscordMember? member = await user.GetAsMemberOfAsync(guild).ConfigureAwait(false);
 
         if (!staffMember.IsStaffMember(guildConfiguration))
         {
-            throw new InvalidOperationException(
-                ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild}));
+            string exceptionMessage = ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild});
+            throw new InvalidOperationException(exceptionMessage);
         }
 
-        if (author is not null && author.IsHigherLevelThan(staffMember, guildConfiguration))
+        if (member is not null)
         {
-            throw new InvalidOperationException(
-                ExceptionMessages.StaffIsHigherLevel.FormatSmart(new {lower = staffMember, higher = author}));
-        }
-
-        if (message.Author.IsBot && message.Interaction is not null)
-            author = await message.Channel.Guild.GetMemberAsync(message.Interaction.User.Id).ConfigureAwait(false);
-
-        if (notifyAuthor && author is not null)
-        {
-            try
+            if (member.IsHigherLevelThan(staffMember, guildConfiguration))
             {
-                DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
-                await author.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
+                var formatObject = new {lower = staffMember, higher = member};
+                string exceptionMessage = ExceptionMessages.StaffIsHigherLevel.FormatSmart(formatObject);
+                throw new InvalidOperationException(exceptionMessage);
             }
-            catch
+
+            if (notifyAuthor)
             {
-                // ignored
+                try
+                {
+                    DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
+                    await member.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
+                }
+                catch
+                {
+                    Logger.Warn($"{member} could not be notified of the deletion");
+                    // ignored
+                }
             }
         }
 
