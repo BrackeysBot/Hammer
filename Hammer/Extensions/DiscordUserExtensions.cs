@@ -64,7 +64,12 @@ internal static class DiscordUserExtensions
         if (GetPermissionLevel(member, guildConfiguration) > GetPermissionLevel(other, guildConfiguration))
             return true;
 
-        return member.Roles.Min(r => r.Position) < other.Roles.Min(r => r.Position);
+        DiscordRole[] memberRoles = member.Roles.ToArray();
+        DiscordRole[] otherRoles = other.Roles.ToArray();
+
+        if (memberRoles.Length == 0) return false;
+        if (otherRoles.Length == 0) return true;
+        return memberRoles.Min(r => r.Position) < otherRoles.Min(r => r.Position);
     }
 
     /// <summary>
