@@ -1,4 +1,4 @@
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
@@ -63,6 +63,7 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
+        message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         DiscordGuild guild = message.Channel.Guild;
 
         if (guild != staffMember.Guild)
