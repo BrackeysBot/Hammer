@@ -28,18 +28,38 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
     {
         await context.DeferAsync(true).ConfigureAwait(false);
         var builder = new DiscordWebhookBuilder();
+        var embed = new DiscordEmbedBuilder();
 
         DiscordMessage? message = context.TargetMessage;
         if (message is null)
         {
-            builder.WithContent("The specified message could not be retrieved.");
+            embed.WithColor(DiscordColor.Red);
+            embed.WithTitle("Deletion failed");
+            embed.WithDescription("The specified message could not be retrieved.");
+            builder.AddEmbed(embed);
             await context.EditResponseAsync(builder).ConfigureAwait(false);
             return;
         }
 
-        await _deletionService.DeleteMessageAsync(message, context.Member).ConfigureAwait(false);
+        try
+        {
+            await _deletionService.DeleteMessageAsync(message, context.Member).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            embed.WithColor(DiscordColor.Red);
+            embed.WithAuthor(exception.GetType().ToString());
+            embed.WithTitle("Deletion failed");
+            embed.WithDescription(exception.Message);
+            builder.AddEmbed(embed);
+            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            return;
+        }
 
-        builder.WithContent($"Message {message.Id} by {message.Author.Mention} deleted.");
+        embed.WithColor(DiscordColor.Green);
+        embed.WithTitle("Message deleted");
+        embed.WithDescription($"Message {message.Id} by {message.Author.Mention} deleted.");
+        builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
     }
 }
