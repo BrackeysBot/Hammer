@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
 using Microsoft.Extensions.Hosting;
+using NLog;
 
 namespace Hammer.Services;
 
@@ -11,6 +12,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class UserReactionService : BackgroundService
 {
+    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly ConfigurationService _configurationService;
     private readonly DiscordClient _discordClient;
     private readonly MessageReportService _messageReportService;
@@ -43,13 +45,22 @@ internal sealed class UserReactionService : BackgroundService
 
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
             return;
-        
+
         ReactionConfiguration reactionConfiguration = guildConfiguration.Reactions;
         string reaction = e.Emoji.GetDiscordName();
         if (reaction == reactionConfiguration.ReportReaction)
         {
             await e.Message.DeleteReactionAsync(e.Emoji, e.User).ConfigureAwait(false);
             await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User).ConfigureAwait(false);
+        }
+        else if (reaction == reactionConfiguration.DeleteMessageReaction && guildConfiguration.AllowInteractionAuthorDeletion)
+        {
+            if (e.Message.Interaction is { } interaction && interaction.User == e.User && e.Message.Author == sender.CurrentUser)
+            {
+                Logger.Info($"{e.User} requested their interaction to be deleted");
+                await e.Message.DeleteReactionAsync(e.Emoji, e.User).ConfigureAwait(false);
+                await e.Message.DeleteAsync("Interaction author requested deletion").ConfigureAwait(false);
+            }
         }
     }
 }
