@@ -61,6 +61,9 @@ internal static class DiscordUserExtensions
         ArgumentNullException.ThrowIfNull(other);
         ArgumentNullException.ThrowIfNull(guildConfiguration);
 
+        if (member.IsStaffMember(guildConfiguration) && !other.IsStaffMember(guildConfiguration))
+            return true;
+
         if (GetPermissionLevel(member, guildConfiguration) > GetPermissionLevel(other, guildConfiguration))
             return true;
 
