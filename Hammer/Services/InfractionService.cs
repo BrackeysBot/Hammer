@@ -240,7 +240,7 @@ internal sealed class InfractionService : BackgroundService
         else embedBuilder.WithAuthor(user);
 
         Rule? rule = null;
-        if (infraction.RuleId is { } ruleId)
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
             rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
 
         embedBuilder.WithTitle(infraction.Type.Humanize());
