@@ -5,7 +5,6 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
 using Humanizer;
-using SmartFormat.Core.Parsing;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
