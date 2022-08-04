@@ -26,6 +26,7 @@ internal sealed class BanService : BackgroundService
     private readonly DiscordLogService _logService;
     private readonly InfractionService _infractionService;
     private readonly MailmanService _mailmanService;
+    private readonly RuleService _ruleService;
     private readonly Timer _timer = new();
 
     /// <summary>
@@ -36,7 +37,8 @@ internal sealed class BanService : BackgroundService
         DiscordClient discordClient,
         DiscordLogService logService,
         InfractionService infractionService,
-        MailmanService mailmanService
+        MailmanService mailmanService,
+        RuleService ruleService
     )
     {
         _scopeFactory = scopeFactory;
@@ -44,6 +46,7 @@ internal sealed class BanService : BackgroundService
         _logService = logService;
         _infractionService = infractionService;
         _mailmanService = mailmanService;
+        _ruleService = ruleService;
 
         _timer.Interval = QueryInterval.TotalMilliseconds;
         _timer.Elapsed += TimerOnElapsed;
@@ -115,6 +118,10 @@ internal sealed class BanService : BackgroundService
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Banned by {issuer.GetUsernameWithDiscriminator()}: {reason}";
 
@@ -125,8 +132,9 @@ internal sealed class BanService : BackgroundService
         embed.AddField("User", user.Mention, true);
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", issuer.Mention, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
@@ -204,6 +212,10 @@ internal sealed class BanService : BackgroundService
             .CreateInfractionAsync(InfractionType.Kick, member, staffMember, options)
             .ConfigureAwait(false);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Kicked by {staffMember.GetUsernameWithDiscriminator()}: {reason}";
 
@@ -214,6 +226,7 @@ internal sealed class BanService : BackgroundService
         embed.AddField("User", member.Mention, true);
         embed.AddField("User ID", member.Id, true);
         embed.AddField("Staff Member", staffMember.Mention, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
         await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
 
@@ -314,6 +327,10 @@ internal sealed class BanService : BackgroundService
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Temp-Banned by {issuer.GetUsernameWithDiscriminator()} ({duration.Humanize()}): {reason}";
         await guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
@@ -327,6 +344,7 @@ internal sealed class BanService : BackgroundService
         embed.AddField("Staff Member", issuer.Mention, true);
         embed.AddField("Expiration Time", Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);

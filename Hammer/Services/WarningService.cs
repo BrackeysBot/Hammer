@@ -12,14 +12,16 @@ internal sealed class WarningService
 {
     private readonly DiscordLogService _logService;
     private readonly InfractionService _infractionService;
+    private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="WarningService" /> class.
     /// </summary>
-    public WarningService(DiscordLogService logService, InfractionService infractionService)
+    public WarningService(DiscordLogService logService, InfractionService infractionService, RuleService ruleService)
     {
         _logService = logService;
         _infractionService = infractionService;
+        _ruleService = ruleService;
     }
 
     /// <summary>
@@ -50,6 +52,10 @@ internal sealed class WarningService
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
         embed.WithAuthor(user);
@@ -58,6 +64,7 @@ internal sealed class WarningService
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", issuer.Mention, true);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
 

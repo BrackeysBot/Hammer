@@ -37,6 +37,7 @@ internal sealed class MuteService : BackgroundService
     private readonly DiscordLogService _logService;
     private readonly DiscordClient _discordClient;
     private readonly InfractionService _infractionService;
+    private readonly RuleService _ruleService;
     private readonly Timer _timer = new();
 
     /// <summary>
@@ -47,7 +48,8 @@ internal sealed class MuteService : BackgroundService
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService,
-        InfractionService infractionService
+        InfractionService infractionService,
+        RuleService ruleService
     )
     {
         _scopeFactory = scopeFactory;
@@ -55,6 +57,7 @@ internal sealed class MuteService : BackgroundService
         _configurationService = configurationService;
         _logService = logService;
         _infractionService = infractionService;
+        _ruleService = ruleService;
 
         _timer.Interval = QueryInterval.TotalMilliseconds;
         _timer.Elapsed += TimerOnElapsed;
@@ -162,6 +165,10 @@ internal sealed class MuteService : BackgroundService
 
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Muted by {issuer.GetUsernameWithDiscriminator()}: {reason}";
 
@@ -185,8 +192,9 @@ internal sealed class MuteService : BackgroundService
         embed.AddField("User", user.Mention, true);
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", issuer.Mention, true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
 
@@ -307,6 +315,10 @@ internal sealed class MuteService : BackgroundService
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, guild);
 
+        Rule? rule = null;
+        if (infraction.RuleId is { } ruleId && _ruleService.GuildHasRule(infraction.GuildId, ruleId))
+            rule = _ruleService.GetRuleById(infraction.GuildId, ruleId);
+
         reason = options.Reason.WithWhiteSpaceAlternative("No reason specified");
         reason = $"Temp-Muted by {issuer.GetUsernameWithDiscriminator()} ({duration.Humanize()}): {reason}";
 
@@ -332,6 +344,7 @@ internal sealed class MuteService : BackgroundService
         embed.AddField("Staff Member", issuer.Mention, true);
         embed.AddField("Expiration Time", Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
+        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
