@@ -2,7 +2,6 @@
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
-using Hammer.Extensions;
 using Microsoft.Extensions.Hosting;
 using NLog;
 
@@ -53,17 +52,6 @@ internal sealed class UserReactionService : BackgroundService
         {
             await e.Message.DeleteReactionAsync(e.Emoji, e.User).ConfigureAwait(false);
             await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User).ConfigureAwait(false);
-        }
-        else if (reaction == reactionConfiguration.DeleteMessageReaction &&
-                 guildConfiguration.AllowInteractionAuthorDeletion &&
-                 !((DiscordMember) e.User).IsStaffMember(guildConfiguration))
-        {
-            if (e.Message.Interaction is { } interaction && interaction.User == e.User && e.Message.Author == sender.CurrentUser)
-            {
-                Logger.Info($"{e.User} requested their interaction to be deleted");
-                await e.Message.DeleteReactionAsync(e.Emoji, e.User).ConfigureAwait(false);
-                await e.Message.DeleteAsync("Interaction author requested deletion").ConfigureAwait(false);
-            }
         }
     }
 }
