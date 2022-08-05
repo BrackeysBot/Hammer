@@ -200,7 +200,8 @@ internal sealed class InfractionService : BackgroundService
         if (type != InfractionType.Gag && options.NotifyUser)
         {
             int infractionCount = GetInfractionCount(user, staffMember.Guild);
-            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
+            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount, options)
+                .ConfigureAwait(false);
             if (dm is null) result = false;
         }
 
@@ -280,7 +281,10 @@ internal sealed class InfractionService : BackgroundService
 
         if (infractions.Count > 0)
         {
-            embed.AddField($"__{infractions.Count} Infractions on Record__",
+            if (page == 0)
+                embed.WithTitle($"__{"Infraction".ToQuantity(infractions.Count)} on record__");
+
+            embed.WithDescription(
                 string.Join('\n',
                     infractions.OrderByDescending(i => i.IssuedAt)
                         .Skip(infractionsPerPage * page)
@@ -288,7 +292,9 @@ internal sealed class InfractionService : BackgroundService
                         .Select(BuildInfractionString)));
         }
         else
-            embed.AddField("__Infraction Record__", "✅ No infractions on record");
+        {
+            embed.WithTitle("✅ No infractions on record");
+        }
 
         return embed;
 

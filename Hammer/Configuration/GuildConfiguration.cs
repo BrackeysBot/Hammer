@@ -6,12 +6,6 @@
 internal sealed class GuildConfiguration
 {
     /// <summary>
-    ///     Gets a value indicating whether the authors of interactions from this bot can delete their interactions.
-    /// </summary>
-    /// <value><see langword="true" /> to allow interaction author deletion; otherwise, <see langword="false" />.</value>
-    public bool AllowInteractionAuthorDeletion { get; set; } = true;
-
-    /// <summary>
     ///     Gets or sets the ID of the log channel.
     /// </summary>
     public ulong LogChannel { get; set; }
