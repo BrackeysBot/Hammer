@@ -48,7 +48,8 @@ internal sealed class KickCommand : ApplicationCommandModule
     public async Task KickAsync(InteractionContext context,
         [Option("member", "The member to kick.")] DiscordUser user,
         [Option("reason", "The reason for the kick.")] string? reason = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null,
+        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
@@ -96,7 +97,7 @@ internal sealed class KickCommand : ApplicationCommandModule
             }
 
             (infraction, bool dmSuccess) =
-                await _banService.KickAsync(member, context.Member!, reason, rule).ConfigureAwait(false);
+                await _banService.KickAsync(member, context.Member!, reason, rule, clearMessageHistory).ConfigureAwait(false);
 
             if (!dmSuccess)
                 importantNotes.Add("The kick was successfully issued, but the user could not be DM'd.");

@@ -50,7 +50,8 @@ internal sealed class BanCommand : ApplicationCommandModule
         [Option("user", "The user to ban.")] DiscordUser user,
         [Option("reason", "The reason for the ban.")] string? reason = null,
         [Option("duration", "The duration of the ban.")] string? durationRaw = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null,
+        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
@@ -80,7 +81,7 @@ internal sealed class BanCommand : ApplicationCommandModule
 
         Task<(Infraction, bool)> infractionTask = duration is null
             ? _banService.BanAsync(user, context.Member!, reason, rule)
-            : _banService.TemporaryBanAsync(user, context.Member!, reason, duration.Value, rule);
+            : _banService.TemporaryBanAsync(user, context.Member!, reason, duration.Value, rule, clearMessageHistory);
         try
         {
             (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
