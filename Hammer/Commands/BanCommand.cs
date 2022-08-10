@@ -80,7 +80,7 @@ internal sealed class BanCommand : ApplicationCommandModule
         }
 
         Task<(Infraction, bool)> infractionTask = duration is null
-            ? _banService.BanAsync(user, context.Member!, reason, rule)
+            ? _banService.BanAsync(user, context.Member!, reason, rule, clearMessageHistory)
             : _banService.TemporaryBanAsync(user, context.Member!, reason, duration.Value, rule, clearMessageHistory);
         try
         {
