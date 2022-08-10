@@ -1,4 +1,4 @@
-﻿using System.Timers;
+using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
@@ -177,6 +177,9 @@ internal sealed class BanService : BackgroundService
     /// <param name="staffMember">The staff member who issued the kick.</param>
     /// <param name="reason">The reason for the kick.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <param name="clearHistory">
+    ///     <see langword="true" /> to clear the user's recent messages in text channels; otherwise, <see langword="false" />.
+    /// </param>
     /// <returns>
     ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
     /// </returns>
@@ -192,13 +195,15 @@ internal sealed class BanService : BackgroundService
         DiscordMember member,
         DiscordMember staffMember,
         string? reason,
-        Rule? ruleBroken
+        Rule? ruleBroken,
+        bool clearHistory
     )
     {
         ArgumentNullException.ThrowIfNull(member);
         ArgumentNullException.ThrowIfNull(staffMember);
 
-        if (member.Guild != staffMember.Guild)
+        DiscordGuild guild = staffMember.Guild;
+        if (member.Guild != guild)
             throw new ArgumentException("The member and staff member must be in the same guild.");
 
         var options = new InfractionOptions
@@ -226,14 +231,34 @@ internal sealed class BanService : BackgroundService
         embed.AddField("User", member.Mention, true);
         embed.AddField("User ID", member.Id, true);
         embed.AddField("Staff Member", staffMember.Mention, true);
+        embed.AddField("Messages Cleared", clearHistory ? "Yes" : "No", true);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
-        await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
 
-        int infractionCount = _infractionService.GetInfractionCount(member, staffMember.Guild);
+        int infractionCount = _infractionService.GetInfractionCount(member, guild);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
 
         await member.RemoveAsync(reason).ConfigureAwait(false);
+
+        if (clearHistory)
+        {
+            IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
+            channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+
+            var tasks = new List<Task>();
+
+            foreach (DiscordChannel channel in channels)
+            {
+                var messagesToDelete = new List<DiscordMessage>();
+                IReadOnlyList<DiscordMessage> messages = await channel.GetMessagesAsync().ConfigureAwait(false);
+                messagesToDelete.AddRange(messages.Where(m => m.Author.Id == member.Id));
+                tasks.Add(channel.DeleteMessagesAsync(messagesToDelete, "User was banned"));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+
         return (infraction, success);
     }
 
@@ -292,6 +317,9 @@ internal sealed class BanService : BackgroundService
     /// <param name="reason">The reason for the ban.</param>
     /// <param name="duration">The duration of the ban.</param>
     /// <param name="ruleBroken">The rule which was broken, if any.</param>
+    /// <param name="clearHistory">
+    ///     <see langword="true" /> to clear the user's recent messages in text channels; otherwise, <see langword="false" />.
+    /// </param>
     /// <returns>
     ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
     /// </returns>
@@ -305,7 +333,8 @@ internal sealed class BanService : BackgroundService
         DiscordMember issuer,
         string? reason,
         TimeSpan duration,
-        Rule? ruleBroken
+        Rule? ruleBroken,
+        bool clearHistory
     )
     {
         ArgumentNullException.ThrowIfNull(user);
@@ -342,12 +371,31 @@ internal sealed class BanService : BackgroundService
         embed.AddField("User", user.Mention, true);
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", issuer.Mention, true);
+        embed.AddField("Messages Cleared", clearHistory ? "Yes" : "No", true);
         embed.AddField("Expiration Time", Formatter.Timestamp(options.ExpirationTime.Value, TimestampFormat.ShortDateTime), true);
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
         embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
+
+        if (clearHistory)
+        {
+            IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
+            channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+
+            var tasks = new List<Task>();
+
+            foreach (DiscordChannel channel in channels)
+            {
+                var messagesToDelete = new List<DiscordMessage>();
+                IReadOnlyList<DiscordMessage> messages = await channel.GetMessagesAsync().ConfigureAwait(false);
+                messagesToDelete.AddRange(messages.Where(m => m.Author.Id == user.Id));
+                tasks.Add(channel.DeleteMessagesAsync(messagesToDelete, "User was banned"));
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
 
         return (infraction, success);
     }
