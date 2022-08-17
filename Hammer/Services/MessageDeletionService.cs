@@ -135,14 +135,14 @@ internal sealed class MessageDeletionService
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
 
-        string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
+        string? content = hasContent ? Formatter.Sanitize(message.Content) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
 
         return message.Channel.Guild.CreateDefaultEmbed(guildConfiguration)
             .WithColor(0xFF0000)
             .WithTitle("Message Deleted")
             .WithDescription(description)
-            .AddFieldIf(hasContent, "Content", content)
+            .AddFieldIf(hasContent, "Content", Formatter.BlockCode(content!.Length >= 1014 ? content[..1011] + "..." : content))
             .AddFieldIf(hasAttachments, "Attachments", attachments)
             .AddModMailNotice();
     }
@@ -156,13 +156,13 @@ internal sealed class MessageDeletionService
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
         bool hasAttachments = message.Attachments.Count > 0;
 
-        string? content = hasContent ? Formatter.BlockCode(Formatter.Sanitize(message.Content)) : null;
+        string? content = hasContent ? Formatter.Sanitize(message.Content) : null;
         string? attachments = hasAttachments ? string.Join('\n', message.Attachments.Select(a => a.Url)) : null;
         string mention = message.Author.IsBot && message.Interaction is not null
             ? $"{message.Interaction.User.Mention} via {message.Author.Mention}"
             : message.Author.Mention;
 
-        return message.Channel.Guild.CreateDefaultEmbed(guildConfiguration, false)
+        DiscordEmbedBuilder embed = message.Channel.Guild.CreateDefaultEmbed(guildConfiguration, false)
             .WithColor(0xFF0000)
             .WithTitle("Message Deleted")
             .WithDescription($"A message in {message.Channel.Mention} was deleted by a staff member.")
@@ -171,8 +171,18 @@ internal sealed class MessageDeletionService
             .AddField("Staff Member", staffMember.Mention, true)
             .AddField("Message ID", message.Id, true)
             .AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
-                true)
-            .AddFieldIf(hasContent, "Content", content)
-            .AddFieldIf(hasAttachments, "Attachments", attachments);
+                true);
+
+        if (hasContent)
+        {
+            var index = 0;
+            foreach (char[] chars in content!.Chunk(1014))
+            {
+                var chunk = new string(chars);
+                embed.AddField(index++ == 0 ? "Content" : "\u200B", Formatter.BlockCode(chunk));
+            }
+        }
+
+        return embed.AddFieldIf(hasAttachments, "Attachments", attachments);
     }
 }
