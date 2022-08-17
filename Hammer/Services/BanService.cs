@@ -265,7 +265,8 @@ internal sealed class BanService : BackgroundService
         embed.AddField("Staff Member", staffMember.Mention, true);
         embed.AddField("Messages Cleared", clearHistory ? "Yes" : "No", true);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason.AsNullIfWhiteSpace()), "Reason", reason);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
+        embed.WithFooter($"Infraction {infraction.Id}");
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
 
         int infractionCount = _infractionService.GetInfractionCount(member, guild);
