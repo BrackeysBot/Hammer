@@ -38,7 +38,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("Bans", infractions.Count(i => i.Type is InfractionType.TemporaryBan or InfractionType.Ban).ToString("N0"), true);
             embed.AddField("Kicks", infractions.Count(i => i.Type is InfractionType.Kick).ToString("N0"), true);
             embed.AddField("Gags", infractions.Count(i => i.Type is InfractionType.Gag).ToString("N0"), true);
-            embed.AddField("Messages Deleted", infractions.Count(i => i.Type is InfractionType.MessageDeletion).ToString("N0"), true);
+            embed.AddField("Messages Deleted", (await _messageDeletionService.CountMessageDeletionsAsync(context.Guild)).ToString("N0"), true);
         }
 
         var builder = new DiscordWebhookBuilder();

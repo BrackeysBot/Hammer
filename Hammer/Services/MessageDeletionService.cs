@@ -37,6 +37,20 @@ internal sealed class MessageDeletionService
     }
 
     /// <summary>
+    ///     Returns the count of deleted messages in the specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose deleted messages to count.</param>
+    /// <returns>The count of deleted messages in <paramref name="guild" />.</returns>
+    public async Task<int> CountMessageDeletionsAsync(DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(guild);
+
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        return context.DeletedMessages.Count(m => m.GuildId == guild.Id);
+    }
+
+    /// <summary>
     ///     Deletes a specified message, logging the deletion in the staff log and optionally notifying the author.
     /// </summary>
     /// <param name="message">The message to delete.</param>

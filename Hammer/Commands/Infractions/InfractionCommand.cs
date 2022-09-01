@@ -11,6 +11,7 @@ internal sealed partial class InfractionCommand : ApplicationCommandModule
 {
     private readonly ConfigurationService _configurationService;
     private readonly InfractionService _infractionService;
+    private readonly MessageDeletionService _messageDeletionService;
     private readonly RuleService _ruleService;
 
     /// <summary>
@@ -19,11 +20,13 @@ internal sealed partial class InfractionCommand : ApplicationCommandModule
     public InfractionCommand(
         ConfigurationService configurationService,
         InfractionService infractionService,
+        MessageDeletionService messageDeletionService,
         RuleService ruleService
     )
     {
         _configurationService = configurationService;
         _infractionService = infractionService;
+        _messageDeletionService = messageDeletionService;
         _ruleService = ruleService;
     }
 }
