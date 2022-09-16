@@ -1,5 +1,4 @@
 <h1 align="center">Hammer</h1>
-<p align="center"><img src="icon.png" width="128"></p>
 <p align="center"><i>A Discord bot for managing infractions against misbehaving users.</i></p>
 <p align="center">
 <a href="https://github.com/BrackeysBot/Hammer/releases"><img src="https://img.shields.io/github/v/release/oliverbooth/Hammer?include_prereleases"></a>
