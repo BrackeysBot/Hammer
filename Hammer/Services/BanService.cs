@@ -124,7 +124,7 @@ internal sealed class BanService : BackgroundService
         (Infraction infraction, bool success) = await _infractionService
             .CreateInfractionAsync(InfractionType.Ban, user, issuer, options)
             .ConfigureAwait(false);
-        
+
         DiscordGuild guild = issuer.Guild;
         int infractionCount = _infractionService.GetInfractionCount(user, guild);
 
@@ -172,6 +172,7 @@ internal sealed class BanService : BackgroundService
                 await Task.WhenAll(tasks).ConfigureAwait(false);
             });
         }
+
         return (infraction, success);
     }
 
@@ -445,7 +446,7 @@ internal sealed class BanService : BackgroundService
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _timer.Start();
-        return Task.CompletedTask;
+        return UpdateFromDatabaseAsync();
     }
 
     private async Task CreateTemporaryBanAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
@@ -485,6 +486,17 @@ internal sealed class BanService : BackgroundService
             {
                 // ignored
             }
+        }
+    }
+
+    private async Task UpdateFromDatabaseAsync()
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        lock (_temporaryBans)
+        {
+            _temporaryBans.Clear();
+            _temporaryBans.AddRange(context.TemporaryBans);
         }
     }
 }
