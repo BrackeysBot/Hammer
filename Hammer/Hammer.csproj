@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <VersionPrefix>2.5.3</VersionPrefix>
+        <VersionPrefix>2.6.0</VersionPrefix>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
@@ -28,19 +28,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01160"/>
-        <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01160"/>
-        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01160"/>
+        <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01171"/>
+        <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01171"/>
+        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01171"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.7">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.7"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.9"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1"/>
-        <PackageReference Include="NLog" Version="5.0.1"/>
-        <PackageReference Include="NLog.Extensions.Logging" Version="5.0.1"/>
-        <PackageReference Include="SmartFormat.NET" Version="3.1.0"/>
+        <PackageReference Include="NLog" Version="5.0.4"/>
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.0.4"/>
+        <PackageReference Include="SmartFormat.NET" Version="3.2.0"/>
         <PackageReference Include="X10D" Version="3.2.0-nightly.133"/>
         <PackageReference Include="X10D.DSharpPlus" Version="3.2.0-nightly.133"/>
         <PackageReference Include="X10D.Hosting" Version="3.2.0-nightly.133"/>

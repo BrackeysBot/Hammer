@@ -96,7 +96,7 @@ internal sealed class MessageService
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
             throw new InvalidOperationException(ExceptionMessages.NoConfigurationForGuild);
 
-        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
+        DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration, false);
 
         embedBuilder.WithAuthor($"Message #{message.Id}");
         embedBuilder.WithTitle("Message Sent");
