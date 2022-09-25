@@ -1,4 +1,4 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.Configuration;
@@ -286,14 +286,19 @@ internal sealed class MessageReportService : BackgroundService
         _blockedReporters.AddRange(context.BlockedReporters);
 
         _reportedMessages.Clear();
-        await foreach (ReportedMessage reportedMessage in context.ReportedMessages)
-        {
-            if (!_discordClient.Guilds.TryGetValue(reportedMessage.GuildId, out DiscordGuild? guild))
-                continue;
+        _discordClient.GuildAvailable += OnGuildAvailable;
+    }
 
+    private async Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (ReportedMessage reportedMessage in context.ReportedMessages.Where(r => r.GuildId == e.Guild.Id))
+        {
             try
             {
-                DiscordChannel channel = guild.GetChannel(reportedMessage.ChannelId);
+                DiscordChannel channel = e.Guild.GetChannel(reportedMessage.ChannelId);
                 await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
 
                 _reportedMessages.Add(reportedMessage);
@@ -304,7 +309,7 @@ internal sealed class MessageReportService : BackgroundService
             }
         }
 
-        await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)
