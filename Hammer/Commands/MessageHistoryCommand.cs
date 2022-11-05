@@ -56,7 +56,7 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
         }
 
         string staffMessagesResult = staffMessages.Count > 0 ? string.Join("\n", staffMessages) : "*None*";
-        string deletedMessagesResult = deletedMessages.Count > 0 ? string.Join("\n", staffMessages) : "*None*";
+        string deletedMessagesResult = deletedMessages.Count > 0 ? string.Join("\n", deletedMessages) : "*None*";
 
         embed.WithDescription($"__**Staff Messages**__\n{staffMessagesResult}\n\n" +
                               $"__**Deleted Messages**__\n{deletedMessagesResult}");
