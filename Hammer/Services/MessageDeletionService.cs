@@ -4,6 +4,7 @@ using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using SmartFormat;
@@ -121,6 +122,37 @@ internal sealed class MessageDeletionService
         Logger.Info($"{message} in channel {message.Channel} was deleted by {staffMember}");
         await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
         await _logService.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    ///     Returns a deleted message by its ID. 
+    /// </summary>
+    /// <param name="id">The ID of the message to retrieve.</param>
+    /// <returns>A <see cref="DeletedMessage" />, or <see langword="null" /> if no such message was found.</returns>
+    public async Task<DeletedMessage?> GetDeletedMessage(ulong id)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        return await context.DeletedMessages.FirstOrDefaultAsync(m => m.MessageId == id);
+    }
+
+    /// <summary>
+    ///     Returns an enumerable collection of deleted messages sent by the specified user.
+    /// </summary>
+    /// <param name="author">The author of the messages.</param>
+    /// <param name="guild">The guild.</param>
+    /// <returns>An asynchronously enumerable collection of <see cref="DeletedMessage" /> values.</returns>
+    public async IAsyncEnumerable<DeletedMessage> GetDeletedMessages(DiscordUser author, DiscordGuild guild)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (DeletedMessage deletedMessage in
+                 context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id))
+        {
+            yield return deletedMessage;
+        }
     }
 
     private static DiscordEmbed CreateMessageDeletionToAuthorEmbed(DiscordMessage message, GuildConfiguration guildConfiguration)

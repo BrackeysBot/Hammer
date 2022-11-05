@@ -5,6 +5,7 @@ using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
@@ -38,6 +39,37 @@ internal sealed class MessageService
         _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
+    }
+
+    /// <summary>
+    ///     Returns a staff message by its ID. 
+    /// </summary>
+    /// <param name="id">The ID of the message to retrieve.</param>
+    /// <returns>A <see cref="StaffMessage" />, or <see langword="null" /> if no such message was found.</returns>
+    public async Task<StaffMessage?> GetStaffMessage(long id)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        return await context.StaffMessages.FirstOrDefaultAsync(m => m.Id == id);
+    }
+
+    /// <summary>
+    ///     Returns an enumerable collection of staff messages sent to the specified user.
+    /// </summary>
+    /// <param name="recipient">The recipient of the messages.</param>
+    /// <param name="guild">The guild.</param>
+    /// <returns>An asynchronously enumerable collection of <see cref="StaffMessage" /> values.</returns>
+    public async IAsyncEnumerable<StaffMessage> GetStaffMessages(DiscordUser recipient, DiscordGuild guild)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (StaffMessage staffMessage in
+                 context.StaffMessages.Where(m => m.RecipientId == recipient.Id && m.GuildId == guild.Id))
+        {
+            yield return staffMessage;
+        }
     }
 
     /// <summary>
