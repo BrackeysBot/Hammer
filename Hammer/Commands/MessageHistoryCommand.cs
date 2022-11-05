@@ -41,7 +41,7 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
         var staffMessages = new List<string>();
         await foreach (StaffMessage staffMessage in _messageService.GetStaffMessages(user, context.Guild))
         {
-            staffMessages.Add($"ID: {staffMessage.Id} \u2022 " +
+            staffMessages.Add($"**ID: {staffMessage.Id}** \u2022 " +
                               $"Sent by {MentionUtility.MentionUser(staffMessage.StaffMemberId)} \u2022 " +
                               Formatter.Timestamp(staffMessage.SentAt));
         }
@@ -50,7 +50,7 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
         var deletedMessages = new List<string>();
         await foreach (DeletedMessage deletedMessage in _messageDeletionService.GetDeletedMessages(user, context.Guild))
         {
-            staffMessages.Add($"ID: {deletedMessage.MessageId} \u2022 " +
+            staffMessages.Add($"**ID: {deletedMessage.MessageId}** \u2022 " +
                               $"Sent in {MentionUtility.MentionChannel(deletedMessage.ChannelId)} \u2022 " +
                               Formatter.Timestamp(deletedMessage.CreationTimestamp));
         }
