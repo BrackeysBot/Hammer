@@ -227,12 +227,11 @@ Views a staff-sent or staff-deleted message by its ID.
 
 ### `/message`
 
-Sends a private message, through Hammer, to the member. This is logged, but does not create an infraction on the users' record.
+Sends a private message, through Hammer, to the member. Message content is specified via a following modal. This is logged, but does not create an infraction on the user's record.
 
 | Parameter | Required | Type                 | Description            |
 |:----------|:---------|:---------------------|:-----------------------|
 | member    | ✅ Yes    | Member mention or ID | The member to message. |
-| content   | ✅ Yes    | String               | The message to send.   |
 
 ### `/note create`
 
