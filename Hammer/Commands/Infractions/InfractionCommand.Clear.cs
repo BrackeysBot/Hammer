@@ -19,25 +19,26 @@ internal sealed partial class InfractionCommand
         IReadOnlyList<Infraction> infractions = _infractionService.GetInfractions(user, context.Guild);
         await _infractionService.RemoveInfractionsAsync(infractions).ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, context.Guild);
+        int differential = infractions.Count - infractionCount;
 
         var embed = new DiscordEmbedBuilder();
         embed.WithAuthor(user);
         embed.WithColor(DiscordColor.Green);
         embed.WithTitle("Infractions cleared");
-        embed.WithDescription($"Cleared {"infraction".ToQuantity(infractions.Count - infractionCount)} infractions " +
+        embed.WithDescription($"Cleared {"infraction".ToQuantity(differential)} infractions " +
                               $"for {user.Mention}.");
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
 
-        if (infractionCount > 0)
+        if (differential > 0)
         {
             embed = new DiscordEmbedBuilder();
             embed.WithColor(DiscordColor.Orange);
             embed.WithTitle("Infractions Cleared");
             embed.AddField("User", user.Mention, true);
-            embed.AddField("Count", infractionCount, true);
+            embed.AddField("Count", differential, true);
             embed.AddField("Staff Member", context.Member.Mention, true);
             await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
         }
