@@ -36,5 +36,14 @@ internal sealed partial class InfractionCommand
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
+
+        embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.Orange);
+        embed.WithTitle("Infractions Copied");
+        embed.AddField("From", source.Mention, true);
+        embed.AddField("To", destination.Mention, true);
+        embed.AddField("Count", copies.Count, true);
+        embed.AddField("Staff Member", context.Member.Mention, true);
+        await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
     }
 }
