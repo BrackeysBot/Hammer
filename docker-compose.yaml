@@ -2,6 +2,7 @@ version: '3.9'
 services:
   hammer:
     container_name: Hammer
+    pull_policy: build
     build: .
     volumes:
       - type: bind
