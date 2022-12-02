@@ -12,5 +12,3 @@ services:
         source: ./data
         target: /app/data
     restart: always
-    env_file:
-      - .env
