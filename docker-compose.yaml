@@ -3,7 +3,7 @@ services:
   hammer:
     container_name: Hammer
     pull_policy: build
-    build: .
+    build: https://github.com/BrackeysBot/Hammer.git
     volumes:
       - type: bind
         source: ./logs
