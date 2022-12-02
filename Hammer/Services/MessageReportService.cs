@@ -438,16 +438,22 @@ internal sealed class MessageReportService : BackgroundService
 
         foreach (ReportedMessage reportedMessage in context.ReportedMessages.Where(r => r.GuildId == e.Guild.Id))
         {
-            try
-            {
-                DiscordChannel channel = e.Guild.GetChannel(reportedMessage.ChannelId);
-                await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
-
-                _reportedMessages.Add(reportedMessage);
-            }
-            catch (NotFoundException)
+            DiscordChannel? channel = e.Guild.GetChannel(reportedMessage.ChannelId);
+            if (channel is null)
             {
                 context.Entry(reportedMessage).State = EntityState.Deleted;
+            }
+            else
+            {
+                try
+                {
+                    await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
+                    _reportedMessages.Add(reportedMessage);
+                }
+                catch (NotFoundException)
+                {
+                    context.Entry(reportedMessage).State = EntityState.Deleted;
+                }
             }
         }
 
