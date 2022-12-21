@@ -64,7 +64,26 @@ internal sealed class BanCommand : ApplicationCommandModule
             if (!result) return;
         }
 
-        TimeSpan? duration = durationRaw?.ToTimeSpan() ?? null;
+        TimeSpan? duration = null;
+        if (!string.IsNullOrWhiteSpace(durationRaw))
+        {
+            if (TimeSpanParser.TryParse(durationRaw, out TimeSpan timeSpan))
+            {
+                duration = timeSpan;
+            }
+            else
+            {
+                DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
+                var embed = new DiscordEmbedBuilder();
+                embed.WithColor(DiscordColor.Red);
+                embed.WithTitle("⚠️ Error parsing duration");
+                embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
+                                      "Accepted format is `#y #mo #w #d #h #m #s #ms`");
+                await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
+                return;
+            }
+        }
+
         var builder = new DiscordEmbedBuilder();
         var message = new DiscordWebhookBuilder();
         var importantNotes = new List<string>();
