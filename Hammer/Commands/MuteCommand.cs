@@ -110,16 +110,30 @@ internal sealed class MuteCommand : ApplicationCommandModule
 
         Task<(Infraction, bool)> infractionTask;
         PermissionLevel permissionLevel = context.Member.GetPermissionLevel(guildConfiguration);
-        if (duration is null &&
-            permissionLevel == PermissionLevel.Moderator &&
-            guildConfiguration.Mute.MaxModeratorMuteDuration is { } maxModeratorMuteDuration)
+        var shouldClampDuration = false;
+
+        if (guildConfiguration.Mute.MaxModeratorMuteDuration is { } maxModeratorMuteDuration and > 0)
+            shouldClampDuration = permissionLevel == PermissionLevel.Moderator;
+        else
+            // pattern match does not initialize to 0 on failure. explicit = 0 is required here, else the compiler complains
+            maxModeratorMuteDuration = 0;
+
+        if (duration is null)
         {
-            duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
-            infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
+            if (shouldClampDuration)
+            {
+                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
+                infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
+            }
+            else
+                infractionTask = _muteService.MuteAsync(user, context.Member!, reason, rule);
         }
         else
         {
-            infractionTask = _muteService.MuteAsync(user, context.Member!, reason, rule);
+            if (shouldClampDuration && maxModeratorMuteDuration > duration.Value.TotalMilliseconds)
+                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
+
+            infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
         }
 
         var builder = new DiscordEmbedBuilder();
