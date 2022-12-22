@@ -12,3 +12,5 @@ services:
         source: /etc/brackeysbot/hammer
         target: /app/data
     restart: always
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
