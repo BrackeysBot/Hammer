@@ -46,7 +46,8 @@ internal sealed class UriListToBytesConverter : ValueConverter<IReadOnlyList<Uri
 
         var list = new List<Uri>(listCount);
 
-        for (var index = 0; index < list.Count; index++) list.Add(new Uri(reader.ReadString()));
+        for (var index = 0; index < listCount; index++)
+            list.Add(new Uri(reader.ReadString()));
 
         return list.AsReadOnly();
     }
