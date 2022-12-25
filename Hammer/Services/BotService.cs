@@ -22,19 +22,23 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class BotService : BackgroundService
 {
+    private const string AvatarUrl = "https://raw.githubusercontent.com/BrackeysBot/Hammer/main/icon.png";
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly HttpClient _httpClient;
     private readonly DiscordClient _discordClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BotService" /> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="httpClient">The HTTP client.</param>
     /// <param name="discordClient">The Discord client.</param>
-    public BotService(IServiceProvider serviceProvider, DiscordClient discordClient)
+    public BotService(IServiceProvider serviceProvider, HttpClient httpClient, DiscordClient discordClient)
     {
         _serviceProvider = serviceProvider;
+        _httpClient = httpClient;
         _discordClient = discordClient;
 
         var attribute = typeof(BotService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
@@ -103,10 +107,22 @@ internal sealed class BotService : BackgroundService
         await _discordClient.ConnectAsync().ConfigureAwait(false);
     }
 
-    private Task OnReady(DiscordClient sender, ReadyEventArgs e)
+    private async Task OnReady(DiscordClient sender, ReadyEventArgs e)
     {
         Logger.Info("Discord client ready");
-        return Task.CompletedTask;
+
+        using HttpResponseMessage response = await _httpClient.GetAsync(AvatarUrl).ConfigureAwait(false);
+        try
+        {
+            response.EnsureSuccessStatusCode();
+
+            await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            await sender.UpdateCurrentUserAsync(avatar: stream).ConfigureAwait(false);
+        }
+        catch (HttpRequestException exception)
+        {
+            Logger.Warn(exception, "Could not update profile picture from repo");
+        }
     }
 
     private static void RegisterEvents(SlashCommandsExtension slashCommands)
