@@ -2,7 +2,7 @@
 
 /// <summary>
 ///     Represents an infraction.
-/// </summary>It'
+/// </summary>
 internal sealed class Infraction : IEquatable<Infraction>, IComparable<Infraction>, IComparable
 {
     /// <summary>
