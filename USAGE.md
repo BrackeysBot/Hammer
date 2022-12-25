@@ -31,8 +31,7 @@ The default reaction equivalent is the 🔇️emoji (`:mute:`). The config key i
 
 ### 👤 User > Apps > View Infraction History
 
-**Staff action.** Views the infraction history of a user. This is identical to the `/history` command, and the response is
-therefore **NOT ephemeral**.
+**Staff action.** Views the infraction history of a user. This is identical to the `/history` command, except that the response **is ephemeral**.
 
 The default reaction equivalent is the 🕓 emoji (`:clock4:`). The config key is `GUILD_ID.reactions.historyReaction`.k4: ). When
 this reaction is used, the history is instead sent as a DM to the staff member.
@@ -192,6 +191,14 @@ View the details of a specific infraction.
 |:-----------|:---------|:--------|:----------------------------------|
 | infraction | ✅ Yes    | Integer | The ID of the infraction to view. |
 
+### `/messagehistory`
+
+Views the staff-sent or staff-deleted message history for a user.
+
+| Parameter | Required | Type               | Description                                                  |
+|:----------|:---------|:-------------------|:-------------------------------------------------------------|
+| user      | ✅ Yes    | User mention or ID | The user whose staff-sent or staff-deleted messages to view. |
+
 ### `/selfhistory`
 
 **Public command.** Displays all infractions for yourself.
@@ -199,6 +206,14 @@ View the details of a specific infraction.
 | Parameter | Required | Type | Description |
 |:----------|:---------|:-----|:------------|
 | -         | -        | -    | -           |
+
+### `/viewmessage`
+
+Views a staff-sent or staff-deleted message by its ID.
+
+| Parameter | Required | Type    | Description                    |
+|:----------|:---------|:--------|:-------------------------------|
+| id        | ✅ Yes    | Integer | The ID of the message to view. |
 
 ## Soft moderation
 
@@ -322,6 +337,7 @@ Below is a table outlining all the commands and whether or not they have ephemer
 | `/infraction move`      | ❌ No                                              |
 | `/infraction prune`     | ❌ No                                              |
 | `/infraction view`      | ❌ No                                              |
+| `/messagehistory`       | ❌ No                                              |
 | `/migrate`              | ❌ No                                              |
 | `/mute`                 | ✅ Yes                                             |
 | `/note create`          | ✅ Yes                                             |
@@ -340,4 +356,5 @@ Below is a table outlining all the commands and whether or not they have ephemer
 | `/unmute`               | ✅ Yes                                             |
 | `/unban`                | ✅ Yes                                             |
 | `/unblockreports`       | ✅ Yes                                             |
+| `/viewmessage`          | ❌ No                                              |
 | `/warn`                 | ✅ Yes                                             |

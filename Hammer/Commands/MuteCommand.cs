@@ -75,7 +75,26 @@ internal sealed class MuteCommand : ApplicationCommandModule
             return;
         }
 
-        TimeSpan? duration = durationRaw?.ToTimeSpan() ?? null;
+        TimeSpan? duration = null;
+        if (!string.IsNullOrWhiteSpace(durationRaw))
+        {
+            if (TimeSpanParser.TryParse(durationRaw, out TimeSpan timeSpan))
+            {
+                duration = timeSpan;
+            }
+            else
+            {
+                DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
+                var embed = new DiscordEmbedBuilder();
+                embed.WithColor(DiscordColor.Red);
+                embed.WithTitle("⚠️ Error parsing duration");
+                embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
+                                      "Accepted format is `#y #mo #w #d #h #m #s #ms`");
+                await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
+                return;
+            }
+        }
+
         var message = new DiscordWebhookBuilder();
         var importantNotes = new List<string>();
 
@@ -91,16 +110,30 @@ internal sealed class MuteCommand : ApplicationCommandModule
 
         Task<(Infraction, bool)> infractionTask;
         PermissionLevel permissionLevel = context.Member.GetPermissionLevel(guildConfiguration);
-        if (duration is null &&
-            permissionLevel == PermissionLevel.Moderator &&
-            guildConfiguration.Mute.MaxModeratorMuteDuration is { } maxModeratorMuteDuration)
+        var shouldClampDuration = false;
+
+        if (guildConfiguration.Mute.MaxModeratorMuteDuration is { } maxModeratorMuteDuration and > 0)
+            shouldClampDuration = permissionLevel == PermissionLevel.Moderator;
+        else
+            // pattern match does not initialize to 0 on failure. explicit = 0 is required here, else the compiler complains
+            maxModeratorMuteDuration = 0;
+
+        if (duration is null)
         {
-            duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
-            infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
+            if (shouldClampDuration)
+            {
+                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
+                infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
+            }
+            else
+                infractionTask = _muteService.MuteAsync(user, context.Member!, reason, rule);
         }
         else
         {
-            infractionTask = _muteService.MuteAsync(user, context.Member!, reason, rule);
+            if (shouldClampDuration && maxModeratorMuteDuration > duration.Value.TotalMilliseconds)
+                duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
+
+            infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
         }
 
         var builder = new DiscordEmbedBuilder();
