@@ -69,6 +69,21 @@ internal sealed class RuleService : BackgroundService
     }
 
     /// <summary>
+    ///     Creates a "Rule Not Found" embed.
+    /// </summary>
+    /// <param name="guild">The guild whose branding to display.</param>
+    /// <param name="searchQuery">The search query which failed.</param>
+    /// <returns>A <see cref="DiscordEmbed" /> stating the rule cannot be found.</returns>
+    public DiscordEmbed CreateRuleNotFoundEmbed(DiscordGuild guild, string searchQuery)
+    {
+        var embed = new DiscordEmbedBuilder();
+        embed.WithColor(0xFF0000);
+        embed.WithTitle("Rule Not Found");
+        embed.WithDescription($"No rule could be found with the search query `{searchQuery}`.");
+        return embed;
+    }
+
+    /// <summary>
     ///     Deletes a rule from the database.
     /// </summary>
     /// <param name="guild">The guild whose rules to update.</param>
@@ -184,6 +199,57 @@ internal sealed class RuleService : BackgroundService
             return false;
 
         return id <= rules.Count && rules.Exists(r => r.Id == id);
+    }
+
+    /// <summary>
+    ///     Searches for a rule by a search query.
+    /// </summary>
+    /// <param name="guild">The guild whose rules to search.</param>
+    /// <param name="searchQuery">The query with which to search.</param>
+    /// <returns>The first rule that matches the query; or <see langword="null" /> if no rule was found.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <paramref name="guild" /> or <paramref name="searchQuery" /> is <see langword="null" />.
+    /// </exception>
+    public Rule? SearchForRule(DiscordGuild guild, string searchQuery)
+    {
+        if (guild == null) throw new ArgumentNullException(nameof(guild));
+        if (searchQuery == null) throw new ArgumentNullException(nameof(searchQuery));
+        if (string.IsNullOrWhiteSpace(searchQuery)) return null;
+
+        string[] searchTerms = searchQuery.Split();
+        var matches = new List<Rule>();
+        IReadOnlyList<Rule> rules = GetGuildRules(guild);
+
+        foreach (Rule item in rules)
+        {
+            if (RuleMatches(item, searchTerms))
+                matches.Add(item);
+        }
+
+        return matches.Count > 0 ? matches[0] : null;
+
+        static bool RuleMatches(Rule rule, IEnumerable<string> searchTerms)
+        {
+            foreach (string term in searchTerms)
+            {
+                if (!string.IsNullOrWhiteSpace(rule.Brief))
+                {
+                    foreach (string word in rule.Brief.Split())
+                    {
+                        if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+                }
+
+                foreach (string word in rule.Description.Split())
+                {
+                    if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+
+            return false;
+        }
     }
 
     /// <summary>
