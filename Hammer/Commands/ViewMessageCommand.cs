@@ -64,6 +64,7 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
             embed.AddField("Channel", MentionUtility.MentionChannel(deletedMessage.ChannelId), true);
             embed.AddField("Created", Formatter.Timestamp(deletedMessage.CreationTimestamp), true);
             embed.AddField("Deleted", Formatter.Timestamp(deletedMessage.DeletionTimestamp), true);
+            embed.AddField("Staff Member", MentionUtility.MentionUser(deletedMessage.StaffMemberId), true);
 
             bool hasContent = !string.IsNullOrWhiteSpace(deletedMessage.Content);
             bool hasAttachments = deletedMessage.Attachments.Count > 0;
