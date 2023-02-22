@@ -2,10 +2,10 @@
 <p align="center"><img src="icon.png" width="128"></p>
 <p align="center"><i>A Discord bot for managing infractions against misbehaving users.</i></p>
 <p align="center">
-<a href="https://github.com/BrackeysBot/Hammer/releases"><img src="https://img.shields.io/github/v/release/BrackeysBot/Hammer?include_prereleases"></a>
-<a href="https://github.com/BrackeysBot/Hammer/actions?query=workflow%3A%22.NET%22"><img src="https://img.shields.io/github/workflow/status/BrackeysBot/Hammer/.NET" alt="GitHub Workflow Status" title="GitHub Workflow Status"></a>
-<a href="https://github.com/BrackeysBot/Hammer/issues"><img src="https://img.shields.io/github/issues/BrackeysBot/Hammer" alt="GitHub Issues" title="GitHub Issues"></a>
-<a href="https://github.com/BrackeysBot/Hammer/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/BrackeysBot/Hammer" alt="MIT License" title="MIT License"></a>
+<a href="https://github.com/BrackeysBot/Hammer/releases"><img src="https://img.shields.io/github/v/release/BrackeysBot/Hammer?include_prereleases&style=flat-square"></a>
+<a href="https://github.com/BrackeysBot/Hammer/actions/workflows/dotnet.yml"><img src="https://img.shields.io/github/actions/workflow/status/BrackeysBot/Hammer/dotnet.yml?branch=main&style=flat-square" alt="GitHub Workflow Status" title="GitHub Workflow Status"></a>
+<a href="https://github.com/BrackeysBot/Hammer/issues"><img src="https://img.shields.io/github/issues/BrackeysBot/Hammer?style=flat-square" alt="GitHub Issues" title="GitHub Issues"></a>
+<a href="https://github.com/BrackeysBot/Hammer/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/BrackeysBot/Hammer?style=flat-square" alt="MIT License" title="MIT License"></a>
 </p>
 
 ## About
