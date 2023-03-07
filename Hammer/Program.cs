@@ -28,6 +28,9 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddHostedSingleton<LoggingService>();
 
+        services.AddDbContext<HammerContext>();
+        services.AddHostedSingleton<DatabaseService>();
+
         services.AddSingleton<HttpClient>();
         services.AddSingleton<ConfigurationService>();
         services.AddSingleton<MailmanService>();
@@ -39,7 +42,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddHostedService<UserReactionService>();
 
         services.AddHostedSingleton<BanService>();
-        services.AddHostedSingleton<DatabaseService>();
         services.AddHostedSingleton<DiscordLogService>();
         services.AddHostedSingleton<InfractionService>();
         services.AddHostedSingleton<InfractionCooldownService>();
@@ -49,7 +51,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddHostedSingleton<MuteService>();
         services.AddHostedSingleton<RuleService>();
 
-        services.AddDbContext<HammerContext>();
 
         services.AddHostedSingleton<BotService>();
     })
