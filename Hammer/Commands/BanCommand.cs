@@ -64,6 +64,19 @@ internal sealed class BanCommand : ApplicationCommandModule
             if (!result) return;
         }
 
+        if (await _banService.IsUserBannedAsync(user, context.Guild).ConfigureAwait(false))
+        {
+            var responseBuilder = new DiscordWebhookBuilder();
+            var embed = new DiscordEmbedBuilder();
+            embed.WithColor(DiscordColor.Red);
+            embed.WithTitle("⚠️ User already banned");
+            embed.WithDescription($"{user.Mention} ({user.Id:0}) is already banned. " +
+                                  "If you are trying to replace a temporary ban with a permanent one, " +
+                                  "please unban the member first before running `/ban` again.");
+            await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
+            return;
+        }
+
         TimeSpan? duration = null;
         if (!string.IsNullOrWhiteSpace(durationRaw))
         {
@@ -73,13 +86,13 @@ internal sealed class BanCommand : ApplicationCommandModule
             }
             else
             {
-                DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
+                var responseBuilder = new DiscordWebhookBuilder();
                 var embed = new DiscordEmbedBuilder();
                 embed.WithColor(DiscordColor.Red);
                 embed.WithTitle("⚠️ Error parsing duration");
                 embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
                                       "Accepted format is `#y #mo #w #d #h #m #s #ms`");
-                await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
+                await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
                 return;
             }
         }

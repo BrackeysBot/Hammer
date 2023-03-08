@@ -109,7 +109,7 @@ internal sealed class BanService : BackgroundService
         string? reason,
         Rule? ruleBroken,
         bool clearHistory
-        )
+    )
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(issuer);
@@ -155,8 +155,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 
@@ -180,6 +181,29 @@ internal sealed class BanService : BackgroundService
     {
         lock (_temporaryBans)
             return _temporaryBans.Find(b => b.UserId == user.Id && b.GuildId == guild.Id);
+    }
+
+    /// <summary>
+    ///     Gets the temporary bans in a specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose temporary bans to return.</param>
+    /// <returns>A read-only view of the temporary bans in the specified guild.</returns>
+    public IReadOnlyList<TemporaryBan> GetTemporaryBans(DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var result = new List<TemporaryBan>();
+
+        lock (_temporaryBans)
+        {
+            foreach (TemporaryBan temporaryBan in _temporaryBans)
+            {
+                if (temporaryBan.GuildId == guild.Id)
+                    result.Add(temporaryBan);
+            }
+        }
+
+        return result.AsReadOnly();
     }
 
     /// <summary>
@@ -279,8 +303,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 
@@ -421,8 +446,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 

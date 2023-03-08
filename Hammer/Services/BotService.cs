@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
@@ -22,7 +21,6 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class BotService : BackgroundService
 {
-    private const string AvatarUrl = "https://raw.githubusercontent.com/BrackeysBot/Hammer/main/icon.png";
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     private readonly IServiceProvider _serviceProvider;
@@ -98,31 +96,10 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<ViewMessageCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
-
-        Logger.Info("Connecting to Discord...");
-        _discordClient.Ready += OnReady;
-
         RegisterEvents(slashCommands);
 
+        Logger.Info("Connecting to Discord...");
         await _discordClient.ConnectAsync().ConfigureAwait(false);
-    }
-
-    private async Task OnReady(DiscordClient sender, ReadyEventArgs e)
-    {
-        Logger.Info("Discord client ready");
-
-        using HttpResponseMessage response = await _httpClient.GetAsync(AvatarUrl).ConfigureAwait(false);
-        try
-        {
-            response.EnsureSuccessStatusCode();
-
-            await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            await sender.UpdateCurrentUserAsync(avatar: stream).ConfigureAwait(false);
-        }
-        catch (HttpRequestException exception)
-        {
-            Logger.Warn(exception, "Could not update profile picture from repo");
-        }
     }
 
     private static void RegisterEvents(SlashCommandsExtension slashCommands)
