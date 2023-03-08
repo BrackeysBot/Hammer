@@ -9,16 +9,26 @@ namespace Hammer.Commands.Infractions;
 [SlashCommandGroup("infraction", "Manage infractions.", false)]
 internal sealed partial class InfractionCommand : ApplicationCommandModule
 {
+    private readonly ConfigurationService _configurationService;
     private readonly InfractionService _infractionService;
+    private readonly MessageDeletionService _messageDeletionService;
     private readonly DiscordLogService _logService;
     private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InfractionCommand" /> class.
     /// </summary>
-    public InfractionCommand(InfractionService infractionService, DiscordLogService logService, RuleService ruleService)
+    public InfractionCommand(
+        ConfigurationService configurationService,
+        DiscordLogService logService,
+        InfractionService infractionService,
+        MessageDeletionService messageDeletionService,
+        RuleService ruleService
+    )
     {
+        _configurationService = configurationService;
         _infractionService = infractionService;
+        _messageDeletionService = messageDeletionService;
         _logService = logService;
         _ruleService = ruleService;
     }
