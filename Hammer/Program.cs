@@ -33,6 +33,7 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<HttpClient>();
         services.AddSingleton<ConfigurationService>();
+        services.AddSingleton<InfractionStatisticsService>();
         services.AddSingleton<MailmanService>();
         services.AddSingleton<MessageService>();
         services.AddSingleton<MessageDeletionService>();
