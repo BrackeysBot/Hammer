@@ -54,13 +54,14 @@ internal sealed partial class InfractionCommand
             int banCount = infractions.Count(i => i.Type is InfractionType.Ban);
             var bans = $"{banCount + tempBanCount} ({tempBanCount}T / {banCount}P)";
 
-            long totalMuteDuration = _muteService.GetTemporaryMutes(context.Guild).Sum(m => m.ExpiresAt!.Value.Ticks);
-            long totalBanDuration = _banService.GetTemporaryBans(context.Guild).Sum(m => m.ExpiresAt.Ticks);
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            long remainingMuteDuration = _muteService.GetTemporaryMutes(context.Guild).Sum(m => (now - m.ExpiresAt!.Value).Ticks);
+            long remainingBanDuration = _banService.GetTemporaryBans(context.Guild).Sum(b => (now - b.ExpiresAt).Ticks);
 
             embed.WithTitle("Infraction Statistics");
             embed.AddField("Total Infractions", totalInfractions.ToString("N0"), true);
-            embed.AddField("Total Mute Duration", TimeSpan.FromTicks(totalMuteDuration).Humanize(), true);
-            embed.AddField("Total Ban Duration", TimeSpan.FromTicks(totalBanDuration).Humanize(), true);
+            embed.AddField("Remaining Mute Duration", TimeSpan.FromTicks(remainingMuteDuration).Humanize(), true);
+            embed.AddField("Remaining Ban Duration", TimeSpan.FromTicks(remainingBanDuration).Humanize(), true);
 
             embed.AddField("Total Infracted Users", infractedUsers.ToString("N0"), true);
             embed.AddField("Total Warned Users", warnedUsers.ToString("N0"), true);
