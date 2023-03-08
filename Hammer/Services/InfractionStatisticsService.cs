@@ -75,10 +75,10 @@ internal sealed class InfractionStatisticsService
         float maxMute = Math.Max(muteRatio.A, muteRatio.B);
 
         string banRatioFormatted = $"{permBanCount:N0} perm / {tempBanCount} temp\n" +
-                                   (banRatio.A > banRatio.B ? $"({maxBan / minBan} : 1)" : $"(1 : {maxBan / minBan:N2})");
+                                   (banRatio.A > banRatio.B ? $"({maxBan / minBan:N2} : 1)" : $"(1 : {maxBan / minBan:N2})");
 
         string muteRatioFormatted = $"{permMuteCount:N0} perm / {tempMuteCount} temp\n" +
-                                    (muteRatio.A > muteRatio.B ? $"({maxMute / minMute} : 1)" : $"(1 : {maxMute / minMute:N2})");
+                                    (muteRatio.A > muteRatio.B ? $"({maxMute / minMute:N2} : 1)" : $"(1 : {maxMute / minMute:N2})");
 
         TimeSpan remainingBanTime = GetRemainingBanTime(guild);
         TimeSpan remainingMuteTime = GetRemainingMuteTime(guild);
