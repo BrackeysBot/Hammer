@@ -1,4 +1,4 @@
-using DSharpPlus.Entities;
+﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
@@ -62,6 +62,19 @@ internal sealed class BanCommand : ApplicationCommandModule
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
+        }
+
+        if (await _banService.IsUserBannedAsync(user, context.Guild).ConfigureAwait(false))
+        {
+            var responseBuilder = new DiscordWebhookBuilder();
+            var embed = new DiscordEmbedBuilder();
+            embed.WithColor(DiscordColor.Red);
+            embed.WithTitle("⚠️ User already banned");
+            embed.WithDescription($"{user.Mention} ({user.Id:0}) is already banned. " +
+                                  "If you are trying to replace a temporary ban with a permanent one, " +
+                                  "please unban the member first before running `/ban` again.");
+            await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
+            return;
         }
 
         TimeSpan? duration = null;
