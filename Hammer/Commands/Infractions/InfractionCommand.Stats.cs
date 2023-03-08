@@ -3,6 +3,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
 using Hammer.Data;
+using Humanizer;
 
 namespace Hammer.Commands.Infractions;
 
@@ -53,16 +54,21 @@ internal sealed partial class InfractionCommand
             int banCount = infractions.Count(i => i.Type is InfractionType.Ban);
             var bans = $"{banCount + tempBanCount} ({tempBanCount}T / {banCount}P)";
 
+            long totalMuteDuration = _muteService.GetTemporaryMutes(context.Guild).Sum(m => m.ExpiresAt!.Value.Ticks);
+            long totalBanDuration = _banService.GetTemporaryBans(context.Guild).Sum(m => m.ExpiresAt.Ticks);
+
             embed.WithTitle("Infraction Statistics");
-            embed.AddField("Total Infractions", totalInfractions.ToString("N0"));
-            
+            embed.AddField("Total Infractions", totalInfractions.ToString("N0"), true);
+            embed.AddField("Total Mute Duration", TimeSpan.FromTicks(totalMuteDuration).Humanize(), true);
+            embed.AddField("Total Ban Duration", TimeSpan.FromTicks(totalBanDuration).Humanize(), true);
+
             embed.AddField("Total Infracted Users", infractedUsers.ToString("N0"), true);
             embed.AddField("Total Warned Users", warnedUsers.ToString("N0"), true);
             embed.AddField("Total Muted Users", mutedUsers.ToString("N0"), true);
             embed.AddField("Total Banned Users", bannedUsers.ToString("N0"), true);
             embed.AddField("Total Kicked Users", kickedUsers.ToString("N0"), true);
             embed.AddField("Total Gagged Users", gaggedUsers.ToString("N0"), true);
-            
+
             embed.AddField("Warnings", warnings.ToString("N0"), true);
             embed.AddField("Mutes", mutes, true);
             embed.AddField("Bans", bans, true);

@@ -184,6 +184,29 @@ internal sealed class BanService : BackgroundService
     }
 
     /// <summary>
+    ///     Gets the temporary bans in a specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose temporary bans to return.</param>
+    /// <returns>A read-only view of the temporary bans in the specified guild.</returns>
+    public IReadOnlyList<TemporaryBan> GetTemporaryBans(DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var result = new List<TemporaryBan>();
+
+        lock (_temporaryBans)
+        {
+            foreach (TemporaryBan temporaryBan in _temporaryBans)
+            {
+                if (temporaryBan.GuildId == guild.Id)
+                    result.Add(temporaryBan);
+            }
+        }
+
+        return result.AsReadOnly();
+    }
+
+    /// <summary>
     ///     Returns a value indicating whether a user is banned from a specified guild.
     /// </summary>
     /// <param name="user">The user whose ban status to retrieve.</param>

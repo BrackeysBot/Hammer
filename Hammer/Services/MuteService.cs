@@ -97,6 +97,29 @@ internal sealed class MuteService : BackgroundService
     }
 
     /// <summary>
+    ///     Gets the temporary mutes in a specified guild.
+    /// </summary>
+    /// <param name="guild">The guild whose temporary mutes to return.</param>
+    /// <returns>A read-only view of the temporary mutes in the specified guild.</returns>
+    public IReadOnlyList<Mute> GetTemporaryMutes(DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var result = new List<Mute>();
+
+        lock (_mutes)
+        {
+            foreach (Mute mute in _mutes)
+            {
+                if (mute.ExpiresAt.HasValue && mute.GuildId == guild.Id)
+                    result.Add(mute);
+            }
+        }
+
+        return result.AsReadOnly();
+    }
+
+    /// <summary>
     ///     Returns a value indicating whether a user is muted in a specified guild.
     /// </summary>
     /// <param name="user">The user whose mute status to retrieve.</param>

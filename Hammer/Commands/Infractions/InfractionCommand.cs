@@ -11,8 +11,10 @@ internal sealed partial class InfractionCommand : ApplicationCommandModule
 {
     private readonly ConfigurationService _configurationService;
     private readonly InfractionService _infractionService;
-    private readonly MessageDeletionService _messageDeletionService;
     private readonly DiscordLogService _logService;
+    private readonly BanService _banService;
+    private readonly MessageDeletionService _messageDeletionService;
+    private readonly MuteService _muteService;
     private readonly RuleService _ruleService;
 
     /// <summary>
@@ -21,15 +23,19 @@ internal sealed partial class InfractionCommand : ApplicationCommandModule
     public InfractionCommand(
         ConfigurationService configurationService,
         DiscordLogService logService,
+        BanService banService,
         InfractionService infractionService,
         MessageDeletionService messageDeletionService,
+        MuteService muteService,
         RuleService ruleService
     )
     {
         _configurationService = configurationService;
         _infractionService = infractionService;
-        _messageDeletionService = messageDeletionService;
         _logService = logService;
+        _banService = banService;
+        _messageDeletionService = messageDeletionService;
+        _muteService = muteService;
         _ruleService = ruleService;
     }
 }
