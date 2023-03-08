@@ -2,14 +2,13 @@ version: '3.9'
 services:
   hammer:
     container_name: Hammer
-    build: .
+    pull_policy: build
+    build: https://github.com/BrackeysBot/Hammer.git#main
     volumes:
       - type: bind
-        source: ./logs
+        source: /var/log/brackeysbot/hammer
         target: /app/logs
       - type: bind
-        source: ./data
+        source: /etc/brackeysbot/hammer
         target: /app/data
     restart: always
-    env_file:
-      - .env

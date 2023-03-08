@@ -3,6 +3,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
+using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Infractions;
 
@@ -64,6 +65,8 @@ internal sealed partial class InfractionCommand
 
         // D#+ only accepts long, so we must cast because stupidity
         // yeah, I hate it too.
+        int? oldRuleId = infraction.RuleId;
+        string? oldReason = infraction.Reason;
         var newRuleId = (int?) ruleId;
 
         embed.WithColor(DiscordColor.Green);
@@ -82,6 +85,20 @@ internal sealed partial class InfractionCommand
             }
         }).ConfigureAwait(false);
 
+        builder.Clear();
+        builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
+
+        embed = new DiscordEmbedBuilder();
+        embed.WithColor(DiscordColor.Orange);
+        embed.WithTitle("Infraction Edited");
+        embed.AddField("ID", infraction.Id, true);
+        embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
+        embed.AddField("Staff Member", context.Member.Mention, true);
+        embed.AddFieldIf(newRuleId is not null, "Old Rule", oldRuleId, true);
+        embed.AddFieldIf(newRuleId is not null, "New Rule", () => newRuleId!.Value, true);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason), "Old Reason", oldReason);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason), "New Reason", () => reason);
+        await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
     }
 }

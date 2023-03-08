@@ -36,5 +36,17 @@ internal sealed partial class InfractionCommand
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
         await context.EditResponseAsync(builder).ConfigureAwait(false);
+
+        if (infraction is not null)
+        {
+            embed = new DiscordEmbedBuilder();
+            embed.WithColor(DiscordColor.Orange);
+            embed.WithTitle("Infraction Deleted");
+            embed.AddField("ID", infraction.Id, true);
+            embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
+            embed.AddField("Type", infraction.Type, true);
+            embed.AddField("Staff Member", context.Member.Mention, true);
+            await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
+        }
     }
 }

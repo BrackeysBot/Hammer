@@ -29,7 +29,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     {
         DiscordUser user = context.Interaction.Data.Resolved.Users.First().Value;
 
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync(true).ConfigureAwait(false);
 
         var builder = new DiscordWebhookBuilder();
         var response = new InfractionHistoryResponse(_infractionService, user, context.User, context.Guild, true);

@@ -6,6 +6,7 @@ using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
+using NLog.Targets.Wrappers;
 
 namespace Hammer.Commands.Rules;
 
@@ -30,8 +31,7 @@ internal sealed class RuleCommand : ApplicationCommandModule
 
     [SlashCommand("rule", "Displays a rule.")]
     [SlashRequireGuild]
-    public async Task RuleAsync(InteractionContext context,
-        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to display.")] long rawRuleId)
+    public async Task RuleAsync(InteractionContext context, [Option("rule", "The rule to display.")] string search)
     {
         DiscordGuild guild = context.Guild;
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
@@ -40,15 +40,27 @@ internal sealed class RuleCommand : ApplicationCommandModule
             return;
         }
 
+        Rule? rule;
 
-        var ruleId = (int) rawRuleId;
-        if (!_ruleService.GuildHasRule(guild, ruleId))
+        if (int.TryParse(search, out int ruleId))
         {
-            await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId), true);
-            return;
-        }
+            if (!_ruleService.GuildHasRule(guild, ruleId))
+            {
+                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId), true);
+                return;
+            }
 
-        Rule rule = _ruleService.GetRuleById(guild, ruleId)!;
+            rule = _ruleService.GetRuleById(guild, ruleId)!;
+        }
+        else
+        {
+            rule = _ruleService.SearchForRule(guild, search);
+            if (rule is null)
+            {
+                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(guild, search), true);
+                return;
+            }
+        }
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
         embed.WithColor(DiscordColor.Orange);

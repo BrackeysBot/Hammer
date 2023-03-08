@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
@@ -25,16 +24,19 @@ internal sealed class BotService : BackgroundService
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     private readonly IServiceProvider _serviceProvider;
+    private readonly HttpClient _httpClient;
     private readonly DiscordClient _discordClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BotService" /> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="httpClient">The HTTP client.</param>
     /// <param name="discordClient">The Discord client.</param>
-    public BotService(IServiceProvider serviceProvider, DiscordClient discordClient)
+    public BotService(IServiceProvider serviceProvider, HttpClient httpClient, DiscordClient discordClient)
     {
         _serviceProvider = serviceProvider;
+        _httpClient = httpClient;
         _discordClient = discordClient;
 
         var attribute = typeof(BotService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
@@ -81,6 +83,7 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<InfractionCommand>();
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MessageCommand>();
+        slashCommands.RegisterCommands<MessageHistoryCommand>();
         slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<NoteCommand>();
@@ -91,20 +94,12 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<SelfHistoryCommand>();
         slashCommands.RegisterCommands<UnbanCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
+        slashCommands.RegisterCommands<ViewMessageCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
-
-        Logger.Info("Connecting to Discord...");
-        _discordClient.Ready += OnReady;
-
         RegisterEvents(slashCommands);
 
+        Logger.Info("Connecting to Discord...");
         await _discordClient.ConnectAsync().ConfigureAwait(false);
-    }
-
-    private Task OnReady(DiscordClient sender, ReadyEventArgs e)
-    {
-        Logger.Info("Discord client ready");
-        return Task.CompletedTask;
     }
 
     private static void RegisterEvents(SlashCommandsExtension slashCommands)

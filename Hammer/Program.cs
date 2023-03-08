@@ -23,10 +23,13 @@ await Host.CreateDefaultBuilder(args)
         {
             Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN"),
             LoggerFactory = new NLogLoggerFactory(),
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
+            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents
         }));
 
         services.AddHostedSingleton<LoggingService>();
+
+        services.AddDbContext<HammerContext>();
+        services.AddHostedSingleton<DatabaseService>();
 
         services.AddSingleton<HttpClient>();
         services.AddSingleton<ConfigurationService>();
@@ -39,7 +42,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddHostedService<UserReactionService>();
 
         services.AddHostedSingleton<BanService>();
-        services.AddHostedSingleton<DatabaseService>();
         services.AddHostedSingleton<DiscordLogService>();
         services.AddHostedSingleton<InfractionService>();
         services.AddHostedSingleton<InfractionCooldownService>();
@@ -49,7 +51,6 @@ await Host.CreateDefaultBuilder(args)
         services.AddHostedSingleton<MuteService>();
         services.AddHostedSingleton<RuleService>();
 
-        services.AddDbContext<HammerContext>();
 
         services.AddHostedSingleton<BotService>();
     })

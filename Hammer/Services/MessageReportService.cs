@@ -1,5 +1,7 @@
-﻿using DSharpPlus;
+﻿using System.Diagnostics.CodeAnalysis;
+using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Hammer.Data;
@@ -113,6 +115,59 @@ internal sealed class MessageReportService : BackgroundService
     }
 
     /// <summary>
+    ///     Enumerates all reports submitted against a member.
+    /// </summary>
+    /// <param name="member">The member whose received reports to retrieve.</param>
+    /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
+    public IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordMember member)
+    {
+        return EnumerateReportsAsync(member, member.Guild);
+    }
+
+    /// <summary>
+    ///     Enumerates all reports submitted against a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose received reports to retrieve.</param>
+    /// <param name="guild">The guild whose reports to search.</param>
+    /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
+    public async IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordUser user, DiscordGuild guild)
+    {
+        foreach (ReportedMessage reportedMessage in _reportedMessages)
+        {
+            if (reportedMessage.AuthorId == user.Id && reportedMessage.GuildId == guild.Id)
+                yield return reportedMessage;
+        }
+    }
+
+    /// <summary>
+    ///     Enumerates all reports submitted by a member.
+    /// </summary>
+    /// <param name="member">The member whose submitted reports to retrieve.</param>
+    /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
+    public IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordMember member)
+    {
+        return EnumerateSubmittedReportsAsync(member, member.Guild);
+    }
+
+    /// <summary>
+    ///     Enumerates all reports submitted by a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose submitted reports to retrieve.</param>
+    /// <param name="guild">The guild whose reports to search.</param>
+    /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
+    public async IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
+
+        foreach (ReportedMessage reportedMessage in _reportedMessages)
+        {
+            if (reportedMessage.ReporterId == user.Id && reportedMessage.GuildId == guild.Id)
+                yield return reportedMessage;
+        }
+    }
+
+    /// <summary>
     ///     Returns the count of reports on a specified message.
     /// </summary>
     /// <param name="message">The message whose report count to retrieve.</param>
@@ -122,6 +177,78 @@ internal sealed class MessageReportService : BackgroundService
     {
         ArgumentNullException.ThrowIfNull(message);
         return _reportedMessages.Count(m => m.MessageId == message.Id);
+    }
+
+    /// <summary>
+    ///     Gets all reports submitted against a member.
+    /// </summary>
+    /// <param name="member">The member whose received reports to retrieve.</param>
+    /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
+    public Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordMember member)
+    {
+        ArgumentNullException.ThrowIfNull(member);
+        return GetReportsAsync(member, member.Guild);
+    }
+
+    /// <summary>
+    ///     Gets all reports submitted against a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose received reports to retrieve.</param>
+    /// <param name="guild">The guild whose reports to search.</param>
+    /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
+    public async Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordUser user, DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var list = new List<ReportedMessage>();
+
+        await foreach (ReportedMessage reportedMessage in EnumerateReportsAsync(user, guild).ConfigureAwait(false))
+            list.Add(reportedMessage);
+
+        return list.AsReadOnly();
+    }
+
+    /// <summary>
+    ///     Gets all reports submitted by a member.
+    /// </summary>
+    /// <param name="member">The member whose submitted reports to retrieve.</param>
+    /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
+    public Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordMember member)
+    {
+        ArgumentNullException.ThrowIfNull(member);
+        return GetSubmittedReportsAsync(member, member.Guild);
+    }
+
+    /// <summary>
+    ///     Gets all reports submitted by a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose submitted reports to retrieve.</param>
+    /// <param name="guild">The guild whose reports to search.</param>
+    /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" />.</para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
+    public async Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(guild);
+
+        var list = new List<ReportedMessage>();
+
+        await foreach (ReportedMessage reportedMessage in EnumerateSubmittedReportsAsync(user, guild).ConfigureAwait(false))
+            list.Add(reportedMessage);
+
+        return list.AsReadOnly();
     }
 
     /// <summary>
@@ -232,6 +359,21 @@ internal sealed class MessageReportService : BackgroundService
     }
 
     /// <summary>
+    ///     Returns the count of reports on a specified message.
+    /// </summary>
+    /// <param name="id">The ID of the report to retrieve.</param>
+    /// <param name="reportedMessage">
+    ///     When this method returns, contains the report whose ID matches <paramref name="id" />, or <see langword="null" /> if
+    ///     no such report was found.
+    /// </param>
+    /// <returns><see langword="true" /> if a matching report was found; otherwise, <see langword="false" />.</returns>
+    public bool TryGetReport(long id, [NotNullWhen(true)] out ReportedMessage? reportedMessage)
+    {
+        reportedMessage = _reportedMessages.Find(r => r.Id == id);
+        return reportedMessage is not null;
+    }
+
+    /// <summary>
     ///     Unblocks a user from making reports in a specified guild, allowing them to report again.
     /// </summary>
     /// <param name="user">The user whose reports to unblock.</param>
@@ -286,25 +428,36 @@ internal sealed class MessageReportService : BackgroundService
         _blockedReporters.AddRange(context.BlockedReporters);
 
         _reportedMessages.Clear();
-        await foreach (ReportedMessage reportedMessage in context.ReportedMessages)
+        _discordClient.GuildAvailable += OnGuildAvailable;
+    }
+
+    private async Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
+    {
+        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+
+        foreach (ReportedMessage reportedMessage in context.ReportedMessages.Where(r => r.GuildId == e.Guild.Id))
         {
-            if (!_discordClient.Guilds.TryGetValue(reportedMessage.GuildId, out DiscordGuild? guild))
-                continue;
-
-            try
-            {
-                DiscordChannel channel = guild.GetChannel(reportedMessage.ChannelId);
-                await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
-
-                _reportedMessages.Add(reportedMessage);
-            }
-            catch (NotFoundException)
+            DiscordChannel? channel = e.Guild.GetChannel(reportedMessage.ChannelId);
+            if (channel is null)
             {
                 context.Entry(reportedMessage).State = EntityState.Deleted;
             }
+            else
+            {
+                try
+                {
+                    await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
+                    _reportedMessages.Add(reportedMessage);
+                }
+                catch (NotFoundException)
+                {
+                    context.Entry(reportedMessage).State = EntityState.Deleted;
+                }
+            }
         }
 
-        await context.SaveChangesAsync(stoppingToken).ConfigureAwait(false);
+        await context.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)
