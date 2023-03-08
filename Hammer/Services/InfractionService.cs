@@ -519,16 +519,31 @@ internal sealed class InfractionService : BackgroundService
     ///     Returns all infractions for the specified guild.
     /// </summary>
     /// <param name="guild">The guild whose infractions to return.</param>
+    /// <param name="infractionType">Limits the result by only returning infractions whose type is equal to this value.</param>
     /// <returns>A read-only view of the list of <see cref="Infraction" /> objects held for <paramref name="guild" />.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
-    public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild)
+    public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild, InfractionType? infractionType = null)
     {
         ArgumentNullException.ThrowIfNull(guild);
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
 
-        return cache.ToArray();
+        if (!infractionType.HasValue)
+            return cache.ToArray();
+
+        var infractions = new Infraction[cache.Count];
+        var resultIndex = 0;
+
+        for (var index = 0; index < infractions.Length; index++)
+        {
+            Infraction infraction = cache[index];
+
+            if (infractionType.Value == infraction.Type)
+                infractions[resultIndex++] = infraction;
+        }
+
+        return new ArraySegment<Infraction>(infractions, 0, resultIndex);
     }
 
     /// <summary>
@@ -536,6 +551,7 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="user">The user whose infractions to return.</param>
     /// <param name="guild">The guild whose infractions to search.</param>
+    /// <param name="infractionType">Limits the result by only returning infractions whose type is equal to this value.</param>
     /// <returns>
     ///     A read-only view of the list of <see cref="Infraction" /> objects issued to <paramref name="user" /> in
     ///     <paramref name="guild" />.
@@ -545,7 +561,7 @@ internal sealed class InfractionService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public IReadOnlyList<Infraction> GetInfractions(DiscordUser user, DiscordGuild guild)
+    public IReadOnlyList<Infraction> GetInfractions(DiscordUser user, DiscordGuild guild, InfractionType? infractionType = null)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
@@ -562,7 +578,8 @@ internal sealed class InfractionService : BackgroundService
         {
             Infraction infraction = cache[index];
 
-            if (infraction.UserId == userId)
+            if (infraction.UserId != userId) continue;
+            if (!infractionType.HasValue || infractionType.Value == infraction.Type)
                 infractions[resultIndex++] = infraction;
         }
 
