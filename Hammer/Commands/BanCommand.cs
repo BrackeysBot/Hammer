@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
@@ -73,13 +73,13 @@ internal sealed class BanCommand : ApplicationCommandModule
             }
             else
             {
-                DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
+                var responseBuilder = new DiscordWebhookBuilder();
                 var embed = new DiscordEmbedBuilder();
                 embed.WithColor(DiscordColor.Red);
                 embed.WithTitle("⚠️ Error parsing duration");
                 embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
                                       "Accepted format is `#y #mo #w #d #h #m #s #ms`");
-                await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
+                await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
                 return;
             }
         }
