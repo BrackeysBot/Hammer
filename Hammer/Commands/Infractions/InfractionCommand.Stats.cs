@@ -30,30 +30,45 @@ internal sealed partial class InfractionCommand
             else
                 embed.WithColor(DiscordColor.Purple);
 
-            var totalInfractions = infractions.Count.ToString("N0");
-            var infractedUsers = infractions.DistinctBy(i => i.UserId).Count().ToString("N0");
-            var warnings = infractions.Count(i => i.Type is InfractionType.Warning).ToString("N0");
-            var gags = infractions.Count(i => i.Type is InfractionType.Gag).ToString("N0");
-            var kicks = infractions.Count(i => i.Type is InfractionType.Kick).ToString("N0");
-            var messagesDeleted = (await _messageDeletionService.CountMessageDeletionsAsync(context.Guild)).ToString("N0");
-            
+            int totalInfractions = infractions.Count;
+            Infraction[] distinctUserInfractions = infractions.DistinctBy(i => i.UserId).ToArray();
+
+            int infractedUsers = distinctUserInfractions.Length;
+            int warnedUsers = distinctUserInfractions.Count(i => i.Type == InfractionType.Warning);
+            int mutedUsers = distinctUserInfractions.Count(i => i.Type is InfractionType.Mute or InfractionType.TemporaryMute);
+            int bannedUsers = distinctUserInfractions.Count(i => i.Type is InfractionType.Ban or InfractionType.TemporaryBan);
+            int kickedUsers = distinctUserInfractions.Count(i => i.Type is InfractionType.Kick);
+            int gaggedUsers = distinctUserInfractions.Count(i => i.Type is InfractionType.Gag);
+
+            int warnings = infractions.Count(i => i.Type is InfractionType.Warning);
+            int gags = infractions.Count(i => i.Type is InfractionType.Gag);
+            int kicks = infractions.Count(i => i.Type is InfractionType.Kick);
+            int messagesDeleted = await _messageDeletionService.CountMessageDeletionsAsync(context.Guild);
+
             int tempMuteCount = infractions.Count(i => i.Type is InfractionType.TemporaryMute);
             int muteCount = infractions.Count(i => i.Type is InfractionType.Mute);
-            string mutes = $"{muteCount + tempMuteCount} ({tempMuteCount}T / {muteCount}P)";
-            
+            var mutes = $"{muteCount + tempMuteCount} ({tempMuteCount}T / {muteCount}P)";
+
             int tempBanCount = infractions.Count(i => i.Type is InfractionType.TemporaryBan);
             int banCount = infractions.Count(i => i.Type is InfractionType.Ban);
-            string bans = $"{banCount + tempBanCount} ({tempBanCount}T / {banCount}P)";
+            var bans = $"{banCount + tempBanCount} ({tempBanCount}T / {banCount}P)";
 
             embed.WithTitle("Infraction Statistics");
-            embed.AddField("Total Infractions", totalInfractions, true);
-            embed.AddField("Infracted Users", infractedUsers, true);
-            embed.AddField("Warnings", warnings, true);
+            embed.AddField("Total Infractions", totalInfractions.ToString("N0"));
+            
+            embed.AddField("Total Infracted Users", infractedUsers.ToString("N0"), true);
+            embed.AddField("Total Warned Users", warnedUsers.ToString("N0"), true);
+            embed.AddField("Total Muted Users", mutedUsers.ToString("N0"), true);
+            embed.AddField("Total Banned Users", bannedUsers.ToString("N0"), true);
+            embed.AddField("Total Kicked Users", kickedUsers.ToString("N0"), true);
+            embed.AddField("Total Gagged Users", gaggedUsers.ToString("N0"), true);
+            
+            embed.AddField("Warnings", warnings.ToString("N0"), true);
             embed.AddField("Mutes", mutes, true);
             embed.AddField("Bans", bans, true);
-            embed.AddField("Kicks", kicks, true);
-            embed.AddField("Gags", gags, true);
-            embed.AddField("Messages Deleted", messagesDeleted, true);
+            embed.AddField("Kicks", kicks.ToString("N0"), true);
+            embed.AddField("Gags", gags.ToString("N0"), true);
+            embed.AddField("Messages Deleted", messagesDeleted.ToString("N0"), true);
         }
 
         var builder = new DiscordWebhookBuilder();
