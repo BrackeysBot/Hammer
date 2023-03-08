@@ -109,7 +109,7 @@ internal sealed class BanService : BackgroundService
         string? reason,
         Rule? ruleBroken,
         bool clearHistory
-        )
+    )
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(issuer);
@@ -155,8 +155,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 
@@ -279,8 +280,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 
@@ -421,8 +423,9 @@ internal sealed class BanService : BackgroundService
         {
             _ = Task.Run(async () =>
             {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values.Concat(guild.Threads.Values);
-                channels = channels.Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
+                IEnumerable<DiscordChannel> channels = guild.Channels.Values
+                    .Concat(guild.Threads.Values)
+                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
 
                 var tasks = new List<Task>();
 
