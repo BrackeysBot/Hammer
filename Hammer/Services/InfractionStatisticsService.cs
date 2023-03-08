@@ -67,10 +67,18 @@ internal sealed class InfractionStatisticsService
         int usersWarnedCount = GetDistinctWarnedUsers(guild);
         int totalMessagesDeletedCount = await GetTotalDeletedMessageCountAsync(guild).ConfigureAwait(false);
 
-        (float A, float B) banRatio = Ratio(permBanCount, tempBanCount);
-        (float A, float B) muteRatio = Ratio(permMuteCount, tempMuteCount);
-        var banRatioFormatted = $"{permBanCount:N0} perm / {tempBanCount} temp ({banRatio.A:N} : {banRatio.B:N})";
-        var muteRatioFormatted = $"{permMuteCount:N0} perm / {tempMuteCount} temp ({muteRatio.A:N} : {muteRatio.B:N})";
+        (int A, int B) banRatio = Ratio(permBanCount, tempBanCount);
+        (int A, int B) muteRatio = Ratio(permMuteCount, tempMuteCount);
+        float minBan = Math.Min(banRatio.A, banRatio.B);
+        float maxBan = Math.Max(banRatio.A, banRatio.B);
+        float minMute = Math.Min(muteRatio.A, muteRatio.B);
+        float maxMute = Math.Max(muteRatio.A, muteRatio.B);
+
+        string banRatioFormatted = $"{permBanCount:N0} perm / {tempBanCount} temp\n" +
+                                   (banRatio.A > banRatio.B ? $"({maxBan / minBan} : 1)" : $"(1 : {maxBan / minBan:N2})");
+
+        string muteRatioFormatted = $"{permMuteCount:N0} perm / {tempMuteCount} temp\n" +
+                                    (muteRatio.A > muteRatio.B ? $"({maxMute / minMute} : 1)" : $"(1 : {maxMute / minMute:N2})");
 
         TimeSpan remainingBanTime = GetRemainingBanTime(guild);
         TimeSpan remainingMuteTime = GetRemainingMuteTime(guild);
