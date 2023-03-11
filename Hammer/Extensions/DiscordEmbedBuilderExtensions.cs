@@ -48,8 +48,9 @@ internal static class DiscordEmbedBuilderExtensions
         ArgumentNullException.ThrowIfNull(embedBuilder);
         ArgumentNullException.ThrowIfNull(guild);
 
-        embedBuilder.WithFooter(guild.Name, iconUrl: guild.GetIconUrl(ImageFormat.Png));
-        if (addThumbnail) embedBuilder.WithThumbnail(guild.GetIconUrl(ImageFormat.Png));
+        string iconUrl = guild.GetIconUrl(ImageFormat.Png);
+        embedBuilder.WithFooter(guild.Name, iconUrl: iconUrl);
+        if (addThumbnail) embedBuilder.WithThumbnail(iconUrl);
         return embedBuilder;
     }
 }
