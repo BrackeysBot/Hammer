@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using Hammer.Resources;
 
 namespace Hammer.Extensions;
@@ -47,8 +48,8 @@ internal static class DiscordEmbedBuilderExtensions
         ArgumentNullException.ThrowIfNull(embedBuilder);
         ArgumentNullException.ThrowIfNull(guild);
 
-        embedBuilder.WithFooter(guild.Name, iconUrl: guild.IconUrl);
-        if (addThumbnail) embedBuilder.WithThumbnail(guild.IconUrl);
+        embedBuilder.WithFooter(guild.Name, iconUrl: guild.GetIconUrl(ImageFormat.Png));
+        if (addThumbnail) embedBuilder.WithThumbnail(guild.GetIconUrl(ImageFormat.Png));
         return embedBuilder;
     }
 }
