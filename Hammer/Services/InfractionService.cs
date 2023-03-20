@@ -317,7 +317,7 @@ internal sealed class InfractionService : BackgroundService
         string BuildInfractionString(Infraction infraction, int index)
         {
             var builder = new StringBuilder();
-            string content = $"ID: {(response.StaffRequested ? infraction.Id : index + 1 + page * infractionsPerPage)}";
+            var content = $"ID: {(response.StaffRequested ? infraction.Id : index + 1 + page * infractionsPerPage)}";
 
             builder.Append(Formatter.Bold(content)).Append(" \u2022 ");
             builder.Append(infraction.Type.Humanize()).Append(" \u2022 ");
