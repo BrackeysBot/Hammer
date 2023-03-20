@@ -287,6 +287,7 @@ internal sealed class InfractionService : BackgroundService
 
         DiscordUser user = response.TargetUser;
         IReadOnlyList<Infraction> infractions = GetInfractions(user, response.Guild, searchOptions);
+        bool hasSearchQuery = !searchOptions.IsEmpty;
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
@@ -298,7 +299,11 @@ internal sealed class InfractionService : BackgroundService
         if (infractions.Count > 0)
         {
             if (page == 0)
-                embed.WithTitle($"__{"Infraction".ToQuantity(infractions.Count)} on record__");
+            {
+                embed.WithTitle(hasSearchQuery
+                    ? $"__{"result".ToQuantity(infractions.Count)}__"
+                    : $"__{"infraction".ToQuantity(infractions.Count)} on record__");
+            }
 
             embed.WithDescription(
                 string.Join('\n',
@@ -309,7 +314,7 @@ internal sealed class InfractionService : BackgroundService
         }
         else
         {
-            embed.WithTitle("✅ No infractions on record");
+            embed.WithDescription($"**✅ {(hasSearchQuery ? "Result returned no matches" : "No infractions on record")}**");
         }
 
         return embed;

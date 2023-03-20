@@ -18,6 +18,14 @@ public readonly struct InfractionSearchOptions
     public long? IdBefore { get; init; }
 
     /// <summary>
+    ///     Gets a value indicating whether the current search options are empty.
+    /// </summary>
+    /// <returns><see langword="true" /> if the options are empty; otherwise, <see langword="false" />.</returns>
+    public bool IsEmpty => !IdAfter.HasValue && !IdBefore.HasValue &&
+                           !IssuedAfter.HasValue && !IssuedBefore.HasValue &&
+                           !Type.HasValue;
+
+    /// <summary>
     ///     Gets or initializes a timestamp before which all infractions are ignored.
     /// </summary>
     /// <value>The before timestamp, or <see langword="null" /> to not filter by "after" date.</value>
