@@ -486,13 +486,14 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="user">The user whose infractions to count.</param>
     /// <param name="guild">The guild whose infractions to search.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <returns>The count of infractions for <paramref name="user" /> in <paramref name="guild" />.</returns>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="user" /> is <see langword="null" /></para>
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public int GetInfractionCount(DiscordUser user, DiscordGuild guild)
+    public int GetInfractionCount(DiscordUser user, DiscordGuild guild, InfractionSearchOptions searchOptions = default)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
@@ -506,7 +507,13 @@ internal sealed class InfractionService : BackgroundService
 
         for (var index = 0; index < count; index++)
         {
-            if (cache[index].UserId == userId)
+            Infraction infraction = cache[index];
+
+            if (searchOptions.Type is { } type && infraction.Type != type) continue;
+            if (searchOptions.IssuedAfter is { } minimum && infraction.IssuedAt < minimum) continue;
+            if (searchOptions.IssuedBefore is { } maximum && infraction.IssuedAt > maximum) continue;
+
+            if (infraction.UserId == userId)
                 total++;
         }
 
@@ -518,8 +525,9 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="userId">The ID of the user whose infractions to count.</param>
     /// <param name="guildId">The ID of the guild whose infractions to search.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <returns>The count of infractions for <paramref name="userId" /> in <paramref name="guildId" />.</returns>
-    public int GetInfractionCount(ulong userId, ulong guildId)
+    public int GetInfractionCount(ulong userId, ulong guildId, InfractionSearchOptions searchOptions = default)
     {
         if (!_infractionCache.TryGetValue(guildId, out List<Infraction>? cache))
             return 0;
@@ -529,7 +537,13 @@ internal sealed class InfractionService : BackgroundService
 
         for (var index = 0; index < count; index++)
         {
-            if (cache[index].UserId == userId)
+            Infraction infraction = cache[index];
+
+            if (searchOptions.Type is { } type && infraction.Type != type) continue;
+            if (searchOptions.IssuedAfter is { } minimum && infraction.IssuedAt < minimum) continue;
+            if (searchOptions.IssuedBefore is { } maximum && infraction.IssuedAt > maximum) continue;
+
+            if (infraction.UserId == userId)
                 total++;
         }
 

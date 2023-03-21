@@ -9,6 +9,7 @@ namespace Hammer.Data;
 internal sealed class InfractionHistoryResponse
 {
     private readonly InfractionService _infractionService;
+    private readonly InfractionSearchOptions _searchOptions;
 
     private int _page;
 
@@ -22,6 +23,7 @@ internal sealed class InfractionHistoryResponse
     /// <param name="staffRequested">
     ///     <see langword="true" /> if a staff member requested the history; otherwise, <see langword="false" />.
     /// </param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <exception cref="ArgumentNullException">
     ///     <para><paramref name="infractionService" /> is <see langword="null" />.</para>
     ///     -or-
@@ -34,7 +36,8 @@ internal sealed class InfractionHistoryResponse
         DiscordUser targetUser,
         DiscordUser user,
         DiscordGuild guild,
-        bool staffRequested
+        bool staffRequested,
+        InfractionSearchOptions searchOptions = default
     )
     {
         ArgumentNullException.ThrowIfNull(infractionService);
@@ -43,6 +46,7 @@ internal sealed class InfractionHistoryResponse
         ArgumentNullException.ThrowIfNull(guild);
 
         _infractionService = infractionService;
+        _searchOptions = searchOptions;
         TargetUser = targetUser;
         User = user;
         Guild = guild;
@@ -65,7 +69,7 @@ internal sealed class InfractionHistoryResponse
     ///     Gets the count of infractions for <see cref="TargetUser" />.
     /// </summary>
     /// <value>The infraction count.</value>
-    public int InfractionCount => _infractionService.GetInfractionCount(TargetUser, Guild);
+    public int InfractionCount => _infractionService.GetInfractionCount(TargetUser, Guild, _searchOptions);
 
     /// <summary>
     ///     Gets or sets the zero-based page index of infractions to display.
