@@ -6,6 +6,7 @@ using DSharpPlus.Exceptions;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
+using Hammer.Resources;
 using Humanizer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -264,17 +265,33 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="response">The infraction history response.</param>
     /// <param name="page">The zero-based page index of infractions to create.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <returns>A new instance of <see cref="DiscordEmbedBuilder" /> containing the infraction history.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="response" /> is <see langword="null" />.<</exception>
-    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(InfractionHistoryResponse response, int page)
+    /// <exception cref="ArgumentNullException"><paramref name="response" /> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="searchOptions" /> contains invalid property values.</exception>
+    public DiscordEmbedBuilder BuildInfractionHistoryEmbed(
+        InfractionHistoryResponse response,
+        int page,
+        InfractionSearchOptions searchOptions = default
+    )
     {
         ArgumentNullException.ThrowIfNull(response);
 
-        IReadOnlyList<Infraction> infractions = GetInfractions(response.TargetUser, response.Guild);
+        switch (searchOptions)
+        {
+            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+                throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
+            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+                throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
+        }
+
+        DiscordUser user = response.TargetUser;
+        IReadOnlyList<Infraction> infractions = GetInfractions(user, response.Guild, searchOptions);
+        bool hasSearchQuery = !searchOptions.IsEmpty;
 
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
-        embed.WithAuthor(response.TargetUser);
+        embed.WithAuthor(user);
 
         const int infractionsPerPage = 10;
         page = (int) Math.Clamp(page, 0, MathF.Ceiling(infractions.Count / 10.0f));
@@ -282,7 +299,11 @@ internal sealed class InfractionService : BackgroundService
         if (infractions.Count > 0)
         {
             if (page == 0)
-                embed.WithTitle($"__{"Infraction".ToQuantity(infractions.Count)} on record__");
+            {
+                embed.WithTitle(hasSearchQuery
+                    ? $"__{"result".ToQuantity(infractions.Count)}__"
+                    : $"__{"infraction".ToQuantity(infractions.Count)} on record__");
+            }
 
             embed.WithDescription(
                 string.Join('\n',
@@ -293,7 +314,7 @@ internal sealed class InfractionService : BackgroundService
         }
         else
         {
-            embed.WithTitle("✅ No infractions on record");
+            embed.WithDescription($"**✅ {(hasSearchQuery ? "Result returned no matches" : "No infractions on record")}**");
         }
 
         return embed;
@@ -301,7 +322,7 @@ internal sealed class InfractionService : BackgroundService
         string BuildInfractionString(Infraction infraction, int index)
         {
             var builder = new StringBuilder();
-            string content = $"ID: {(response.StaffRequested ? infraction.Id : index + 1 + page * infractionsPerPage)}";
+            var content = $"ID: {(response.StaffRequested ? infraction.Id : index + 1 + page * infractionsPerPage)}";
 
             builder.Append(Formatter.Bold(content)).Append(" \u2022 ");
             builder.Append(infraction.Type.Humanize()).Append(" \u2022 ");
@@ -519,18 +540,24 @@ internal sealed class InfractionService : BackgroundService
     ///     Returns all infractions for the specified guild.
     /// </summary>
     /// <param name="guild">The guild whose infractions to return.</param>
-    /// <param name="infractionType">Limits the result by only returning infractions whose type is equal to this value.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <returns>A read-only view of the list of <see cref="Infraction" /> objects held for <paramref name="guild" />.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
-    public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild, InfractionType? infractionType = null)
+    /// <exception cref="ArgumentException"><paramref name="searchOptions" /> contains invalid property values.</exception>
+    public IReadOnlyList<Infraction> GetInfractions(DiscordGuild guild, InfractionSearchOptions searchOptions = default)
     {
         ArgumentNullException.ThrowIfNull(guild);
 
+        switch (searchOptions)
+        {
+            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+                throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
+            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+                throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
+        }
+
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
-
-        if (!infractionType.HasValue)
-            return cache.ToArray();
 
         var infractions = new Infraction[cache.Count];
         var resultIndex = 0;
@@ -539,8 +566,11 @@ internal sealed class InfractionService : BackgroundService
         {
             Infraction infraction = cache[index];
 
-            if (infractionType.Value == infraction.Type)
-                infractions[resultIndex++] = infraction;
+            if (searchOptions.Type is { } type && infraction.Type != type) continue;
+            if (searchOptions.IssuedAfter is { } minimum && infraction.IssuedAt < minimum) continue;
+            if (searchOptions.IssuedBefore is { } maximum && infraction.IssuedAt > maximum) continue;
+
+            infractions[resultIndex++] = infraction;
         }
 
         return new ArraySegment<Infraction>(infractions, 0, resultIndex);
@@ -551,7 +581,7 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="user">The user whose infractions to return.</param>
     /// <param name="guild">The guild whose infractions to search.</param>
-    /// <param name="infractionType">Limits the result by only returning infractions whose type is equal to this value.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
     /// <returns>
     ///     A read-only view of the list of <see cref="Infraction" /> objects issued to <paramref name="user" /> in
     ///     <paramref name="guild" />.
@@ -561,10 +591,23 @@ internal sealed class InfractionService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public IReadOnlyList<Infraction> GetInfractions(DiscordUser user, DiscordGuild guild, InfractionType? infractionType = null)
+    /// <exception cref="ArgumentException"><paramref name="searchOptions" /> contains invalid property values.</exception>
+    public IReadOnlyList<Infraction> GetInfractions(
+        DiscordUser user,
+        DiscordGuild guild,
+        InfractionSearchOptions searchOptions = default
+    )
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
+
+        switch (searchOptions)
+        {
+            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+                throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
+            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+                throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
+        }
 
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
@@ -579,8 +622,11 @@ internal sealed class InfractionService : BackgroundService
             Infraction infraction = cache[index];
 
             if (infraction.UserId != userId) continue;
-            if (!infractionType.HasValue || infractionType.Value == infraction.Type)
-                infractions[resultIndex++] = infraction;
+            if (searchOptions.Type is { } type && infraction.Type != type) continue;
+            if (searchOptions.IssuedAfter is { } minimum && infraction.IssuedAt < minimum) continue;
+            if (searchOptions.IssuedBefore is { } maximum && infraction.IssuedAt > maximum) continue;
+
+            infractions[resultIndex++] = infraction;
         }
 
         return new ArraySegment<Infraction>(infractions, 0, resultIndex);

@@ -137,9 +137,12 @@ Issues a warning to a user. This creates an infraction on the user's record.
 
 Displays all infractions for a user.
 
-| Parameter | Required | Type               | Description                         |
-|:----------|:---------|:-------------------|:------------------------------------|
-| user      | ✅ Yes    | User mention or ID | The user whose infractions to view. |
+| Parameter | Required | Type                       | Description                                               |
+|:----------|:---------|:---------------------------|:----------------------------------------------------------|
+| user      | ✅ Yes    | User mention or ID         | The user whose infractions to view.                       |
+| after     | ❌ No     | ID, Timestamp, or TimeSpan | Returns only infractions after the specified ID or date.  |
+| before    | ❌ No     | ID, Timestamp, or TimeSpan | Returns only infractions before the specified ID or date. |
+| type      | ❌ No     | InfractionType             | Returns only infractions of the specified type.           |
 
 ### `/infraction clear`
 
@@ -179,9 +182,9 @@ Moves all infractions from a one user to another user. **This operation maintain
 
 Removes all infractions from the database for users which no longer exist. **⚠️ This process is slow, use sparingly!**
 
-| Parameter   | Required | Type               | Description                                |
-|:------------|:---------|:-------------------|:-------------------------------------------|
-| -           | -        | -                  | -                                          |
+| Parameter | Required | Type | Description |
+|:----------|:---------|:-----|:------------|
+| -         | -        | -    | -           |
 
 ### `/infraction view`
 

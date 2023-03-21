@@ -72,7 +72,6 @@ public sealed class DiscordModal
             return Task.CompletedTask;
 
         _discordClient.ModalSubmitted -= OnModalSubmitted;
-        e.Handled = true;
 
         IEnumerable<DiscordComponent> components = e.Interaction.Data.Components.SelectMany(c => c.Components);
         IEnumerable<TextInputComponent> inputComponents = components.OfType<TextInputComponent>();

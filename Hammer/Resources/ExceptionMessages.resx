@@ -30,6 +30,12 @@
     <data name="MessageStaffMemberGuildMismatch" xml:space="preserve">
         <value>Message does not appear in the same guild as the staff member.</value>
     </data>
+    <data name="MinIdGreaterThanMaxId" xml:space="preserve">
+        <value>Min ID cannot be less than max ID.</value>
+    </data>
+    <data name="MinDateGreaterThanMaxDate" xml:space="preserve">
+        <value>Min date cannot be less than max date.</value>
+    </data>
     <data name="ModeratorCannotPermanentlyMute" xml:space="preserve">
         <value>Issuer cannot indefinitely mute user because they are a moderator, and the maximum moderator mute duration is set.</value>
     </data>
