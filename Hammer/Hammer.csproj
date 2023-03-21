@@ -28,9 +28,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DSharpPlus" Version="4.4.0-nightly-01429"/>
-        <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.0-nightly-01429"/>
-        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.0-nightly-01429"/>
+        <PackageReference Include="DSharpPlus" Version="4.4.0-nightly-01436"/>
+        <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.0-nightly-01436"/>
+        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.0-nightly-01436"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
             <PrivateAssets>all</PrivateAssets>
