@@ -342,3 +342,44 @@ No substantial changes. Commit 3b8259a6cfb82ec0f5f51804c1ac7f1f5880d014 fixed an
 ### Added
 
 - Hammer is released.
+
+[5.1.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.1.1
+[5.1.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.1.0
+[5.0.4]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.4
+[5.0.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.3
+[5.0.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.2
+[5.0.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.1
+[5.0.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.0
+[4.1.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v4.1.0
+[4.0.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v4.0.1
+[4.0.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v4.0.0
+[3.2.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.2.0
+[3.1.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.1.1
+[3.1.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.1.0
+[3.0.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.0.3
+[3.0.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.0.2
+[3.0.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.0.1
+[3.0.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v3.0.0
+[2.7.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.7.0
+[2.6.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.6.2
+[2.6.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.6.1
+[2.6.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.6.0
+[2.5.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.5.3
+[2.5.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.5.2
+[2.5.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.5.1
+[2.5.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.5.0
+[2.4.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.4.1
+[2.4.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.4.0
+[2.3.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.3.0
+[2.2.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.2.3
+[2.2.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.2.2
+[2.2.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.2.1
+[2.2.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.2.0
+[2.1.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.1.0
+[2.0.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.0.1
+[2.0.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v2.0.0
+[1.0.4]: https://github.com/BrackeysBot/Hammer/releases/tag/v1.0.4
+[1.0.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v1.0.3
+[1.0.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v1.0.2
+[1.0.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v1.0.1
+[1.0.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v1.0.0
