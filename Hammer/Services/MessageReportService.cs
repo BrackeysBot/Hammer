@@ -119,9 +119,9 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="member">The member whose received reports to retrieve.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordMember member)
+    public IEnumerable<ReportedMessage> EnumerateReports(DiscordMember member)
     {
-        return EnumerateReportsAsync(member, member.Guild);
+        return EnumerateReports(member, member.Guild);
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="user">The user whose received reports to retrieve.</param>
     /// <param name="guild">The guild whose reports to search.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public async IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IEnumerable<ReportedMessage> EnumerateReports(DiscordUser user, DiscordGuild guild)
     {
         foreach (ReportedMessage reportedMessage in _reportedMessages)
         {
@@ -144,9 +144,9 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="member">The member whose submitted reports to retrieve.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordMember member)
+    public IEnumerable<ReportedMessage> EnumerateSubmittedReports(DiscordMember member)
     {
-        return EnumerateSubmittedReportsAsync(member, member.Guild);
+        return EnumerateSubmittedReports(member, member.Guild);
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="user">The user whose submitted reports to retrieve.</param>
     /// <param name="guild">The guild whose reports to search.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public async IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IEnumerable<ReportedMessage> EnumerateSubmittedReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
@@ -185,10 +185,10 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="member">The member whose received reports to retrieve.</param>
     /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
-    public Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordMember member)
+    public IReadOnlyList<ReportedMessage> GetReports(DiscordMember member)
     {
         ArgumentNullException.ThrowIfNull(member);
-        return GetReportsAsync(member, member.Guild);
+        return GetReports(member, member.Guild);
     }
 
     /// <summary>
@@ -202,14 +202,14 @@ internal sealed class MessageReportService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IReadOnlyList<ReportedMessage> GetReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
         var list = new List<ReportedMessage>();
 
-        await foreach (ReportedMessage reportedMessage in EnumerateReportsAsync(user, guild).ConfigureAwait(false))
+        foreach (ReportedMessage reportedMessage in EnumerateReports(user, guild))
             list.Add(reportedMessage);
 
         return list.AsReadOnly();
@@ -221,10 +221,10 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="member">The member whose submitted reports to retrieve.</param>
     /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
-    public Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordMember member)
+    public IReadOnlyList<ReportedMessage> GetSubmittedReports(DiscordMember member)
     {
         ArgumentNullException.ThrowIfNull(member);
-        return GetSubmittedReportsAsync(member, member.Guild);
+        return GetSubmittedReports(member, member.Guild);
     }
 
     /// <summary>
@@ -238,14 +238,14 @@ internal sealed class MessageReportService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IReadOnlyList<ReportedMessage> GetSubmittedReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
         var list = new List<ReportedMessage>();
 
-        await foreach (ReportedMessage reportedMessage in EnumerateSubmittedReportsAsync(user, guild).ConfigureAwait(false))
+        foreach (ReportedMessage reportedMessage in EnumerateSubmittedReports(user, guild))
             list.Add(reportedMessage);
 
         return list.AsReadOnly();
