@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- `clearMessageHistory` is now honoured when `/ban` is issued against a user. (#62)
+
 ### Changed
 
-- Report enumerations are no longer async. This should mildly (though negligibly) improve performance as we no longer allocate an async state machine.
+- Report enumerations are no longer async. This should mildly (though negligibly) improve performance as we no longer allocate an
+  async state machine.
 
 ## [5.1.1] - 2023-03-21
 

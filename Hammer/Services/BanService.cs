@@ -149,31 +149,7 @@ internal sealed class BanService : BackgroundService
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
 
-        await guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
-
-        if (clearHistory)
-        {
-            _ = Task.Run(async () =>
-            {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values
-                    .Concat(guild.Threads.Values)
-                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
-
-                var tasks = new List<Task>();
-
-                foreach (DiscordChannel channel in channels)
-                {
-                    var messagesToDelete = new List<DiscordMessage>();
-                    IReadOnlyList<DiscordMessage> messages = await channel.GetMessagesAsync().ConfigureAwait(false);
-                    messagesToDelete.AddRange(messages.Where(m => m.Author.Id == user.Id));
-                    if (messagesToDelete.Count > 0)
-                        tasks.Add(channel.DeleteMessagesAsync(messagesToDelete, "User was banned"));
-                }
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            });
-        }
-
+        await guild.BanMemberAsync(user.Id, reason: reason, delete_message_days: clearHistory ? 7 : 0).ConfigureAwait(false);
         return (infraction, success);
     }
 
