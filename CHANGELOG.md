@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.2.0] - 2023-03-25
 
 ### Fixed
 
@@ -13,8 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Slight performance increase for some infraction operations.
 - Report enumerations are no longer async. This should mildly (though negligibly) improve performance as we no longer allocate an
   async state machine.
+- Services now inject an `ILogger` rather than having a static NLog `Logger` in the class.
 
 ## [5.1.1] - 2023-03-21
 
@@ -354,6 +356,7 @@ No substantial changes. Commit 3b8259a6cfb82ec0f5f51804c1ac7f1f5880d014 fixed an
 
 - Hammer is released.
 
+[5.2.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.2.0
 [5.1.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.1.1
 [5.1.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.1.0
 [5.0.4]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.0.4
