@@ -764,6 +764,14 @@ internal sealed class InfractionService : BackgroundService
     }
 
     /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= OnGuildAvailable;
+        _discordClient.GuildUnavailable -= OnGuildUnavailable;
+        return base.StopAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _discordClient.GuildAvailable += OnGuildAvailable;

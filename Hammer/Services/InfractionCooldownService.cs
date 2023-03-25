@@ -133,6 +133,15 @@ internal sealed class InfractionCooldownService : BackgroundService
         }
     }
 
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cooldownTimer.Elapsed -= CooldownTimer_Elapsed;
+        _cooldownTimer.Stop();
+
+        return base.StopAsync(cancellationToken);
+    }
+
     /// <summary>
     ///     Stops the cooldown for the specified user.
     /// </summary>

@@ -130,6 +130,16 @@ internal sealed class MessageTrackingService : BackgroundService
     }
 
     /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= DiscordClientOnGuildAvailable;
+        _discordClient.MessageDeleted -= DiscordClientOnMessageDeleted;
+        _discordClient.MessageUpdated -= DiscordClientOnMessageUpdated;
+
+        return base.StopAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _discordClient.GuildAvailable += DiscordClientOnGuildAvailable;

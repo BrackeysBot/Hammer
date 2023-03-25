@@ -355,6 +355,13 @@ internal sealed class MessageReportService : BackgroundService
         return true;
     }
 
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= OnGuildAvailable;
+        return base.StopAsync(cancellationToken);
+    }
+
     /// <summary>
     ///     Returns the count of reports on a specified message.
     /// </summary>

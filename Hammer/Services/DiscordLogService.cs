@@ -58,6 +58,13 @@ internal sealed class DiscordLogService : BackgroundService
         }
     }
 
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= OnGuildAvailable;
+        return base.StopAsync(cancellationToken);
+    }
+
     /// <summary>
     ///     Gets the log channel for a specified guild.
     /// </summary>

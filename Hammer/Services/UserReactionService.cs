@@ -32,6 +32,13 @@ internal sealed class UserReactionService : BackgroundService
     }
 
     /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.MessageReactionAdded -= DiscordClientOnMessageReactionAdded;
+        return base.StopAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _discordClient.MessageReactionAdded += DiscordClientOnMessageReactionAdded;

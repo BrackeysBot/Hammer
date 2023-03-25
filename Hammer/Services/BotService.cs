@@ -4,6 +4,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using Hammer.Commands;
 using Hammer.Commands.Infractions;
 using Hammer.Commands.Notes;
@@ -58,6 +59,7 @@ internal sealed class BotService : BackgroundService
     /// <inheritdoc />
     public override Task StopAsync(CancellationToken cancellationToken)
     {
+        UnregisterEvents(_discordClient.GetSlashCommands());
         return Task.WhenAll(_discordClient.DisconnectAsync(), base.StopAsync(cancellationToken));
     }
 
@@ -104,80 +106,90 @@ internal sealed class BotService : BackgroundService
 
     private static void RegisterEvents(SlashCommandsExtension slashCommands)
     {
-        slashCommands.AutocompleteErrored += (_, args) =>
+        slashCommands.AutocompleteErrored += OnAutocompleteErrored;
+        slashCommands.ContextMenuErrored += OnContextMenuErrored;
+        slashCommands.ContextMenuInvoked += OnContextMenuInvoked;
+        slashCommands.SlashCommandErrored += OnSlashCommandErrored;
+        slashCommands.SlashCommandInvoked += OnSlashCommandInvoked;
+    }
+
+    private static void UnregisterEvents(SlashCommandsExtension slashCommands)
+    {
+        slashCommands.AutocompleteErrored -= OnAutocompleteErrored;
+        slashCommands.ContextMenuErrored -= OnContextMenuErrored;
+        slashCommands.ContextMenuInvoked -= OnContextMenuInvoked;
+        slashCommands.SlashCommandErrored -= OnSlashCommandErrored;
+        slashCommands.SlashCommandInvoked -= OnSlashCommandInvoked;
+    }
+
+    private static Task OnAutocompleteErrored(SlashCommandsExtension _, AutocompleteErrorEventArgs args)
+    {
+        Logger.Error(args.Exception, "An exception was thrown when performing autocomplete");
+        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
+
+        return Task.CompletedTask;
+    }
+
+    private static Task OnContextMenuErrored(SlashCommandsExtension _, ContextMenuErrorEventArgs args)
+    {
+        ContextMenuContext context = args.Context;
+        if (args.Exception is ContextMenuExecutionChecksFailedException)
         {
-            Logger.Error(args.Exception, "An exception was thrown when performing autocomplete");
-            if (args.Exception is DiscordException discordException)
-                Logger.Error($"API response: {discordException.JsonMessage}");
+            context.CreateResponseAsync("You do not have permission to use this command.", true);
+            return Task.CompletedTask; // no need to log ChecksFailedException
+        }
 
-            return Task.CompletedTask;
-        };
+        string? name = context.Interaction.Data.Name;
+        Logger.Error(args.Exception, $"An exception was thrown when executing context menu '{name}'");
+        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
 
-        slashCommands.SlashCommandInvoked += (_, args) =>
+        return Task.CompletedTask;
+    }
+
+    private static Task OnContextMenuInvoked(SlashCommandsExtension _, ContextMenuInvokedEventArgs args)
+    {
+        DiscordInteractionResolvedCollection? resolved = args.Context.Interaction?.Data?.Resolved;
+        var properties = new List<string>();
+        if (resolved?.Attachments?.Count > 0)
+            properties.Add($"attachments: {string.Join(", ", resolved.Attachments.Select(a => a.Value.Url))}");
+        if (resolved?.Channels?.Count > 0)
+            properties.Add($"channels: {string.Join(", ", resolved.Channels.Select(c => c.Value.Name))}");
+        if (resolved?.Members?.Count > 0)
+            properties.Add($"members: {string.Join(", ", resolved.Members.Select(m => m.Value.Id))}");
+        if (resolved?.Messages?.Count > 0)
+            properties.Add($"messages: {string.Join(", ", resolved.Messages.Select(m => m.Value.Id))}");
+        if (resolved?.Roles?.Count > 0) properties.Add($"roles: {string.Join(", ", resolved.Roles.Select(r => r.Value.Id))}");
+        if (resolved?.Users?.Count > 0) properties.Add($"users: {string.Join(", ", resolved.Users.Select(r => r.Value.Id))}");
+
+        Logger.Info($"{args.Context.User} invoked context menu '{args.Context.CommandName}' with resolved " +
+                    string.Join("; ", properties));
+
+        return Task.CompletedTask;
+    }
+
+    private static Task OnSlashCommandErrored(SlashCommandsExtension _, SlashCommandErrorEventArgs args)
+    {
+        InteractionContext context = args.Context;
+        if (args.Exception is SlashExecutionChecksFailedException)
         {
-            var optionsString = "";
-            if (args.Context.Interaction?.Data?.Options is { } options)
-                optionsString = $" {string.Join(" ", options.Select(o => $"{o?.Name}: '{o?.Value}'"))}";
+            context.CreateResponseAsync("You do not have permission to use this command.", true);
+            return Task.CompletedTask; // no need to log SlashExecutionChecksFailedException
+        }
 
-            Logger.Info($"{args.Context.User} ran slash command /{args.Context.CommandName}{optionsString}");
-            return Task.CompletedTask;
-        };
+        string? name = context.Interaction.Data.Name;
+        Logger.Error(args.Exception, $"An exception was thrown when executing slash command '{name}'");
+        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
 
-        slashCommands.ContextMenuInvoked += (_, args) =>
-        {
-            DiscordInteractionResolvedCollection? resolved = args.Context.Interaction?.Data?.Resolved;
-            var properties = new List<string>();
-            if (resolved?.Attachments?.Count > 0)
-                properties.Add($"attachments: {string.Join(", ", resolved.Attachments.Select(a => a.Value.Url))}");
-            if (resolved?.Channels?.Count > 0)
-                properties.Add($"channels: {string.Join(", ", resolved.Channels.Select(c => c.Value.Name))}");
-            if (resolved?.Members?.Count > 0)
-                properties.Add($"members: {string.Join(", ", resolved.Members.Select(m => m.Value.Id))}");
-            if (resolved?.Messages?.Count > 0)
-                properties.Add($"messages: {string.Join(", ", resolved.Messages.Select(m => m.Value.Id))}");
-            if (resolved?.Roles?.Count > 0)
-                properties.Add($"roles: {string.Join(", ", resolved.Roles.Select(r => r.Value.Id))}");
-            if (resolved?.Users?.Count > 0)
-                properties.Add($"users: {string.Join(", ", resolved.Users.Select(r => r.Value.Id))}");
+        return Task.CompletedTask;
+    }
 
-            Logger.Info($"{args.Context.User} invoked context menu '{args.Context.CommandName}' with resolved " +
-                        string.Join("; ", properties));
+    private static Task OnSlashCommandInvoked(SlashCommandsExtension _, SlashCommandInvokedEventArgs args)
+    {
+        var optionsString = "";
+        if (args.Context.Interaction?.Data?.Options is { } options)
+            optionsString = $" {string.Join(" ", options.Select(o => $"{o?.Name}: '{o?.Value}'"))}";
 
-            return Task.CompletedTask;
-        };
-
-        slashCommands.ContextMenuErrored += (_, args) =>
-        {
-            ContextMenuContext context = args.Context;
-            if (args.Exception is ContextMenuExecutionChecksFailedException)
-            {
-                context.CreateResponseAsync("You do not have permission to use this command.", true);
-                return Task.CompletedTask; // no need to log ChecksFailedException
-            }
-
-            string? name = context.Interaction.Data.Name;
-            Logger.Error(args.Exception, $"An exception was thrown when executing context menu '{name}'");
-            if (args.Exception is DiscordException discordException)
-                Logger.Error($"API response: {discordException.JsonMessage}");
-
-            return Task.CompletedTask;
-        };
-
-        slashCommands.SlashCommandErrored += (_, args) =>
-        {
-            InteractionContext context = args.Context;
-            if (args.Exception is SlashExecutionChecksFailedException)
-            {
-                context.CreateResponseAsync("You do not have permission to use this command.", true);
-                return Task.CompletedTask; // no need to log SlashExecutionChecksFailedException
-            }
-
-            string? name = context.Interaction.Data.Name;
-            Logger.Error(args.Exception, $"An exception was thrown when executing slash command '{name}'");
-            if (args.Exception is DiscordException discordException)
-                Logger.Error($"API response: {discordException.JsonMessage}");
-
-            return Task.CompletedTask;
-        };
+        Logger.Info($"{args.Context.User} ran slash command /{args.Context.CommandName}{optionsString}");
+        return Task.CompletedTask;
     }
 }
