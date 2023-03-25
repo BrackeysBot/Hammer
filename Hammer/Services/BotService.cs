@@ -12,8 +12,7 @@ using Hammer.Commands.Reports;
 using Hammer.Commands.Rules;
 using Hammer.Commands.V3Migration;
 using Microsoft.Extensions.Hosting;
-using NLog;
-using ILogger = NLog.ILogger;
+using Microsoft.Extensions.Logging;
 
 namespace Hammer.Services;
 
@@ -22,18 +21,19 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class BotService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
+    private readonly ILogger<BotService> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly DiscordClient _discordClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BotService" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="serviceProvider">The service provider.</param>
     /// <param name="discordClient">The Discord client.</param>
-    public BotService(IServiceProvider serviceProvider, DiscordClient discordClient)
+    public BotService(ILogger<BotService> logger, IServiceProvider serviceProvider, DiscordClient discordClient)
     {
+        _logger = logger;
         _serviceProvider = serviceProvider;
         _discordClient = discordClient;
 
@@ -56,7 +56,7 @@ internal sealed class BotService : BackgroundService
     /// <inheritdoc />
     public override Task StopAsync(CancellationToken cancellationToken)
     {
-        UnregisterEvents(_discordClient.GetSlashCommands());
+        UnregisterEvents();
         return Task.WhenAll(_discordClient.DisconnectAsync(), base.StopAsync(cancellationToken));
     }
 
@@ -64,7 +64,7 @@ internal sealed class BotService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         StartedAt = DateTimeOffset.UtcNow;
-        Logger.Info($"Hammer v{Version} is starting...");
+        _logger.LogInformation("Hammer v{Version} is starting", Version);
 
         _discordClient.UseInteractivity();
 
@@ -73,7 +73,7 @@ internal sealed class BotService : BackgroundService
             Services = _serviceProvider
         });
 
-        Logger.Info("Registering commands...");
+        _logger.LogInformation("Registering commands");
         slashCommands.RegisterCommands<BanCommand>();
         slashCommands.RegisterCommands<DeleteMessageCommand>();
         slashCommands.RegisterCommands<GagCommand>();
@@ -95,14 +95,15 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<UnmuteCommand>();
         slashCommands.RegisterCommands<ViewMessageCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
-        RegisterEvents(slashCommands);
-
-        Logger.Info("Connecting to Discord...");
+        RegisterEvents();
+        
+        _logger.LogInformation("Connecting to Discord");
         await _discordClient.ConnectAsync().ConfigureAwait(false);
     }
 
-    private static void RegisterEvents(SlashCommandsExtension slashCommands)
+    private void RegisterEvents()
     {
+        SlashCommandsExtension slashCommands = _discordClient.GetSlashCommands();
         slashCommands.AutocompleteErrored += OnAutocompleteErrored;
         slashCommands.ContextMenuErrored += OnContextMenuErrored;
         slashCommands.ContextMenuInvoked += OnContextMenuInvoked;
@@ -110,8 +111,9 @@ internal sealed class BotService : BackgroundService
         slashCommands.SlashCommandInvoked += OnSlashCommandInvoked;
     }
 
-    private static void UnregisterEvents(SlashCommandsExtension slashCommands)
+    private void UnregisterEvents()
     {
+        SlashCommandsExtension slashCommands = _discordClient.GetSlashCommands();
         slashCommands.AutocompleteErrored -= OnAutocompleteErrored;
         slashCommands.ContextMenuErrored -= OnContextMenuErrored;
         slashCommands.ContextMenuInvoked -= OnContextMenuInvoked;
@@ -119,15 +121,16 @@ internal sealed class BotService : BackgroundService
         slashCommands.SlashCommandInvoked -= OnSlashCommandInvoked;
     }
 
-    private static Task OnAutocompleteErrored(SlashCommandsExtension _, AutocompleteErrorEventArgs args)
+    private Task OnAutocompleteErrored(SlashCommandsExtension _, AutocompleteErrorEventArgs args)
     {
-        Logger.Error(args.Exception, "An exception was thrown when performing autocomplete");
-        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
+        _logger.LogError(args.Exception, "An exception was thrown when performing autocomplete");
+        if (args.Exception is DiscordException discordException)
+            _logger.LogError("API response: {Response}", discordException.JsonMessage);
 
         return Task.CompletedTask;
     }
 
-    private static Task OnContextMenuErrored(SlashCommandsExtension _, ContextMenuErrorEventArgs args)
+    private Task OnContextMenuErrored(SlashCommandsExtension _, ContextMenuErrorEventArgs args)
     {
         ContextMenuContext context = args.Context;
         if (args.Exception is ContextMenuExecutionChecksFailedException)
@@ -137,15 +140,17 @@ internal sealed class BotService : BackgroundService
         }
 
         string? name = context.Interaction.Data.Name;
-        Logger.Error(args.Exception, $"An exception was thrown when executing context menu '{name}'");
-        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
+        _logger.LogError(args.Exception, "An exception was thrown when executing context menu '{Name}'", name);
+        if (args.Exception is DiscordException discordException)
+            _logger.LogError("API response: {Response}", discordException.JsonMessage);
 
         return Task.CompletedTask;
     }
 
-    private static Task OnContextMenuInvoked(SlashCommandsExtension _, ContextMenuInvokedEventArgs args)
+    private Task OnContextMenuInvoked(SlashCommandsExtension _, ContextMenuInvokedEventArgs args)
     {
-        DiscordInteractionResolvedCollection? resolved = args.Context.Interaction?.Data?.Resolved;
+        ContextMenuContext context = args.Context;
+        DiscordInteractionResolvedCollection? resolved = context.Interaction?.Data?.Resolved;
         var properties = new List<string>();
         if (resolved?.Attachments?.Count > 0)
             properties.Add($"attachments: {string.Join(", ", resolved.Attachments.Select(a => a.Value.Url))}");
@@ -158,13 +163,13 @@ internal sealed class BotService : BackgroundService
         if (resolved?.Roles?.Count > 0) properties.Add($"roles: {string.Join(", ", resolved.Roles.Select(r => r.Value.Id))}");
         if (resolved?.Users?.Count > 0) properties.Add($"users: {string.Join(", ", resolved.Users.Select(r => r.Value.Id))}");
 
-        Logger.Info($"{args.Context.User} invoked context menu '{args.Context.CommandName}' with resolved " +
-                    string.Join("; ", properties));
+        _logger.LogInformation("{User} invoked context menu {Command} with resolved {Properties}", context.User,
+            context.CommandName, string.Join("; ", properties));
 
         return Task.CompletedTask;
     }
 
-    private static Task OnSlashCommandErrored(SlashCommandsExtension _, SlashCommandErrorEventArgs args)
+    private Task OnSlashCommandErrored(SlashCommandsExtension _, SlashCommandErrorEventArgs args)
     {
         InteractionContext context = args.Context;
         if (args.Exception is SlashExecutionChecksFailedException)
@@ -174,19 +179,21 @@ internal sealed class BotService : BackgroundService
         }
 
         string? name = context.Interaction.Data.Name;
-        Logger.Error(args.Exception, $"An exception was thrown when executing slash command '{name}'");
-        if (args.Exception is DiscordException discordException) Logger.Error($"API response: {discordException.JsonMessage}");
+        _logger.LogError(args.Exception, "An exception was thrown when executing slash command '{Name}'", name);
+        if (args.Exception is DiscordException discordException)
+            _logger.LogError("API response: {Response}", discordException.JsonMessage);
 
         return Task.CompletedTask;
     }
 
-    private static Task OnSlashCommandInvoked(SlashCommandsExtension _, SlashCommandInvokedEventArgs args)
+    private Task OnSlashCommandInvoked(SlashCommandsExtension _, SlashCommandInvokedEventArgs args)
     {
         var optionsString = "";
-        if (args.Context.Interaction?.Data?.Options is { } options)
+        InteractionContext context = args.Context;
+        if (context.Interaction?.Data?.Options is { } options)
             optionsString = $" {string.Join(" ", options.Select(o => $"{o?.Name}: '{o?.Value}'"))}";
 
-        Logger.Info($"{args.Context.User} ran slash command /{args.Context.CommandName}{optionsString}");
+        _logger.LogInformation("{User} ran slash command /{Command}{Options}", context.User, context.CommandName, optionsString);
         return Task.CompletedTask;
     }
 }

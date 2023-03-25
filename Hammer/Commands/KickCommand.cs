@@ -5,10 +5,9 @@ using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Services;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -17,7 +16,7 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class KickCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<KickCommand> _logger;
     private readonly BanService _banService;
     private readonly InfractionCooldownService _cooldownService;
     private readonly InfractionService _infractionService;
@@ -26,17 +25,20 @@ internal sealed class KickCommand : ApplicationCommandModule
     /// <summary>
     ///     Initializes a new instance of the <see cref="KickCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="banService">The ban service.</param>
     /// <param name="cooldownService">The cooldown service.</param>
     /// <param name="infractionService">The infraction service.</param>
     /// <param name="ruleService">The rule service.</param>
     public KickCommand(
+        ILogger<KickCommand> logger,
         BanService banService,
         InfractionCooldownService cooldownService,
         InfractionService infractionService,
         RuleService ruleService
     )
     {
+        _logger = logger;
         _banService = banService;
         _cooldownService = cooldownService;
         _infractionService = infractionService;
@@ -56,7 +58,7 @@ internal sealed class KickCommand : ApplicationCommandModule
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
-            Logger.Info($"{user} is on cooldown. Prompting for confirmation");
+            _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
@@ -80,7 +82,7 @@ internal sealed class KickCommand : ApplicationCommandModule
             message.AddEmbed(builder);
             await context.EditResponseAsync(message).ConfigureAwait(false);
 
-            Logger.Info($"{context.Member} attempted to kick non-member {user}");
+            _logger.LogInformation("{StaffMember} attempted to kick non-member {User}", context.Member, user);
             return;
         }
 
@@ -101,7 +103,7 @@ internal sealed class KickCommand : ApplicationCommandModule
 
             if (!dmSuccess)
                 importantNotes.Add("The kick was successfully issued, but the user could not be DM'd.");
-            
+
             if (importantNotes.Count > 0)
                 builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
 
@@ -112,11 +114,11 @@ internal sealed class KickCommand : ApplicationCommandModule
             builder.WithFooter($"Infraction {infraction.Id} \u2022 User {member.Id}");
 
             reason = reason.WithWhiteSpaceAlternative("None");
-            Logger.Info($"{context.Member} kicked {member}. Reason: {reason}");
+            _logger.LogInformation("{StaffMember} kicked {User}. Reason: {Reason}", context.Member, member, reason);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue kick to {member}");
+            _logger.LogError(exception, "Could not issue kick to {Member}", member);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing kick");

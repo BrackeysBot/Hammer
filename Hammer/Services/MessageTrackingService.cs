@@ -6,8 +6,7 @@ using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
-using NLog;
-using ILogger = NLog.ILogger;
+using Microsoft.Extensions.Logging;
 
 namespace Hammer.Services;
 
@@ -16,7 +15,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageTrackingService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MessageTrackingService> _logger;
     private readonly DiscordClient _discordClient;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly List<TrackedMessage> _trackedMessages = new();
@@ -24,8 +23,11 @@ internal sealed class MessageTrackingService : BackgroundService
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageTrackingService(IDbContextFactory<HammerContext> dbContextFactory, DiscordClient discordClient)
+    public MessageTrackingService(ILogger<MessageTrackingService> logger,
+        IDbContextFactory<HammerContext> dbContextFactory,
+        DiscordClient discordClient)
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
     }
@@ -123,7 +125,7 @@ internal sealed class MessageTrackingService : BackgroundService
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "An exception was thrown when saving TrackedMessage to the database");
+            _logger.LogError(exception, "An exception was thrown when saving TrackedMessage to the database");
         }
 
         return trackedMessage;

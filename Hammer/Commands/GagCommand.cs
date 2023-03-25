@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
@@ -13,15 +13,17 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class GagCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<GagCommand> _logger;
     private readonly InfractionService _infractionService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="GagCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="infractionService">The infraction service.</param>
-    public GagCommand(InfractionService infractionService)
+    public GagCommand(ILogger<GagCommand> logger, InfractionService infractionService)
     {
+        _logger = logger;
         _infractionService = infractionService;
     }
 
@@ -54,7 +56,7 @@ internal sealed class GagCommand : ApplicationCommandModule
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue gag to {user}");
+            _logger.LogError(exception, "Could not issue gag to {User}", user);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing gag");
@@ -97,7 +99,7 @@ internal sealed class GagCommand : ApplicationCommandModule
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue gag to {user}");
+            _logger.LogError(exception, "Could not issue gag to {User}", user);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing gag");

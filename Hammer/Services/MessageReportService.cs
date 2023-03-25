@@ -8,9 +8,8 @@ using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -19,7 +18,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageReportService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MessageReportService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
@@ -32,6 +31,7 @@ internal sealed class MessageReportService : BackgroundService
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
     public MessageReportService(
+        ILogger<MessageReportService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
@@ -39,6 +39,7 @@ internal sealed class MessageReportService : BackgroundService
         MessageTrackingService messageTrackingService
     )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
@@ -309,17 +310,19 @@ internal sealed class MessageReportService : BackgroundService
 
         if (IsUserBlocked(reporter, reporter.Guild))
         {
-            Logger.Info($"{reporter} reported a message, but is blocked from doing so");
+            _logger.LogInformation("{Reporter} reported a message, but is blocked from doing so", reporter);
             return false;
         }
 
-        if (message.Author is null)
-            message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
+        DiscordUser author = message.Author;
+        DiscordChannel channel = message.Channel;
+        if (author is null)
+            message = await channel.GetMessageAsync(message.Id).ConfigureAwait(false);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
         {
-            Logger.Warn($"{reporter} attempted to report {message} but the message is deleted!");
+            _logger.LogWarning("{Reporter} attempted to report {Message} but the message is deleted!", reporter, message);
 
             // we can stop tracking reports for a message which is deleted
             _reportedMessages.RemoveAll(m => m.MessageId == message.Id);
@@ -329,15 +332,16 @@ internal sealed class MessageReportService : BackgroundService
         bool duplicateReport = HasUserReportedMessage(message, reporter);
         if (duplicateReport)
         {
-            Logger.Info($"{reporter} attempted to create a duplicate report on " +
-                        $"{message} by {message.Author} in {message.Channel} - this report will not be logged in Discord.");
+            _logger.LogInformation("{Reporter} attempted to create a duplicate report on {Message} by {Author} in {Channel}",
+                reporter, message, author, channel);
+            _logger.LogInformation("This report will not be logged in Discord");
             return false;
         }
 
-        Logger.Info($"{reporter} reported {message} by {message.Author} in {message.Channel}");
+        _logger.LogInformation("{Reporter} reported {Message} by {Author} in {Channel}", reporter, message, author, channel);
         await CreateNewMessageReportAsync(message, reporter).ConfigureAwait(false);
 
-        if (!_configurationService.TryGetGuildConfiguration(message.Channel.Guild, out GuildConfiguration? guildConfiguration))
+        if (!_configurationService.TryGetGuildConfiguration(channel.Guild, out GuildConfiguration? guildConfiguration))
             return false;
 
         int urgentReportThreshold = guildConfiguration.UrgentReportThreshold;
@@ -401,7 +405,7 @@ internal sealed class MessageReportService : BackgroundService
                 .ConfigureAwait(false);
 
         if (blockedReporter is null)
-            Logger.Warn($"Could not unblock {user}: was allegedly blocked, but dind't find BlockedReporter entity!");
+            _logger.LogWarning("Could not unblock {User}: was allegedly blocked, but didn't find BlockedReporter entity!", user);
         else
         {
             _blockedReporters.Remove(blockedReporter);

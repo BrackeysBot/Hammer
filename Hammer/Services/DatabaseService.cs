@@ -1,7 +1,7 @@
 ﻿using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 
 namespace Hammer.Services;
 
@@ -10,15 +10,17 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class DatabaseService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<DatabaseService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="DatabaseService" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="dbContextFactory">The DbContext factory.</param>
-    public DatabaseService(IDbContextFactory<HammerContext> dbContextFactory)
+    public DatabaseService(ILogger<DatabaseService> logger, IDbContextFactory<HammerContext> dbContextFactory)
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
     }
 
@@ -34,10 +36,10 @@ internal sealed class DatabaseService : BackgroundService
 
         await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
-        Logger.Info("Creating database...");
+        _logger.LogInformation("Creating database");
         await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
 
-        Logger.Info("Applying migrations...");
+        _logger.LogInformation("Applying migrations");
         await context.Database.MigrateAsync().ConfigureAwait(false);
     }
 }

@@ -12,10 +12,9 @@ using Humanizer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 using TimestampFormat = DSharpPlus.TimestampFormat;
 
 namespace Hammer.Services;
@@ -27,8 +26,8 @@ namespace Hammer.Services;
 /// <seealso cref="MuteService" />
 internal sealed class InfractionService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly ConcurrentDictionary<ulong, List<Infraction>> _infractionCache = new();
+    private readonly ILogger<InfractionService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
@@ -41,6 +40,7 @@ internal sealed class InfractionService : BackgroundService
     ///     Initializes a new instance of the <see cref="InfractionService" /> class.
     /// </summary>
     public InfractionService(
+        ILogger<InfractionService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
@@ -50,6 +50,7 @@ internal sealed class InfractionService : BackgroundService
         RuleService ruleService
     )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
@@ -179,7 +180,7 @@ internal sealed class InfractionService : BackgroundService
         logMessageBuilder.Append($"Reason: {reason ?? "<none>"}. ");
         logMessageBuilder.Append($"Rule broken: {options.RuleBroken?.Id.ToString() ?? "<none>"}. ");
         logMessageBuilder.Append($"Expires: {expirationTime?.ToString() ?? "never"}");
-        Logger.Info(logMessageBuilder);
+        _logger.LogInformation("{Message}", logMessageBuilder.ToString());
 
         if (type != InfractionType.Gag && options.NotifyUser)
         {
@@ -792,7 +793,7 @@ internal sealed class InfractionService : BackgroundService
         using HammerContext context = _dbContextFactory.CreateDbContext();
         cache.AddRange(context.Infractions.Where(i => i.GuildId == guild.Id));
 
-        Logger.Info($"Retrieved {cache.Count} infractions for {guild}");
+        _logger.LogInformation("Retrieved {Count} infractions for {Guild}", cache.Count, guild);
     }
 
     private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)

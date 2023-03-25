@@ -5,10 +5,9 @@ using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
-using NLog;
+using Microsoft.Extensions.Logging;
 using SmartFormat;
 using X10D.DSharpPlus;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -17,7 +16,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageDeletionService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MessageDeletionService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
@@ -26,10 +25,12 @@ internal sealed class MessageDeletionService
     ///     Initializes a new instance of the <see cref="MessageDeletionService" /> class.
     /// </summary>
     public MessageDeletionService(
+        ILogger<MessageDeletionService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         ConfigurationService configurationService,
         DiscordLogService logService)
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _configurationService = configurationService;
         _logService = logService;
@@ -75,7 +76,8 @@ internal sealed class MessageDeletionService
         if (message is null) throw new ArgumentNullException(nameof(message));
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
-        Logger.Info($"{message} in channel {message.Channel} is requested to be deleted by {staffMember}");
+        _logger.LogInformation("{Message} in channel {Channel} is requested to be deleted by {StaffMember}",
+            message, message.Channel, staffMember);
 
         message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
         DiscordGuild guild = message.Channel.Guild;
@@ -116,7 +118,7 @@ internal sealed class MessageDeletionService
                 }
                 catch
                 {
-                    Logger.Warn($"{member} could not be notified of the deletion");
+                    _logger.LogWarning("{Member} could not be notified of the deletion", member);
                     // ignored
                 }
             }
@@ -129,7 +131,7 @@ internal sealed class MessageDeletionService
         await context.AddAsync(deletedMessage).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
-        Logger.Info($"{message} in channel {message.Channel} was deleted by {staffMember}");
+        _logger.LogInformation("{Message} in {Channel} was deleted by {StaffMember}", message, message.Channel, staffMember);
         await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
         await _logService.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
     }

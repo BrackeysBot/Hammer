@@ -6,6 +6,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Notes;
@@ -51,7 +52,7 @@ internal sealed partial class NoteCommand
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"An exception was thrown when attempting to retrieve notes for {user}");
+            _logger.LogError(exception, "An exception was thrown when attempting to retrieve notes for {User}", user);
             embed.WithColor(0xFF0000);
             embed.WithTitle(exception.GetType().Name);
             embed.WithDescription(exception.Message);

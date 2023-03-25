@@ -4,10 +4,9 @@ using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Services;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -16,7 +15,7 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class WarnCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<WarnCommand> _logger;
     private readonly InfractionCooldownService _cooldownService;
     private readonly InfractionService _infractionService;
     private readonly RuleService _ruleService;
@@ -25,17 +24,20 @@ internal sealed class WarnCommand : ApplicationCommandModule
     /// <summary>
     ///     Initializes a new instance of the <see cref="WarnCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="cooldownService">The cooldown service.</param>
     /// <param name="infractionService">The infraction service.</param>
     /// <param name="ruleService">The rule service.</param>
     /// <param name="warningService">The warning service.</param>
     public WarnCommand(
+        ILogger<WarnCommand> logger,
         InfractionCooldownService cooldownService,
         InfractionService infractionService,
         RuleService ruleService,
         WarningService warningService
     )
     {
+        _logger = logger;
         _cooldownService = cooldownService;
         _infractionService = infractionService;
         _ruleService = ruleService;
@@ -54,7 +56,7 @@ internal sealed class WarnCommand : ApplicationCommandModule
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
-            Logger.Info($"{user} is on cooldown. Prompting for confirmation");
+            _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
@@ -81,7 +83,7 @@ internal sealed class WarnCommand : ApplicationCommandModule
 
             if (!dmSuccess)
                 importantNotes.Add("The warning was successfully issued, but the user could not be DM'd.");
-            
+
             if (importantNotes.Count > 0)
                 builder.AddField("⚠️ Important Notes", string.Join("\n", importantNotes.Select(n => $"• {n}")));
 
@@ -92,11 +94,11 @@ internal sealed class WarnCommand : ApplicationCommandModule
             builder.WithFooter($"Infraction {infraction.Id} \u2022 User {user.Id}");
 
             reason = reason.WithWhiteSpaceAlternative("None");
-            Logger.Info($"{context.Member} warned {user}. Reason: {reason}");
+            _logger.LogInformation("{StaffMember} warned {User}. Reason: {Reason}", context.Member, user, reason);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue warning to {user}");
+            _logger.LogError(exception, "Could not issue warning to {User}", user);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing warning");

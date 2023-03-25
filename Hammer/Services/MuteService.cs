@@ -13,10 +13,9 @@ using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 using PermissionLevel = Hammer.Data.PermissionLevel;
 using Timer = System.Timers.Timer;
 
@@ -27,10 +26,10 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MuteService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private static readonly TimeSpan QueryInterval = TimeSpan.FromSeconds(30);
     private readonly ConcurrentDictionary<DiscordGuild, DiscordRole> _mutedRoles = new();
     private readonly List<Mute> _mutes = new();
+    private readonly ILogger<MuteService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
@@ -43,6 +42,7 @@ internal sealed class MuteService : BackgroundService
     ///     Initializes a new instance of the <see cref="MuteService" /> class.
     /// </summary>
     public MuteService(
+        ILogger<MuteService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
@@ -51,6 +51,7 @@ internal sealed class MuteService : BackgroundService
         RuleService ruleService
     )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
@@ -202,7 +203,7 @@ internal sealed class MuteService : BackgroundService
             }
             catch (Exception exception) when (exception is not NotFoundException)
             {
-                Logger.Error(exception, $"Could not grant muted role to {user}");
+                _logger.LogError(exception, "Could not grant muted role to {User}", user);
             }
         }
 
@@ -274,7 +275,7 @@ internal sealed class MuteService : BackgroundService
             }
             catch (Exception exception) when (exception is not NotFoundException)
             {
-                Logger.Error(exception, $"Could not revoke muted role from {user}");
+                _logger.LogError(exception, "Could not revoke muted role from {User}", user);
             }
         }
     }
@@ -351,7 +352,7 @@ internal sealed class MuteService : BackgroundService
             }
             catch (Exception exception) when (exception is not NotFoundException)
             {
-                Logger.Error(exception, $"Could not grant muted role to {user}");
+                _logger.LogError(exception, "Could not grant muted role to {User}", user);
             }
         }
 
@@ -413,16 +414,19 @@ internal sealed class MuteService : BackgroundService
 
     private Task DiscordClientOnGuildMemberAdded(DiscordClient sender, GuildMemberAddEventArgs e)
     {
-        if (IsUserMuted(e.Member, e.Guild))
+        DiscordMember member = e.Member;
+        DiscordGuild guild = e.Guild;
+
+        if (IsUserMuted(member, guild))
         {
-            if (!TryGetMutedRole(e.Guild, out DiscordRole? mutedRole))
+            if (!TryGetMutedRole(guild, out DiscordRole? mutedRole))
             {
-                Logger.Warn($"{e.Member} is muted, but no muted role was found in {e.Guild}!");
+                _logger.LogWarning("{Member} is muted, but no muted role was found in {Guild}!", member, guild);
                 return Task.CompletedTask;
             }
 
-            Logger.Info($"{e.Member} is muted. Applying muted role");
-            return e.Member.GrantRoleAsync(mutedRole, "Reapplying muted role for rejoined user");
+            _logger.LogInformation("{Member} is muted. Applying muted role", member);
+            return member.GrantRoleAsync(mutedRole, "Reapplying muted role for rejoined user");
         }
 
         return Task.CompletedTask;

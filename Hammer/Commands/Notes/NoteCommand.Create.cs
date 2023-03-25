@@ -4,6 +4,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Hammer.Commands.Notes;
 
@@ -32,11 +33,13 @@ internal sealed partial class NoteCommand
             embed.WithDescription($"Successfully created note for {user.Mention}");
             embed.WithFooter($"Note #{note.Id}");
 
-            Logger.Info($"{context.User} created note for {user} in guild {context.Guild}: {content}");
+            _logger.LogInformation("{User} created note for {Target} in {Guild}: {Content}",
+                context.User, user, context.Guild, content);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"An exception was thrown when attempting to save a note for {user} (\"{content}\")");
+            _logger.LogError(exception, "An exception was thrown when attempting to save a note for {User} (\"{Content}\")",
+                user, content);
 
             embed.WithColor(0xFF0000);
             embed.WithTitle(exception.GetType().Name);

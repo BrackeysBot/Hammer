@@ -7,9 +7,8 @@ using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using NLog;
+using Microsoft.Extensions.Logging;
 using SmartFormat;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -18,7 +17,7 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MessageService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
@@ -28,12 +27,14 @@ internal sealed class MessageService
     ///     Initializes a new instance of the <see cref="MessageService" /> class.
     /// </summary>
     public MessageService(
+        ILogger<MessageService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService
     )
     {
+        _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
@@ -97,7 +98,8 @@ internal sealed class MessageService
 
         StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message).ConfigureAwait(false);
 
-        Logger.Info($"{staffMember} sent a message to {recipient} from {staffMember.Guild}. Contents: {message}");
+        _logger.LogInformation("{StaffMember} sent a message to {Recipient} from {Guild}. Contents: {Message}",
+            staffMember, recipient, staffMember.Guild, message);
 
         DiscordEmbed embed = await CreateUserEmbedAsync(staffMessage).ConfigureAwait(false);
 
