@@ -25,19 +25,16 @@ internal sealed class BotService : BackgroundService
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
     private readonly IServiceProvider _serviceProvider;
-    private readonly HttpClient _httpClient;
     private readonly DiscordClient _discordClient;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BotService" /> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider.</param>
-    /// <param name="httpClient">The HTTP client.</param>
     /// <param name="discordClient">The Discord client.</param>
-    public BotService(IServiceProvider serviceProvider, HttpClient httpClient, DiscordClient discordClient)
+    public BotService(IServiceProvider serviceProvider, DiscordClient discordClient)
     {
         _serviceProvider = serviceProvider;
-        _httpClient = httpClient;
         _discordClient = discordClient;
 
         var attribute = typeof(BotService).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
