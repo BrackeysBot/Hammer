@@ -5,7 +5,6 @@ using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using NLog;
 using SmartFormat;
 using X10D.DSharpPlus;
@@ -19,7 +18,7 @@ namespace Hammer.Services;
 internal sealed class MessageDeletionService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
 
@@ -27,12 +26,11 @@ internal sealed class MessageDeletionService
     ///     Initializes a new instance of the <see cref="MessageDeletionService" /> class.
     /// </summary>
     public MessageDeletionService(
-        IServiceScopeFactory scopeFactory,
+        IDbContextFactory<HammerContext> dbContextFactory,
         ConfigurationService configurationService,
-        DiscordLogService logService
-    )
+        DiscordLogService logService)
     {
-        _scopeFactory = scopeFactory;
+        _dbContextFactory = dbContextFactory;
         _configurationService = configurationService;
         _logService = logService;
     }
@@ -46,8 +44,7 @@ internal sealed class MessageDeletionService
     {
         ArgumentNullException.ThrowIfNull(guild);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         return context.DeletedMessages.Count(m => m.GuildId == guild.Id);
     }
 
@@ -128,8 +125,7 @@ internal sealed class MessageDeletionService
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember, guildConfiguration);
 
         var deletedMessage = DeletedMessage.Create(message, staffMember);
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         await context.AddAsync(deletedMessage).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
@@ -145,9 +141,7 @@ internal sealed class MessageDeletionService
     /// <returns>A <see cref="DeletedMessage" />, or <see langword="null" /> if no such message was found.</returns>
     public async Task<DeletedMessage?> GetDeletedMessage(ulong id)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         return await context.DeletedMessages.FirstOrDefaultAsync(m => m.MessageId == id);
     }
 
@@ -159,8 +153,7 @@ internal sealed class MessageDeletionService
     /// <returns>An asynchronously enumerable collection of <see cref="DeletedMessage" /> values.</returns>
     public async IAsyncEnumerable<DeletedMessage> GetDeletedMessages(DiscordUser author, DiscordGuild guild)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (DeletedMessage deletedMessage in
                  context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id))

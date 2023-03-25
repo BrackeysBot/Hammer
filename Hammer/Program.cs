@@ -28,7 +28,7 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddHostedSingleton<LoggingService>();
 
-        services.AddDbContext<HammerContext>();
+        services.AddDbContextFactory<HammerContext>();
         services.AddHostedSingleton<DatabaseService>();
 
         services.AddSingleton<HttpClient>();

@@ -5,7 +5,6 @@ using DSharpPlus.Exceptions;
 using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using ILogger = NLog.ILogger;
@@ -19,15 +18,15 @@ internal sealed class MessageTrackingService : BackgroundService
 {
     private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly DiscordClient _discordClient;
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly List<TrackedMessage> _trackedMessages = new();
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
-    public MessageTrackingService(IServiceScopeFactory scopeFactory, DiscordClient discordClient)
+    public MessageTrackingService(IDbContextFactory<HammerContext> dbContextFactory, DiscordClient discordClient)
     {
-        _scopeFactory = scopeFactory;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
     }
 
@@ -39,8 +38,7 @@ internal sealed class MessageTrackingService : BackgroundService
     /// <returns>An enumerable collection of <see cref="TrackedMessage" /> instances.</returns>
     public async IAsyncEnumerable<TrackedMessage> EnumerateTrackedMessagesAsync(DiscordUser user, DiscordGuild guild)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (TrackedMessage message in context.TrackedMessages.Where(m => m.AuthorId == user.Id && m.GuildId == guild.Id))
             yield return message;
@@ -88,8 +86,7 @@ internal sealed class MessageTrackingService : BackgroundService
     {
         TrackedMessage? trackedMessage = _trackedMessages.Find(m => m.Id == message.Id);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         if (trackedMessage is null)
         {
@@ -156,8 +153,7 @@ internal sealed class MessageTrackingService : BackgroundService
         trackedMessage.IsDeleted = true;
         trackedMessage.DeletionTimestamp = DateTimeOffset.UtcNow;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         context.Update(trackedMessage);
         await context.SaveChangesAsync().ConfigureAwait(false);
     }
@@ -170,8 +166,7 @@ internal sealed class MessageTrackingService : BackgroundService
         TrackedMessage trackedMessage = await GetTrackedMessageAsync(e.Message).ConfigureAwait(false);
         trackedMessage.Content = e.Message.Content;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         context.Update(trackedMessage);
         await context.SaveChangesAsync().ConfigureAwait(false);
     }
@@ -180,8 +175,7 @@ internal sealed class MessageTrackingService : BackgroundService
     {
         ulong guildId = guild.Id;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         IEnumerable<TrackedMessage> messages = context.TrackedMessages.Where(m => m.GuildId == guildId).AsEnumerable();
 
         foreach (IGrouping<ulong, TrackedMessage> channelGroups in messages.GroupBy(m => m.ChannelId))

@@ -12,7 +12,6 @@ using Hammer.Resources;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using X10D.DSharpPlus;
@@ -32,7 +31,7 @@ internal sealed class MuteService : BackgroundService
     private static readonly TimeSpan QueryInterval = TimeSpan.FromSeconds(30);
     private readonly ConcurrentDictionary<DiscordGuild, DiscordRole> _mutedRoles = new();
     private readonly List<Mute> _mutes = new();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
     private readonly DiscordClient _discordClient;
@@ -44,7 +43,7 @@ internal sealed class MuteService : BackgroundService
     ///     Initializes a new instance of the <see cref="MuteService" /> class.
     /// </summary>
     public MuteService(
-        IServiceScopeFactory scopeFactory,
+        IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService,
@@ -52,7 +51,7 @@ internal sealed class MuteService : BackgroundService
         RuleService ruleService
     )
     {
-        _scopeFactory = scopeFactory;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
@@ -81,8 +80,7 @@ internal sealed class MuteService : BackgroundService
                 return existingMute;
         }
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         existingMute = await context.Mutes.FindAsync(mute.UserId, mute.GuildId).ConfigureAwait(false);
         if (existingMute is not null)
@@ -240,8 +238,7 @@ internal sealed class MuteService : BackgroundService
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (revoker is null) throw new ArgumentNullException(nameof(revoker));
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         Mute? mute = await context.Mutes.FirstOrDefaultAsync(b => b.UserId == user.Id && b.GuildId == revoker.Guild.Id)
             .ConfigureAwait(false);
 
@@ -406,8 +403,7 @@ internal sealed class MuteService : BackgroundService
 
     private async Task UpdateFromDatabaseAsync()
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         lock (_mutes)
         {
             _mutes.Clear();
@@ -436,8 +432,7 @@ internal sealed class MuteService : BackgroundService
     {
         var temporaryMute = Mute.Create(user, guild, expirationTime);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         if (await context.Mutes.FindAsync(user.Id, guild.Id) is null)
         {
             EntityEntry<Mute> entry = await context.Mutes.AddAsync(temporaryMute).ConfigureAwait(false);
