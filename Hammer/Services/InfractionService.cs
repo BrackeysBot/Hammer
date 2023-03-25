@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -10,12 +11,10 @@ using Hammer.Resources;
 using Humanizer;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 using TimestampFormat = DSharpPlus.TimestampFormat;
 
 namespace Hammer.Services;
@@ -27,9 +26,9 @@ namespace Hammer.Services;
 /// <seealso cref="MuteService" />
 internal sealed class InfractionService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly Dictionary<ulong, List<Infraction>> _infractionCache = new();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ConcurrentDictionary<ulong, List<Infraction>> _infractionCache = new();
+    private readonly ILogger<InfractionService> _logger;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
@@ -41,7 +40,8 @@ internal sealed class InfractionService : BackgroundService
     ///     Initializes a new instance of the <see cref="InfractionService" /> class.
     /// </summary>
     public InfractionService(
-        IServiceScopeFactory scopeFactory,
+        ILogger<InfractionService> logger,
+        IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService,
@@ -50,7 +50,8 @@ internal sealed class InfractionService : BackgroundService
         RuleService ruleService
     )
     {
-        _scopeFactory = scopeFactory;
+        _logger = logger;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
@@ -73,24 +74,17 @@ internal sealed class InfractionService : BackgroundService
     /// </remarks>
     /// <exception cref="InvalidOperationException">The infraction belongs to a guild that this client cannot access.</exception>
     /// <seealso cref="CreateInfractionAsync" />
-    public async Task<Infraction> AddInfractionAsync(Infraction infraction, DiscordGuild? guild = null)
+    public Infraction AddInfraction(Infraction infraction, DiscordGuild? guild = null)
     {
-        try
-        {
-            guild ??= await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
-        }
-        catch (NotFoundException)
-        {
+        if (guild is null && !_discordClient.Guilds.TryGetValue(infraction.GuildId, out guild))
             throw new InvalidOperationException("The specified guild is invalid.");
-        }
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        using HammerContext context = _dbContextFactory.CreateDbContext();
 
         try
         {
-            infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
-            await context.SaveChangesAsync();
+            infraction = context.Add(infraction).Entity;
+            context.SaveChanges();
         }
         catch (DbUpdateException exception)
         {
@@ -103,16 +97,11 @@ internal sealed class InfractionService : BackgroundService
                 throw;
 
             infraction.Id = 0;
-            infraction = (await context.AddAsync(infraction).ConfigureAwait(false)).Entity;
-            await context.SaveChangesAsync();
+            infraction = context.Add(infraction).Entity;
+            context.SaveChanges();
         }
 
-        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? infractions))
-        {
-            infractions = new List<Infraction>();
-            _infractionCache.Add(guild.Id, infractions);
-        }
-
+        List<Infraction> infractions = _infractionCache.AddOrUpdate(guild.Id, _ => new List<Infraction>(), (_, list) => list);
         infractions.Add(infraction);
         return infraction;
     }
@@ -122,25 +111,20 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="infractions">The infractions to add.</param>
     /// <remarks>Do NOT use this method to issue infractions to users. Use an appropriate user-targeted method.</remarks>
-    public async Task AddInfractionsAsync(IEnumerable<Infraction> infractions)
+    public void AddInfractions(IEnumerable<Infraction> infractions)
     {
         infractions = infractions.ToArray();
 
-        foreach (Infraction infraction in infractions)
+        foreach (IGrouping<ulong, Infraction> group in infractions.GroupBy(i => i.GuildId))
         {
-            if (!_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
-            {
-                cache = new List<Infraction>();
-                _infractionCache.Add(infraction.GuildId, cache);
-            }
-
-            cache.Add(infraction);
+            ulong guildId = group.Key;
+            List<Infraction> cache = _infractionCache.AddOrUpdate(guildId, _ => new List<Infraction>(), (_, list) => list);
+            cache.AddRange(group);
         }
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        await context.AddRangeAsync(infractions).ConfigureAwait(false);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
+        context.AddRange(infractions);
+        context.SaveChangesAsync();
     }
 
     /// <summary>
@@ -189,21 +173,20 @@ internal sealed class InfractionService : BackgroundService
         if (expirationTime.HasValue)
             builder.WithAdditionalInformation($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
 
-        Infraction infraction = await AddInfractionAsync(builder.Build(), guild).ConfigureAwait(false);
+        Infraction infraction = AddInfraction(builder.Build(), guild);
 
         var logMessageBuilder = new StringBuilder();
         logMessageBuilder.Append($"{type.ToString("G")} issued to {user} by {staffMember} in {guild}. ");
         logMessageBuilder.Append($"Reason: {reason ?? "<none>"}. ");
         logMessageBuilder.Append($"Rule broken: {options.RuleBroken?.Id.ToString() ?? "<none>"}. ");
         logMessageBuilder.Append($"Expires: {expirationTime?.ToString() ?? "never"}");
-        Logger.Info(logMessageBuilder);
+        _logger.LogInformation("{Message}", logMessageBuilder.ToString());
 
         if (type != InfractionType.Gag && options.NotifyUser)
         {
-            int infractionCount = GetInfractionCount(user, staffMember.Guild);
-            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, infractionCount, options)
-                .ConfigureAwait(false);
-            if (dm is null) result = false;
+            int count = GetInfractionCount(user, staffMember.Guild);
+            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, count, options).ConfigureAwait(false);
+            result &= dm is not null;
         }
 
         _cooldownService.StartCooldown(infraction);
@@ -675,19 +658,18 @@ internal sealed class InfractionService : BackgroundService
     ///     -or-
     ///     <para><paramref name="action" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task ModifyInfractionAsync(Infraction infraction, Action<Infraction> action)
+    public void ModifyInfraction(Infraction infraction, Action<Infraction> action)
     {
         ArgumentNullException.ThrowIfNull(infraction);
         ArgumentNullException.ThrowIfNull(action);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-        Infraction? existing = await context.Infractions.FindAsync(infraction.Id).ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
+        Infraction? existing = context.Infractions.Find(infraction.Id);
         if (existing is null) return;
 
         action(existing);
         context.Update(existing);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
 
         if (_infractionCache.TryGetValue(infraction.GuildId, out List<Infraction>? cache))
         {
@@ -702,8 +684,7 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     public async Task<int> PruneStaleInfractionsAsync()
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         var idCache = new Dictionary<ulong, bool>();
         var pruneInfractions = new List<Infraction>();
 
@@ -746,17 +727,16 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="infraction">The infraction to redact.</param>
     /// <exception cref="ArgumentNullException"><paramref name="infraction" /> is <see langword="null" />.</exception>
-    public async Task RemoveInfractionAsync(Infraction infraction)
+    public void RemoveInfraction(Infraction infraction)
     {
         ArgumentNullException.ThrowIfNull(infraction);
 
         _cooldownService.StopCooldown(infraction.UserId);
         _infractionCache[infraction.GuildId].Remove(infraction);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         context.Remove(infraction);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
     }
 
     /// <summary>
@@ -764,12 +744,11 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     /// <param name="infractions">The infractions to redact.</param>
     /// <exception cref="ArgumentNullException"><paramref name="infractions" /> is <see langword="null" />.</exception>
-    public async Task RemoveInfractionsAsync(IEnumerable<Infraction> infractions)
+    public void RemoveInfractions(IEnumerable<Infraction> infractions)
     {
         ArgumentNullException.ThrowIfNull(infractions);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        using HammerContext context = _dbContextFactory.CreateDbContext();
 
         foreach (IGrouping<ulong, Infraction> group in infractions.GroupBy(i => i.GuildId))
         {
@@ -782,35 +761,52 @@ internal sealed class InfractionService : BackgroundService
             }
         }
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
+    }
+
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= OnGuildAvailable;
+        _discordClient.GuildUnavailable -= OnGuildUnavailable;
+        return base.StopAsync(cancellationToken);
     }
 
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _discordClient.GuildAvailable += OnGuildAvailable;
+        _discordClient.GuildUnavailable += OnGuildUnavailable;
         return Task.CompletedTask;
     }
 
-    private async Task LoadGuildInfractions(DiscordGuild guild)
+    private void LoadGuildInfractions(DiscordGuild guild)
     {
         if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
         {
             cache = new List<Infraction>();
-            _infractionCache.Add(guild.Id, cache);
+            _infractionCache.AddOrUpdate(guild.Id, cache, (_, _) => cache);
         }
 
         cache.Clear();
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         cache.AddRange(context.Infractions.Where(i => i.GuildId == guild.Id));
 
-        Logger.Info($"Retrieved {cache.Count} infractions for {guild}");
+        _logger.LogInformation("Retrieved {Count} infractions for {Guild}", cache.Count, guild);
     }
 
     private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
-        return LoadGuildInfractions(e.Guild);
+        LoadGuildInfractions(e.Guild);
+        return Task.CompletedTask;
+    }
+
+    private Task OnGuildUnavailable(DiscordClient sender, GuildDeleteEventArgs args)
+    {
+        if (_infractionCache.TryRemove(args.Guild.Id, out List<Infraction>? infractions))
+            infractions.Clear();
+
+        return Task.CompletedTask;
     }
 }

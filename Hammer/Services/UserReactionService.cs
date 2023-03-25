@@ -3,7 +3,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Hammer.Configuration;
 using Microsoft.Extensions.Hosting;
-using NLog;
 
 namespace Hammer.Services;
 
@@ -12,7 +11,6 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class UserReactionService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
     private readonly ConfigurationService _configurationService;
     private readonly DiscordClient _discordClient;
     private readonly MessageReportService _messageReportService;
@@ -29,6 +27,13 @@ internal sealed class UserReactionService : BackgroundService
         _configurationService = configurationService;
         _discordClient = discordClient;
         _messageReportService = messageReportService;
+    }
+
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.MessageReactionAdded -= DiscordClientOnMessageReactionAdded;
+        return base.StopAsync(cancellationToken);
     }
 
     /// <inheritdoc />

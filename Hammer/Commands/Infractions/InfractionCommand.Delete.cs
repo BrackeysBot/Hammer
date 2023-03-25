@@ -30,7 +30,7 @@ internal sealed partial class InfractionCommand
             embed.WithTitle("Infraction Redacted");
             embed.WithDescription($"{infraction.Type} #{infraction.Id} for {MentionUtility.MentionUser(infraction.UserId)} " +
                                   "has been redacted.");
-            await _infractionService.RemoveInfractionAsync(infraction);
+            _infractionService.RemoveInfraction(infraction);
         }
 
         var builder = new DiscordWebhookBuilder();

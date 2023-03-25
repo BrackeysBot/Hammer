@@ -6,11 +6,10 @@ using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
 using X10D.Time;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -19,7 +18,7 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class MuteCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MuteCommand> _logger;
     private readonly ConfigurationService _configurationService;
     private readonly InfractionCooldownService _cooldownService;
     private readonly InfractionService _infractionService;
@@ -29,12 +28,14 @@ internal sealed class MuteCommand : ApplicationCommandModule
     /// <summary>
     ///     Initializes a new instance of the <see cref="MuteCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="configurationService">The configuration service.</param>
     /// <param name="cooldownService">The cooldown service.</param>
     /// <param name="infractionService">The infraction service.</param>
     /// <param name="muteService">The mute service.</param>
     /// <param name="ruleService">The rule service.</param>
     public MuteCommand(
+        ILogger<MuteCommand> logger,
         ConfigurationService configurationService,
         InfractionCooldownService cooldownService,
         InfractionService infractionService,
@@ -42,6 +43,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         RuleService ruleService
     )
     {
+        _logger = logger;
         _configurationService = configurationService;
         _cooldownService = cooldownService;
         _infractionService = infractionService;
@@ -62,7 +64,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
-            Logger.Info($"{user} is on cooldown. Prompting for confirmation");
+            _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
@@ -154,13 +156,14 @@ internal sealed class MuteCommand : ApplicationCommandModule
             if (infraction.Type == InfractionType.Mute)
             {
                 builder.WithTitle("Muted user");
-                Logger.Info($"{context.Member} muted {user}. Reason: {reason}");
+                _logger.LogInformation("{StaffMember} muted {User}. Reason: {Reason}", context.Member, user, reason);
             }
             else if (infraction.Type == InfractionType.TemporaryMute)
             {
                 builder.WithTitle("Temporarily muted user");
                 builder.AddField("Duration", duration!.Value.Humanize());
-                Logger.Info($"{context.Member} temporarily muted {user} for {duration.Value.Humanize()}. Reason: {reason}");
+                _logger.LogInformation("{StaffMember} temporarily muted {User} for {Duration}. Reason: {Reason}",
+                    context.Member, user, duration.Value.Humanize(), reason);
             }
 
             if (importantNotes.Count > 0)
@@ -168,7 +171,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue mute to {user}");
+            _logger.LogError(exception, "Could not issue mute to {User}", user);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing mute");

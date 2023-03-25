@@ -2,10 +2,9 @@
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -14,15 +13,17 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class UnbanCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<UnbanCommand> _logger;
     private readonly BanService _banService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="UnbanCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="banService">The ban service.</param>
-    public UnbanCommand(BanService banService)
+    public UnbanCommand(ILogger<UnbanCommand> logger, BanService banService)
     {
+        _logger = logger;
         _banService = banService;
     }
 
@@ -45,11 +46,11 @@ internal sealed class UnbanCommand : ApplicationCommandModule
             embed.WithDescription(reason);
 
             reason = reason.WithWhiteSpaceAlternative("None");
-            Logger.Info($"{context.Member} unbanned {user}. Reason: {reason}");
+            _logger.LogInformation("{StaffMember} unbanned {User}. Reason: {Reason}", context.Member, user, reason);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Could not revoke ban");
+            _logger.LogError(exception, "Could not revoke ban");
 
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ Error revoking ban");

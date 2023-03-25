@@ -2,10 +2,9 @@
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Services;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -14,15 +13,17 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class UnmuteCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<UnmuteCommand> _logger;
     private readonly MuteService _muteService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="UnmuteCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="muteService">The mute service.</param>
-    public UnmuteCommand(MuteService muteService)
+    public UnmuteCommand(ILogger<UnmuteCommand> logger, MuteService muteService)
     {
+        _logger = logger;
         _muteService = muteService;
     }
 
@@ -45,11 +46,11 @@ internal sealed class UnmuteCommand : ApplicationCommandModule
             embed.WithDescription(reason);
 
             reason = reason.WithWhiteSpaceAlternative("None");
-            Logger.Info($"{context.Member} unmuted {user}. Reason: {reason}");
+            _logger.LogInformation("{StaffMember} unmuted {User}. Reason: {Reason}", context.Member, user, reason);
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, "Could not revoke mute");
+            _logger.LogError(exception, "Could not revoke mute");
 
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("⚠️ Error revoking mute");

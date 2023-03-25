@@ -5,11 +5,10 @@ using Hammer.AutocompleteProviders;
 using Hammer.Data;
 using Hammer.Services;
 using Humanizer;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using X10D.Text;
 using X10D.Time;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Commands;
 
@@ -18,7 +17,7 @@ namespace Hammer.Commands;
 /// </summary>
 internal sealed class BanCommand : ApplicationCommandModule
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<BanCommand> _logger;
     private readonly BanService _banService;
     private readonly InfractionCooldownService _cooldownService;
     private readonly InfractionService _infractionService;
@@ -27,17 +26,20 @@ internal sealed class BanCommand : ApplicationCommandModule
     /// <summary>
     ///     Initializes a new instance of the <see cref="BanCommand" /> class.
     /// </summary>
+    /// <param name="logger">The logger.</param>
     /// <param name="banService">The ban service.</param>
     /// <param name="cooldownService">The cooldown service.</param>
     /// <param name="infractionService">The infraction service.</param>
     /// <param name="ruleService">The rule service.</param>
     public BanCommand(
+        ILogger<BanCommand> logger,
         BanService banService,
         InfractionCooldownService cooldownService,
         InfractionService infractionService,
         RuleService ruleService
     )
     {
+        _logger = logger;
         _banService = banService;
         _cooldownService = cooldownService;
         _infractionService = infractionService;
@@ -58,7 +60,7 @@ internal sealed class BanCommand : ApplicationCommandModule
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
-            Logger.Info($"{user} is on cooldown. Prompting for confirmation");
+            _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
             DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
             bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
             if (!result) return;
@@ -131,13 +133,14 @@ internal sealed class BanCommand : ApplicationCommandModule
             if (duration is null)
             {
                 builder.WithTitle("Banned user");
-                Logger.Info($"{context.Member} banned {user}. Reason: {reason}");
+                _logger.LogInformation("{StaffMember} canned {User}. Reason: {Reason}", context.Member, user, reason);
             }
             else
             {
                 builder.WithTitle("Temporarily banned user");
                 builder.AddField("Duration", duration.Value.Humanize());
-                Logger.Info($"{context.Member} temporarily banned {user} for {duration.Value.Humanize()}. Reason: {reason}");
+                _logger.LogInformation("{StaffMember} temporarily canned {User} for {Duration}. Reason: {Reason}",
+                    context.Member, user, duration.Value.Humanize(), reason);
             }
 
             if (importantNotes.Count > 0)
@@ -145,7 +148,7 @@ internal sealed class BanCommand : ApplicationCommandModule
         }
         catch (Exception exception)
         {
-            Logger.Error(exception, $"Could not issue ban to {user}");
+            _logger.LogError(exception, "Could not issue ban to {User}", user);
 
             builder.WithColor(DiscordColor.Red);
             builder.WithTitle("⚠️ Error issuing ban");

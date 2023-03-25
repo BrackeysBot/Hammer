@@ -5,7 +5,7 @@ using Hammer.Data.v3_compat;
 using Hammer.Interactivity;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.Text;
 using InfractionType = Hammer.Data.InfractionType;
 #pragma warning disable CS0618
@@ -16,7 +16,7 @@ namespace Hammer.Commands.V3Migration;
 
 internal sealed class MigrationProcessPartialInfractionsState : ConversationState
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MigrationProcessPartialInfractionsState> _logger;
     private readonly List<UserData> _userDataEntries;
     private readonly InfractionService _infractionService;
     private int _completed;
@@ -31,12 +31,12 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
         : base(conversation)
     {
         _userDataEntries = userDataEntries;
-
         _infractionService = conversation.Services.GetRequiredService<InfractionService>();
+        _logger = conversation.Services.GetRequiredService<ILogger<MigrationProcessPartialInfractionsState>>();
     }
 
     /// <inheritdoc />
-    public override async Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
+    public override Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
     {
         _total = _userDataEntries.Sum(u => u.Infractions.Count);
 
@@ -47,7 +47,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                Logger.Warn("Processing of partial infractions cancelled");
+                _logger.LogWarning("Processing of partial infractions cancelled");
                 cancellationTokenSource.Cancel();
                 break;
             }
@@ -56,14 +56,14 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    Logger.Warn("Processing of partial infractions cancelled");
+                    _logger.LogWarning("Processing of partial infractions cancelled");
                     cancellationTokenSource.Cancel();
                     break;
                 }
 
                 if (_infractionService.GetInfraction(legacyInfraction.ID) is not { } infraction)
                 {
-                    Logger.Warn($"Infraction {legacyInfraction.ID} could not be found in cache!");
+                    _logger.LogWarning("Infraction {Id} could not be found in cache!", legacyInfraction.ID);
                     continue;
                 }
 
@@ -79,7 +79,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
                         $@"Unexpected infraction type {legacyInfraction.Type}")
                 };
 
-                await _infractionService.ModifyInfractionAsync(infraction, instance =>
+                _infractionService.ModifyInfraction(infraction, instance =>
                 {
                     instance.Type = type;
                     instance.GuildId = context.Guild!.Id;
@@ -88,15 +88,16 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
                     instance.Reason = legacyInfraction.Description;
                     instance.UserId = userData.ID;
                     instance.AdditionalInformation = legacyInfraction.AdditionalInfo?.AsNullIfWhiteSpace();
-                }).ConfigureAwait(false);
-                
-                Logger.Info($"Migrated information for infraction {infraction.Id}");
+                });
+
+
+                _logger.LogInformation("Migrated information for infraction {Id}", infraction.Id);
                 _completed++;
             }
         }
 
         cancellationTokenSource.Cancel();
-        return new MigrationCompletedState(Conversation);
+        return Task.FromResult<ConversationState?>(new MigrationCompletedState(Conversation));
     }
 
     private async Task UpdateEmbedAsync(BaseDiscordClient client, DiscordInteraction interaction,

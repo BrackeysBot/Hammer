@@ -6,7 +6,6 @@ using Hammer.Data;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using X10D.DSharpPlus;
 using X10D.Text;
@@ -21,7 +20,7 @@ internal sealed class BanService : BackgroundService
 {
     private static readonly TimeSpan QueryInterval = TimeSpan.FromSeconds(30);
     private readonly List<TemporaryBan> _temporaryBans = new();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
     private readonly DiscordLogService _logService;
     private readonly InfractionService _infractionService;
@@ -33,7 +32,7 @@ internal sealed class BanService : BackgroundService
     ///     Initializes a new instance of the <see cref="BanService" /> class.
     /// </summary>
     public BanService(
-        IServiceScopeFactory scopeFactory,
+        IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         DiscordLogService logService,
         InfractionService infractionService,
@@ -41,7 +40,7 @@ internal sealed class BanService : BackgroundService
         RuleService ruleService
     )
     {
-        _scopeFactory = scopeFactory;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _logService = logService;
         _infractionService = infractionService;
@@ -70,8 +69,7 @@ internal sealed class BanService : BackgroundService
                 return existingBan;
         }
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         existingBan = await context.TemporaryBans.FindAsync(temporaryBan.UserId, temporaryBan.GuildId).ConfigureAwait(false);
         if (existingBan is not null)
@@ -149,31 +147,7 @@ internal sealed class BanService : BackgroundService
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
         await _mailmanService.SendInfractionAsync(infraction, infractionCount, options).ConfigureAwait(false);
 
-        await guild.BanMemberAsync(user.Id, reason: reason).ConfigureAwait(false);
-
-        if (clearHistory)
-        {
-            _ = Task.Run(async () =>
-            {
-                IEnumerable<DiscordChannel> channels = guild.Channels.Values
-                    .Concat(guild.Threads.Values)
-                    .Where(c => c.Type is ChannelType.Text or ChannelType.PublicThread or ChannelType.PrivateThread);
-
-                var tasks = new List<Task>();
-
-                foreach (DiscordChannel channel in channels)
-                {
-                    var messagesToDelete = new List<DiscordMessage>();
-                    IReadOnlyList<DiscordMessage> messages = await channel.GetMessagesAsync().ConfigureAwait(false);
-                    messagesToDelete.AddRange(messages.Where(m => m.Author.Id == user.Id));
-                    if (messagesToDelete.Count > 0)
-                        tasks.Add(channel.DeleteMessagesAsync(messagesToDelete, "User was banned"));
-                }
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            });
-        }
-
+        await guild.BanMemberAsync(user.Id, reason: reason, delete_message_days: clearHistory ? 7 : 0).ConfigureAwait(false);
         return (infraction, success);
     }
 
@@ -341,8 +315,7 @@ internal sealed class BanService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(revoker);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         TemporaryBan? temporaryBan =
             await context.TemporaryBans.FirstOrDefaultAsync(b => b.UserId == user.Id && b.GuildId == revoker.Guild.Id)
                 .ConfigureAwait(false);
@@ -479,8 +452,7 @@ internal sealed class BanService : BackgroundService
     {
         var temporaryBan = TemporaryBan.Create(user, guild, expirationTime);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         EntityEntry<TemporaryBan> entry = await context.TemporaryBans.AddAsync(temporaryBan).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 
@@ -517,8 +489,7 @@ internal sealed class BanService : BackgroundService
 
     private async Task UpdateFromDatabaseAsync()
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         lock (_temporaryBans)
         {
             _temporaryBans.Clear();

@@ -1,12 +1,10 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using Hammer.AutocompleteProviders;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
-using NLog.Targets.Wrappers;
 
 namespace Hammer.Commands.Rules;
 

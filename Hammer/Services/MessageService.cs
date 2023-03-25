@@ -7,10 +7,8 @@ using Hammer.Extensions;
 using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
-using NLog;
+using Microsoft.Extensions.Logging;
 using SmartFormat;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -19,8 +17,8 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<MessageService> _logger;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
@@ -29,13 +27,15 @@ internal sealed class MessageService
     ///     Initializes a new instance of the <see cref="MessageService" /> class.
     /// </summary>
     public MessageService(
-        IServiceScopeFactory scopeFactory,
+        ILogger<MessageService> logger,
+        IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService
     )
     {
-        _scopeFactory = scopeFactory;
+        _logger = logger;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
@@ -48,9 +48,7 @@ internal sealed class MessageService
     /// <returns>A <see cref="StaffMessage" />, or <see langword="null" /> if no such message was found.</returns>
     public async Task<StaffMessage?> GetStaffMessage(long id)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
-
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         return await context.StaffMessages.FirstOrDefaultAsync(m => m.Id == id);
     }
 
@@ -62,8 +60,7 @@ internal sealed class MessageService
     /// <returns>An asynchronously enumerable collection of <see cref="StaffMessage" /> values.</returns>
     public async IAsyncEnumerable<StaffMessage> GetStaffMessages(DiscordUser recipient, DiscordGuild guild)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (StaffMessage staffMessage in
                  context.StaffMessages.Where(m => m.RecipientId == recipient.Id && m.GuildId == guild.Id))
@@ -101,7 +98,8 @@ internal sealed class MessageService
 
         StaffMessage staffMessage = await CreateStaffMessageAsync(recipient, staffMember, message).ConfigureAwait(false);
 
-        Logger.Info($"{staffMember} sent a message to {recipient} from {staffMember.Guild}. Contents: {message}");
+        _logger.LogInformation("{StaffMember} sent a message to {Recipient} from {Guild}. Contents: {Message}",
+            staffMember, recipient, staffMember.Guild, message);
 
         DiscordEmbed embed = await CreateUserEmbedAsync(staffMessage).ConfigureAwait(false);
 
@@ -167,8 +165,7 @@ internal sealed class MessageService
             SentAt = DateTimeOffset.Now
         };
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         EntityEntry<StaffMessage> entry = await context.AddAsync(staffMessage).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
 

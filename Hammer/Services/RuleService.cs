@@ -4,7 +4,6 @@ using Hammer.Data;
 using Hammer.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Hammer.Services;
@@ -15,15 +14,15 @@ namespace Hammer.Services;
 internal sealed class RuleService : BackgroundService
 {
     private readonly Dictionary<ulong, List<Rule>> _guildRules = new();
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly ConfigurationService _configurationService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuleService" /> class.
     /// </summary>
-    public RuleService(IServiceScopeFactory scopeFactory, ConfigurationService configurationService)
+    public RuleService(IDbContextFactory<HammerContext> dbContextFactory, ConfigurationService configurationService)
     {
-        _scopeFactory = scopeFactory;
+        _dbContextFactory = dbContextFactory;
         _configurationService = configurationService;
     }
 
@@ -42,8 +41,7 @@ internal sealed class RuleService : BackgroundService
         if (string.IsNullOrWhiteSpace(description)) throw new ArgumentNullException(nameof(description));
         if (!_guildRules.TryGetValue(guild.Id, out List<Rule>? rules)) _guildRules.Add(guild.Id, rules = new List<Rule>());
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         var rule = new Rule {Id = rules.Count + 1, GuildId = guild.Id, Description = description, Brief = brief};
         EntityEntry<Rule> entry = await context.AddAsync(rule).ConfigureAwait(false);
@@ -100,8 +98,7 @@ internal sealed class RuleService : BackgroundService
         Rule ruleToDelete = GetRuleById(guild, id)!;
         _guildRules[guild.Id].Remove(ruleToDelete);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         context.RemoveRange(context.Rules.Where(r => r.GuildId == guild.Id));
 
         // propagate IDs downwards
@@ -274,8 +271,7 @@ internal sealed class RuleService : BackgroundService
     {
         rule.Brief = brief;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
         await context.SaveChangesAsync().ConfigureAwait(false);
@@ -303,8 +299,7 @@ internal sealed class RuleService : BackgroundService
     {
         rule.Description = content;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
         await context.SaveChangesAsync().ConfigureAwait(false);
@@ -359,8 +354,7 @@ internal sealed class RuleService : BackgroundService
 
     private async Task LoadRulesAsync()
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (IGrouping<ulong, Rule> guildRules in context.Rules.AsEnumerable().GroupBy(r => r.GuildId))
         {

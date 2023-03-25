@@ -7,11 +7,9 @@ using Hammer.Configuration;
 using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
-using ILogger = NLog.ILogger;
 
 namespace Hammer.Services;
 
@@ -20,27 +18,29 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class MessageReportService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+    private readonly ILogger<MessageReportService> _logger;
+    private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly List<BlockedReporter> _blockedReporters = new();
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
     private readonly DiscordClient _discordClient;
     private readonly MessageTrackingService _messageTrackingService;
     private readonly List<ReportedMessage> _reportedMessages = new();
-    private readonly IServiceScopeFactory _scopeFactory;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MessageReportService" /> class.
     /// </summary>
     public MessageReportService(
-        IServiceScopeFactory scopeFactory,
+        ILogger<MessageReportService> logger,
+        IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
         ConfigurationService configurationService,
         DiscordLogService logService,
         MessageTrackingService messageTrackingService
     )
     {
-        _scopeFactory = scopeFactory;
+        _logger = logger;
+        _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
         _configurationService = configurationService;
         _logService = logService;
@@ -72,8 +72,7 @@ internal sealed class MessageReportService : BackgroundService
             BlockedAt = DateTimeOffset.UtcNow
         };
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         blockedReporter = (await context.AddAsync(blockedReporter).ConfigureAwait(false)).Entity;
         await context.SaveChangesAsync().ConfigureAwait(false);
@@ -102,8 +101,7 @@ internal sealed class MessageReportService : BackgroundService
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         var reportedMessage = new ReportedMessage(message, reporter);
         EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage).ConfigureAwait(false);
@@ -119,9 +117,9 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="member">The member whose received reports to retrieve.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordMember member)
+    public IEnumerable<ReportedMessage> EnumerateReports(DiscordMember member)
     {
-        return EnumerateReportsAsync(member, member.Guild);
+        return EnumerateReports(member, member.Guild);
     }
 
     /// <summary>
@@ -130,7 +128,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="user">The user whose received reports to retrieve.</param>
     /// <param name="guild">The guild whose reports to search.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public async IAsyncEnumerable<ReportedMessage> EnumerateReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IEnumerable<ReportedMessage> EnumerateReports(DiscordUser user, DiscordGuild guild)
     {
         foreach (ReportedMessage reportedMessage in _reportedMessages)
         {
@@ -144,9 +142,9 @@ internal sealed class MessageReportService : BackgroundService
     /// </summary>
     /// <param name="member">The member whose submitted reports to retrieve.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordMember member)
+    public IEnumerable<ReportedMessage> EnumerateSubmittedReports(DiscordMember member)
     {
-        return EnumerateSubmittedReportsAsync(member, member.Guild);
+        return EnumerateSubmittedReports(member, member.Guild);
     }
 
     /// <summary>
@@ -155,7 +153,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="user">The user whose submitted reports to retrieve.</param>
     /// <param name="guild">The guild whose reports to search.</param>
     /// <returns>An enumerable collection of <see cref="ReportedMessage" /> values.</returns>
-    public async IAsyncEnumerable<ReportedMessage> EnumerateSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IEnumerable<ReportedMessage> EnumerateSubmittedReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
@@ -185,10 +183,10 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="member">The member whose received reports to retrieve.</param>
     /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
-    public Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordMember member)
+    public IReadOnlyList<ReportedMessage> GetReports(DiscordMember member)
     {
         ArgumentNullException.ThrowIfNull(member);
-        return GetReportsAsync(member, member.Guild);
+        return GetReports(member, member.Guild);
     }
 
     /// <summary>
@@ -202,14 +200,14 @@ internal sealed class MessageReportService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<IReadOnlyList<ReportedMessage>> GetReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IReadOnlyList<ReportedMessage> GetReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
         var list = new List<ReportedMessage>();
 
-        await foreach (ReportedMessage reportedMessage in EnumerateReportsAsync(user, guild).ConfigureAwait(false))
+        foreach (ReportedMessage reportedMessage in EnumerateReports(user, guild))
             list.Add(reportedMessage);
 
         return list.AsReadOnly();
@@ -221,10 +219,10 @@ internal sealed class MessageReportService : BackgroundService
     /// <param name="member">The member whose submitted reports to retrieve.</param>
     /// <returns>A read-only view of <see cref="ReportedMessage" /> values.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="member" /> is <see langword="null" />.</exception>
-    public Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordMember member)
+    public IReadOnlyList<ReportedMessage> GetSubmittedReports(DiscordMember member)
     {
         ArgumentNullException.ThrowIfNull(member);
-        return GetSubmittedReportsAsync(member, member.Guild);
+        return GetSubmittedReports(member, member.Guild);
     }
 
     /// <summary>
@@ -238,14 +236,14 @@ internal sealed class MessageReportService : BackgroundService
     ///     -or-
     ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
     /// </exception>
-    public async Task<IReadOnlyList<ReportedMessage>> GetSubmittedReportsAsync(DiscordUser user, DiscordGuild guild)
+    public IReadOnlyList<ReportedMessage> GetSubmittedReports(DiscordUser user, DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
         var list = new List<ReportedMessage>();
 
-        await foreach (ReportedMessage reportedMessage in EnumerateSubmittedReportsAsync(user, guild).ConfigureAwait(false))
+        foreach (ReportedMessage reportedMessage in EnumerateSubmittedReports(user, guild))
             list.Add(reportedMessage);
 
         return list.AsReadOnly();
@@ -312,17 +310,19 @@ internal sealed class MessageReportService : BackgroundService
 
         if (IsUserBlocked(reporter, reporter.Guild))
         {
-            Logger.Info($"{reporter} reported a message, but is blocked from doing so");
+            _logger.LogInformation("{Reporter} reported a message, but is blocked from doing so", reporter);
             return false;
         }
 
-        if (message.Author is null)
-            message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
+        DiscordUser author = message.Author;
+        DiscordChannel channel = message.Channel;
+        if (author is null)
+            message = await channel.GetMessageAsync(message.Id).ConfigureAwait(false);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
         {
-            Logger.Warn($"{reporter} attempted to report {message} but the message is deleted!");
+            _logger.LogWarning("{Reporter} attempted to report {Message} but the message is deleted!", reporter, message);
 
             // we can stop tracking reports for a message which is deleted
             _reportedMessages.RemoveAll(m => m.MessageId == message.Id);
@@ -332,15 +332,16 @@ internal sealed class MessageReportService : BackgroundService
         bool duplicateReport = HasUserReportedMessage(message, reporter);
         if (duplicateReport)
         {
-            Logger.Info($"{reporter} attempted to create a duplicate report on " +
-                        $"{message} by {message.Author} in {message.Channel} - this report will not be logged in Discord.");
+            _logger.LogInformation("{Reporter} attempted to create a duplicate report on {Message} by {Author} in {Channel}",
+                reporter, message, author, channel);
+            _logger.LogInformation("This report will not be logged in Discord");
             return false;
         }
 
-        Logger.Info($"{reporter} reported {message} by {message.Author} in {message.Channel}");
+        _logger.LogInformation("{Reporter} reported {Message} by {Author} in {Channel}", reporter, message, author, channel);
         await CreateNewMessageReportAsync(message, reporter).ConfigureAwait(false);
 
-        if (!_configurationService.TryGetGuildConfiguration(message.Channel.Guild, out GuildConfiguration? guildConfiguration))
+        if (!_configurationService.TryGetGuildConfiguration(channel.Guild, out GuildConfiguration? guildConfiguration))
             return false;
 
         int urgentReportThreshold = guildConfiguration.UrgentReportThreshold;
@@ -356,6 +357,13 @@ internal sealed class MessageReportService : BackgroundService
         await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions)
             .ConfigureAwait(false);
         return true;
+    }
+
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _discordClient.GuildAvailable -= OnGuildAvailable;
+        return base.StopAsync(cancellationToken);
     }
 
     /// <summary>
@@ -390,15 +398,14 @@ internal sealed class MessageReportService : BackgroundService
 
         if (!IsUserBlocked(user, staffMember.Guild)) return;
 
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         BlockedReporter? blockedReporter =
             await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == staffMember.Guild.Id)
                 .ConfigureAwait(false);
 
         if (blockedReporter is null)
-            Logger.Warn($"Could not unblock {user}: was allegedly blocked, but dind't find BlockedReporter entity!");
+            _logger.LogWarning("Could not unblock {User}: was allegedly blocked, but didn't find BlockedReporter entity!", user);
         else
         {
             _blockedReporters.Remove(blockedReporter);
@@ -420,8 +427,7 @@ internal sealed class MessageReportService : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
         await context.Database.EnsureCreatedAsync(stoppingToken).ConfigureAwait(false);
 
         _blockedReporters.Clear();
@@ -433,8 +439,7 @@ internal sealed class MessageReportService : BackgroundService
 
     private async Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
-        await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-        await using var context = scope.ServiceProvider.GetRequiredService<HammerContext>();
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (ReportedMessage reportedMessage in context.ReportedMessages.Where(r => r.GuildId == e.Guild.Id))
         {

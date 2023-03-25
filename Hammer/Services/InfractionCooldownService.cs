@@ -7,7 +7,7 @@ using DSharpPlus.SlashCommands;
 using Hammer.Data;
 using Humanizer;
 using Microsoft.Extensions.Hosting;
-using NLog;
+using Microsoft.Extensions.Logging;
 using X10D.DSharpPlus;
 using Timer = System.Timers.Timer;
 
@@ -18,10 +18,18 @@ namespace Hammer.Services;
 /// </summary>
 internal sealed class InfractionCooldownService : BackgroundService
 {
-    private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
-
+    private readonly ILogger<InfractionCooldownService> _logger;
     private readonly Dictionary<Infraction, DateTimeOffset> _hotInfractions = new();
     private readonly Timer _cooldownTimer = new();
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InfractionCooldownService" /> class.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    public InfractionCooldownService(ILogger<InfractionCooldownService> logger)
+    {
+        _logger = logger;
+    }
 
     /// <summary>
     ///     Returns a value indicating whether the specified user has recently received an infraction.
@@ -133,6 +141,15 @@ internal sealed class InfractionCooldownService : BackgroundService
         }
     }
 
+    /// <inheritdoc />
+    public override Task StopAsync(CancellationToken cancellationToken)
+    {
+        _cooldownTimer.Elapsed -= CooldownTimer_Elapsed;
+        _cooldownTimer.Stop();
+
+        return base.StopAsync(cancellationToken);
+    }
+
     /// <summary>
     ///     Stops the cooldown for the specified user.
     /// </summary>
@@ -219,7 +236,7 @@ internal sealed class InfractionCooldownService : BackgroundService
             {
                 if (DateTimeOffset.Now - cooldownStart > TimeSpan.FromMinutes(30))
                 {
-                    Logger.Info($"Cooldown expired for user {infraction.UserId} - removing");
+                    _logger.LogInformation("Cooldown expired for user {Id} - removing", infraction.UserId);
                     StopCooldown(infraction.UserId);
                 }
             }

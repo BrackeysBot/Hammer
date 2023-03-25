@@ -2,7 +2,6 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Configuration;
-using Hammer.Data;
 using Hammer.Resources;
 using Hammer.Services;
 using X10D.DSharpPlus;

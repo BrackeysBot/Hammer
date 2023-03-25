@@ -17,7 +17,8 @@ internal sealed partial class InfractionCommand
         await context.DeferAsync().ConfigureAwait(false);
 
         IReadOnlyList<Infraction> infractions = _infractionService.GetInfractions(user, context.Guild);
-        await _infractionService.RemoveInfractionsAsync(infractions).ConfigureAwait(false);
+        _infractionService.RemoveInfractions(infractions);
+
         int infractionCount = _infractionService.GetInfractionCount(user, context.Guild);
         int differential = infractions.Count - infractionCount;
 

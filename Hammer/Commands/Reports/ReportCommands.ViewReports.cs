@@ -22,8 +22,7 @@ internal sealed partial class ReportCommands
 
         var list = new List<string>();
 
-        await foreach (ReportedMessage reportedMessage in
-                       _reportService.EnumerateReportsAsync(user, context.Guild).ConfigureAwait(false))
+        foreach (ReportedMessage reportedMessage in _reportService.EnumerateReports(user, context.Guild))
         {
             var id = reportedMessage.MessageId.ToString();
 
