@@ -1,4 +1,6 @@
-﻿namespace Hammer.Data;
+﻿using Hammer.Resources;
+
+namespace Hammer.Data;
 
 /// <summary>
 ///     An enumeration of infraction types.
@@ -44,4 +46,21 @@ public enum InfractionType
     ///     Specifies that the infraction is an indefinite ban.
     /// </summary>
     Ban
+}
+
+public static class InfractionTypeExtensions
+{
+    public static string? GetEmbedMessage(this InfractionType type)
+    {
+        return type switch
+        {
+            InfractionType.Warning => EmbedMessages.WarningDescription,
+            InfractionType.TemporaryMute => EmbedMessages.TemporaryMuteDescription,
+            InfractionType.Mute => EmbedMessages.MuteDescription,
+            InfractionType.Kick => EmbedMessages.KickDescription,
+            InfractionType.Ban => EmbedMessages.BanDescription,
+            InfractionType.TemporaryBan => EmbedMessages.TemporaryBanDescription,
+            _ => null
+        };
+    }
 }

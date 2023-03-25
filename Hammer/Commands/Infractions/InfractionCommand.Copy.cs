@@ -25,7 +25,7 @@ internal sealed partial class InfractionCommand
         IEnumerable<Infraction> infractions = _infractionService.EnumerateInfractions(source, context.Guild);
         List<Infraction> copies = infractions.Select(infraction => new Infraction(infraction) {UserId = destination.Id}).ToList();
 
-        await _infractionService.AddInfractionsAsync(copies).ConfigureAwait(false);
+        _infractionService.AddInfractions(copies);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithAuthor(destination);

@@ -1,4 +1,6 @@
-﻿namespace Hammer.Data;
+﻿using Humanizer;
+
+namespace Hammer.Data;
 
 /// <summary>
 ///     Specifies options to provide to <see cref="Hammer.Services.InfractionService.CreateInfractionAsync" />.
@@ -47,6 +49,8 @@ internal readonly struct InfractionOptions
     /// </summary>
     /// <value><see langword="true" /> to notify the user; otherwise, <see langword="false" />.</value>
     public bool NotifyUser { get; init; }
+
+    public string ReadableDuration => Duration.HasValue ? Duration.Value.Humanize() : "permanent";
 
     /// <summary>
     ///     Gets or initializes the reason for the infraction.

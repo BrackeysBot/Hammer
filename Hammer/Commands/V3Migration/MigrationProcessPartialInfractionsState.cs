@@ -36,7 +36,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
     }
 
     /// <inheritdoc />
-    public override async Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
+    public override Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
     {
         _total = _userDataEntries.Sum(u => u.Infractions.Count);
 
@@ -79,7 +79,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
                         $@"Unexpected infraction type {legacyInfraction.Type}")
                 };
 
-                await _infractionService.ModifyInfractionAsync(infraction, instance =>
+                _infractionService.ModifyInfraction(infraction, instance =>
                 {
                     instance.Type = type;
                     instance.GuildId = context.Guild!.Id;
@@ -88,7 +88,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
                     instance.Reason = legacyInfraction.Description;
                     instance.UserId = userData.ID;
                     instance.AdditionalInformation = legacyInfraction.AdditionalInfo?.AsNullIfWhiteSpace();
-                }).ConfigureAwait(false);
+                });
                 
                 Logger.Info($"Migrated information for infraction {infraction.Id}");
                 _completed++;
@@ -96,7 +96,7 @@ internal sealed class MigrationProcessPartialInfractionsState : ConversationStat
         }
 
         cancellationTokenSource.Cancel();
-        return new MigrationCompletedState(Conversation);
+        return Task.FromResult<ConversationState?>(new MigrationCompletedState(Conversation));
     }
 
     private async Task UpdateEmbedAsync(BaseDiscordClient client, DiscordInteraction interaction,

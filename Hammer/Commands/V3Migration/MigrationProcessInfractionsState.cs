@@ -35,7 +35,7 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
     }
 
     /// <inheritdoc />
-    public override async Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
+    public override Task<ConversationState?> InteractAsync(ConversationContext context, CancellationToken cancellationToken)
     {
         _total = _userDataEntries.Sum(u => u.Infractions.Count);
 
@@ -81,13 +81,13 @@ internal sealed class MigrationProcessInfractionsState : ConversationState
                     Reason = legacyInfraction.Description,
                     UserId = userData.ID
                 };
-                await _infractionService.AddInfractionAsync(infraction).ConfigureAwait(false);
+                _infractionService.AddInfraction(infraction);
                 _completed++;
             }
         }
 
         cancellationTokenSource.Cancel();
-        return new MigrationProcessTemporaryBansState(_userDataEntries, Conversation);
+        return Task.FromResult<ConversationState?>(new MigrationProcessTemporaryBansState(_userDataEntries, Conversation));
     }
 
     private async Task UpdateEmbedAsync(BaseDiscordClient client, DiscordInteraction interaction,

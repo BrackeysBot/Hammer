@@ -26,7 +26,7 @@ internal sealed partial class InfractionCommand
         var count = 0;
         foreach (Infraction infraction in infractions)
         {
-            await _infractionService.ModifyInfractionAsync(infraction, i => i.UserId = destination.Id);
+            _infractionService.ModifyInfraction(infraction, i => i.UserId = destination.Id);
             count++;
         }
 

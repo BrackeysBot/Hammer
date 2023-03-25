@@ -70,7 +70,7 @@ internal sealed partial class InfractionCommand
         var newRuleId = (int?) ruleId;
 
         embed.WithColor(DiscordColor.Green);
-        await _infractionService.ModifyInfractionAsync(infraction, i =>
+        _infractionService.ModifyInfraction(infraction, i =>
         {
             if (newRuleId is not null)
             {
@@ -83,7 +83,7 @@ internal sealed partial class InfractionCommand
                 i.Reason = reason;
                 embed.AddField("New Reason", reason);
             }
-        }).ConfigureAwait(false);
+        });
 
         builder.Clear();
         builder.AddEmbed(embed);

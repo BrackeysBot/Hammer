@@ -3,7 +3,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using Hammer.Data;
 using Hammer.Extensions;
-using Hammer.Resources;
 using Humanizer;
 using SmartFormat;
 using X10D.DSharpPlus;
@@ -40,22 +39,14 @@ internal sealed class MailmanService
     {
         ArgumentNullException.ThrowIfNull(infraction);
 
-        DiscordMember member;
-        try
-        {
-            DiscordGuild guild = await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
-            member = await guild.GetMemberAsync(infraction.UserId).ConfigureAwait(false);
-        }
-        catch (NotFoundException)
-        {
-            // bots can only DM users who are in the guild
-            return null;
-        }
+        if (!_discordClient.Guilds.TryGetValue(infraction.GuildId, out DiscordGuild? guild)) return null;
+
+        DiscordMember? member = await guild.GetMemberOrNullAsync(infraction.UserId).ConfigureAwait(false);
+        if (member is null) return null; // bots can only DM members
 
         try
         {
-            DiscordEmbed? embed =
-                await CreatePrivateInfractionEmbedAsync(infraction, infractionCount, options).ConfigureAwait(false);
+            DiscordEmbed? embed = CreatePrivateEmbed(infraction, infractionCount, options, member);
             if (embed is not null)
                 return await member.SendMessageAsync(embed).ConfigureAwait(false);
 
@@ -69,39 +60,12 @@ internal sealed class MailmanService
         }
     }
 
-    private async Task<DiscordEmbed?> CreatePrivateInfractionEmbedAsync(
-        Infraction infraction,
-        int infractionCount,
-        InfractionOptions options
-    )
+    private DiscordEmbed? CreatePrivateEmbed(Infraction infraction, int count, InfractionOptions options, DiscordMember? member)
     {
-        if (infraction.Type == InfractionType.Gag)
-            throw new ArgumentException(ExceptionMessages.NoEmbedForGag, nameof(infraction));
+        if (member is null) return null;
+        if (!_discordClient.Guilds.TryGetValue(infraction.GuildId, out DiscordGuild? guild)) return null;
 
-        DiscordUser user;
-        DiscordGuild guild;
-        try
-        {
-            guild = await _discordClient.GetGuildAsync(infraction.GuildId).ConfigureAwait(false);
-            user = await guild.GetMemberAsync(infraction.UserId).ConfigureAwait(false);
-        }
-        catch (NotFoundException)
-        {
-            // bots can only DM users who are in the guild, and if the guild is valid
-            return null;
-        }
-
-        string? description = infraction.Type switch
-        {
-            InfractionType.Warning => EmbedMessages.WarningDescription,
-            InfractionType.TemporaryMute => EmbedMessages.TemporaryMuteDescription,
-            InfractionType.Mute => EmbedMessages.MuteDescription,
-            InfractionType.Kick => EmbedMessages.KickDescription,
-            InfractionType.Ban => EmbedMessages.BanDescription,
-            InfractionType.TemporaryBan => EmbedMessages.TemporaryBanDescription,
-            _ => null
-        };
-
+        string? description = infraction.Type.GetEmbedMessage();
         string reason = infraction.Reason.WithWhiteSpaceAlternative(Formatter.Italic("No reason given."));
         Rule? rule = null;
 
@@ -112,7 +76,9 @@ internal sealed class MailmanService
 
         embed.WithColor(0xFF0000);
         embed.WithTitle(infraction.Type.Humanize());
-        embed.WithDescription(string.IsNullOrWhiteSpace(description) ? null : description.FormatSmart(new {user, guild}));
+        embed.WithDescription(string.IsNullOrWhiteSpace(description)
+            ? null
+            : description.FormatSmart(new {user = member, guild}));
         embed.WithThumbnail(guild.IconUrl);
         embed.WithFooter(guild.Name, guild.IconUrl);
         embed.AddField("Reason", reason);
@@ -126,21 +92,15 @@ internal sealed class MailmanService
             case InfractionType.Kick:
                 embed.AddField("Punishment", "**KICK**", true);
                 break;
-            case InfractionType.TemporaryMute when options.Duration.HasValue:
-                embed.AddField("Punishment", $"**MUTE**\n{options.Duration.Value.Humanize()}", true);
+            case InfractionType.Mute or InfractionType.TemporaryMute:
+                embed.AddField("Punishment", $"**MUTE**\n{options.ReadableDuration}", true);
                 break;
-            case InfractionType.Mute:
-                embed.AddField("Punishment", "**MUTE**\npermanent", true);
-                break;
-            case InfractionType.TemporaryBan when options.Duration.HasValue:
-                embed.AddField("Punishment", $"**BAN**\n{options.Duration.Value.Humanize()}", true);
-                break;
-            case InfractionType.Ban:
-                embed.AddField("Punishment", "**BAN**\npermanent", true);
+            case InfractionType.Ban or InfractionType.TemporaryBan:
+                embed.AddField("Punishment", $"**BAN**\n{options.ReadableDuration}", true);
                 break;
         }
 
-        embed.AddField("Total Infractions", infractionCount, true);
+        embed.AddField("Total Infractions", count, true);
 
         if (infraction.Type is not InfractionType.Ban or InfractionType.TemporaryBan)
             embed.AddModMailNotice();
