@@ -64,6 +64,7 @@ internal sealed class MessageService
 
         foreach (StaffMessage staffMessage in
                  context.StaffMessages.Where(m => m.RecipientId == recipient.Id && m.GuildId == guild.Id)
+                     .AsEnumerable()
                      .OrderBy(m => m.SentAt))
         {
             yield return staffMessage;

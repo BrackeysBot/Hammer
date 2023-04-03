@@ -159,6 +159,7 @@ internal sealed class MessageDeletionService
 
         foreach (DeletedMessage deletedMessage in
                  context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id)
+                     .AsEnumerable()
                      .OrderBy(m => m.DeletionTimestamp))
         {
             yield return deletedMessage;
