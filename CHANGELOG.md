@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.3] - 2023-03-04
+
+### Fixed
+- Fixed /messagehistory failing to enumerate message history due to SQLite not supporting OrderBy for DateTimeOffset.
+
 ## [5.2.2] - 2023-03-04
 
 ### Changed
@@ -366,6 +371,7 @@ No substantial changes. Commit 3b8259a6cfb82ec0f5f51804c1ac7f1f5880d014 fixed an
 
 - Hammer is released.
 
+[5.2.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.2.3
 [5.2.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.2.2
 [5.2.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.2.1
 [5.2.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.2.0
