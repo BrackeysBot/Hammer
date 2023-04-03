@@ -55,6 +55,12 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
                               Formatter.Timestamp(deletedMessage.CreationTimestamp));
         }
 
+        // GetStaffMessages and GetDeletedMessages yield messages in chronological order,
+        // but to be consistent with /history command, we need to reverse that order so that
+        // most recent messages are displayed first.
+        staffMessages.Reverse();
+        deletedMessages.Reverse();
+
         string staffMessagesResult = staffMessages.Count > 0 ? string.Join("\n", staffMessages) : "*None*";
         string deletedMessagesResult = deletedMessages.Count > 0 ? string.Join("\n", deletedMessages) : "*None*";
 

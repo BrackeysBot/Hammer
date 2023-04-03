@@ -63,7 +63,8 @@ internal sealed class MessageService
         await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (StaffMessage staffMessage in
-                 context.StaffMessages.Where(m => m.RecipientId == recipient.Id && m.GuildId == guild.Id))
+                 context.StaffMessages.Where(m => m.RecipientId == recipient.Id && m.GuildId == guild.Id)
+                     .OrderBy(m => m.SentAt))
         {
             yield return staffMessage;
         }

@@ -158,7 +158,8 @@ internal sealed class MessageDeletionService
         await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
         foreach (DeletedMessage deletedMessage in
-                 context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id))
+                 context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id)
+                     .OrderBy(m => m.DeletionTimestamp))
         {
             yield return deletedMessage;
         }
