@@ -132,7 +132,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         }
         else
         {
-            if (shouldClampDuration && maxModeratorMuteDuration > duration.Value.TotalMilliseconds)
+            if (shouldClampDuration && duration.Value.TotalMilliseconds > maxModeratorMuteDuration)
                 duration = TimeSpan.FromMilliseconds(maxModeratorMuteDuration);
 
             infractionTask = _muteService.TemporaryMuteAsync(user, context.Member!, reason, duration.Value, rule);
