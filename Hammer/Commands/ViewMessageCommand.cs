@@ -71,7 +71,7 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
             string? content = hasContent ? Formatter.Sanitize(deletedMessage.Content) : null;
             string? attachments = hasAttachments ? string.Join('\n', deletedMessage.Attachments.Select(a => a.AbsoluteUri)) : null;
             
-            embed.AddFieldIf(hasContent, "Content", Formatter.BlockCode(content!.Length >= 1014 ? content[..1011] + "..." : content));
+            embed.AddFieldIf(hasContent, "Content", () => Formatter.BlockCode(content!.Length >= 1014 ? content[..1011] + "..." : content));
             embed.AddFieldIf(hasAttachments, "Attachments", attachments);
         }
         else
