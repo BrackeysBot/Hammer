@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -41,12 +41,13 @@ internal sealed class StaffHistoryCommand : ApplicationCommandModule
         embed.WithTitle("Staff History");
         embed.WithColor(DiscordColor.Orange);
         embed.AddField("Total Infractions", staffInfractions.Length, true);
-        embed.AddField("Warnings", staffInfractions.Count(i => i.Type == InfractionType.Warning), true);
-        embed.AddField("Temporary Mutes", staffInfractions.Count(i => i.Type == InfractionType.TemporaryMute), true);
-        embed.AddField("Temporary Bans", staffInfractions.Count(i => i.Type == InfractionType.TemporaryBan), true);
-        embed.AddField("Kicks", staffInfractions.Count(i => i.Type == InfractionType.Kick), true);
-        embed.AddField("Mutes", staffInfractions.Count(i => i.Type == InfractionType.Mute), true);
-        embed.AddField("Bans", staffInfractions.Count(i => i.Type == InfractionType.Ban), true);
+        embed.AddField("Warnings", staffInfractions.Count(i => i.Type == InfractionType.Warning).ToString("N0"), true);
+        embed.AddField("Temporary Mutes", staffInfractions.Count(i => i.Type == InfractionType.TemporaryMute).ToString("N0"),
+            true);
+        embed.AddField("Temporary Bans", staffInfractions.Count(i => i.Type == InfractionType.TemporaryBan).ToString("N0"), true);
+        embed.AddField("Kicks", staffInfractions.Count(i => i.Type == InfractionType.Kick).ToString("N0"), true);
+        embed.AddField("Mutes", staffInfractions.Count(i => i.Type == InfractionType.Mute).ToString("N0"), true);
+        embed.AddField("Bans", staffInfractions.Count(i => i.Type == InfractionType.Ban).ToString("N0"), true);
 
         var builder = new StringBuilder();
         int upperBound = Math.Min(10, staffInfractions.Length);
