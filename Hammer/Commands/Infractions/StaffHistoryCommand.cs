@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
@@ -31,8 +31,10 @@ internal sealed class StaffHistoryCommand : ApplicationCommandModule
     public async Task StaffHistoryAsync(InteractionContext context,
         [Option("staffMember", "The staff member whose infractions to search.")] DiscordUser user)
     {
-        IReadOnlyList<Infraction> infractions = _infractionService.GetInfractions(context.Guild);
-        Infraction[] staffInfractions = infractions.Where(i => i.StaffMemberId == user.Id).ToArray();
+        IEnumerable<Infraction> infractions =
+            _infractionService.GetInfractions(context.Guild).Where(i => i.StaffMemberId == user.Id);
+        Infraction[] staffInfractions =
+            infractions.Where(i => i.StaffMemberId == user.Id).OrderByDescending(i => i.IssuedAt).ToArray();
 
         var embed = new DiscordEmbedBuilder();
         embed.WithAuthor(user);
