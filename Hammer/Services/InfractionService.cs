@@ -796,9 +796,36 @@ internal sealed class InfractionService : BackgroundService
         _logger.LogInformation("Retrieved {Count} infractions for {Guild}", cache.Count, guild);
     }
 
+    private void UpdateInfractionRules(DiscordGuild guild)
+    {
+        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
+            return;
+
+        var updated = new List<Infraction>();
+        foreach (Infraction infraction in cache)
+        {
+            if (!infraction.RuleId.HasValue || !string.IsNullOrWhiteSpace(infraction.RuleText)) continue;
+            if (!_ruleService.GuildHasRule(infraction.GuildId, infraction.RuleId.Value)) continue;
+
+            Rule rule = _ruleService.GetRuleById(infraction.GuildId, infraction.RuleId.Value);
+            infraction.RuleText = rule.Brief ?? rule.Description;
+            updated.Add(infraction);
+        }
+
+        if (updated.Count > 0)
+        {
+            _logger.LogInformation("Updating {Count} infraction rules for {Guild}", updated.Count, guild);
+            
+            using HammerContext context = _dbContextFactory.CreateDbContext();
+            context.UpdateRange(updated);
+            context.SaveChanges();
+        }
+    }
+
     private Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
         LoadGuildInfractions(e.Guild);
+        UpdateInfractionRules(e.Guild);
         return Task.CompletedTask;
     }
 
