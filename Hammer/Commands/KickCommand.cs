@@ -50,7 +50,7 @@ internal sealed class KickCommand : ApplicationCommandModule
     public async Task KickAsync(InteractionContext context,
         [Option("member", "The member to kick.")] DiscordUser user,
         [Option("reason", "The reason for the kick.")] string? reason = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null,
+        [Option("rule", "The rule which was broken.", true), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleQuery = null,
         [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
@@ -89,13 +89,24 @@ internal sealed class KickCommand : ApplicationCommandModule
         try
         {
             Rule? rule = null;
-            if (ruleBroken.HasValue)
+            if (!string.IsNullOrWhiteSpace(ruleQuery))
             {
-                var ruleId = (int) ruleBroken.Value;
-                if (_ruleService.GuildHasRule(context.Guild, ruleId))
-                    rule = _ruleService.GetRuleById(context.Guild, ruleId);
+                if (int.TryParse(ruleQuery, out int ruleId))
+                {
+                    if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                    {
+                        rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                    }
+                }
                 else
+                {
+                    rule = _ruleService.SearchForRule(context.Guild, ruleQuery);
+                }
+
+                if (rule is null)
+                {
                     importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
             }
 
             (infraction, bool dmSuccess) =

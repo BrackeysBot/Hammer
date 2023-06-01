@@ -49,7 +49,7 @@ internal sealed class WarnCommand : ApplicationCommandModule
     public async Task WarnAsync(InteractionContext context,
         [Option("user", "The user to warn.")] DiscordUser user,
         [Option("reason", "The reason for the warning.")] string reason,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] long? ruleBroken = null)
+        [Option("rule", "The rule which was broken.", true), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleQuery = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
@@ -69,13 +69,24 @@ internal sealed class WarnCommand : ApplicationCommandModule
         try
         {
             Rule? rule = null;
-            if (ruleBroken.HasValue)
+            if (!string.IsNullOrWhiteSpace(ruleQuery))
             {
-                var ruleId = (int) ruleBroken.Value;
-                if (_ruleService.GuildHasRule(context.Guild, ruleId))
-                    rule = _ruleService.GetRuleById(context.Guild, ruleId);
+                if (int.TryParse(ruleQuery, out int ruleId))
+                {
+                    if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                    {
+                        rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                    }
+                }
                 else
+                {
+                    rule = _ruleService.SearchForRule(context.Guild, ruleQuery);
+                }
+
+                if (rule is null)
+                {
                     importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
             }
 
             (infraction, bool dmSuccess) =
