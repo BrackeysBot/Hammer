@@ -17,26 +17,31 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
     {
         var ruleService = context.Services.GetRequiredService<RuleService>();
         string query = context.OptionValue?.ToString() ?? string.Empty;
+        IReadOnlyList<Rule> rules = ruleService.GetGuildRules(context.Guild);
+
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return Task.FromResult(rules.Select(r => new DiscordAutoCompleteChoice(GetRuleDescription(r), r.Id)));
+        }
+
+        Rule? rule;
+        DiscordAutoCompleteChoice choice;
 
         if (int.TryParse(query, out int ruleId) && ruleService.GuildHasRule(context.Guild, ruleId))
         {
-            Rule rule = ruleService.GetRuleById(context.Guild, ruleId);
-            var choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
+            rule = ruleService.GetRuleById(context.Guild, ruleId);
+            choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
             return Task.FromResult(new[] {choice}.AsEnumerable());
         }
 
-        if (!string.IsNullOrWhiteSpace(query) && query.Length >= 2)
+        rule = ruleService.SearchForRule(context.Guild, query);
+        if (rule is null)
         {
-            Rule? rule = ruleService.SearchForRule(context.Guild, query);
-            if (rule is not null)
-            {
-                var choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
-                return Task.FromResult(new[] {choice}.AsEnumerable());
-            }
+            return Task.FromResult(rules.Select(r => new DiscordAutoCompleteChoice(GetRuleDescription(r), r.Id)));
         }
 
-        IReadOnlyList<Rule> rules = ruleService.GetGuildRules(context.Guild);
-        return Task.FromResult(rules.Select(rule => new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id)));
+        choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
+        return Task.FromResult(new[] {choice}.AsEnumerable());
     }
 
     private static string GetRuleDescription(Rule rule)
