@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.AutocompleteProviders;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
@@ -29,7 +30,8 @@ internal sealed class RuleCommand : ApplicationCommandModule
 
     [SlashCommand("rule", "Displays a rule.")]
     [SlashRequireGuild]
-    public async Task RuleAsync(InteractionContext context, [Option("rule", "The rule to display.")] string search)
+    public async Task RuleAsync(InteractionContext context,
+        [Option("rule", "The rule to display.", true), Autocomplete(typeof(RuleAutocompleteProvider))] string search)
     {
         DiscordGuild guild = context.Guild;
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
