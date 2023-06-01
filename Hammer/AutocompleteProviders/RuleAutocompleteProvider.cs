@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
-using Hammer.Exceptions;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,31 +15,48 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
     public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext context)
     {
         var ruleService = context.Services.GetRequiredService<RuleService>();
-        string query = context.OptionValue?.ToString() ?? string.Empty;
+        IReadOnlyList<Rule> rules = ruleService.GetGuildRules(context.Guild);
 
-        if (int.TryParse(query, out int ruleId) && ruleService.GuildHasRule(context.Guild, ruleId))
-        {
-            Rule rule = ruleService.GetRuleById(context.Guild, ruleId);
-            var choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
-            return Task.FromResult(new[] {choice}.AsEnumerable());
-        }
+        var result = new List<DiscordAutoCompleteChoice>();
+        string optionValue = context.OptionValue.ToString() ?? string.Empty;
+        bool hasOptionValue = !string.IsNullOrWhiteSpace(optionValue);
 
-        if (!string.IsNullOrWhiteSpace(query) && query.Length >= 2)
+        foreach (Rule rule in rules)
         {
-            Rule? rule = ruleService.SearchForRule(context.Guild, query);
-            if (rule is not null)
+            string brief = rule.Brief ?? string.Empty;
+            string description = rule.Description;
+            if (hasOptionValue &&
+                !brief.Contains(optionValue, StringComparison.OrdinalIgnoreCase) &&
+                !description.Contains(optionValue, StringComparison.OrdinalIgnoreCase))
             {
-                var choice = new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id);
-                return Task.FromResult(new[] {choice}.AsEnumerable());
+                continue;
+            }
+
+            result.Add(new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id.ToString()));
+
+            if (result.Count >= 25)
+            {
+                // Discord only allows 25 choices per autocomplete response
+                break;
             }
         }
 
-        IReadOnlyList<Rule> rules = ruleService.GetGuildRules(context.Guild);
-        return Task.FromResult(rules.Select(rule => new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id)));
+        result.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
+        return Task.FromResult<IEnumerable<DiscordAutoCompleteChoice>>(result);
     }
 
     private static string GetRuleDescription(Rule rule)
     {
-        return $"{rule.Id}: {rule.Brief ?? rule.Description}";
+        string? summary = rule.Brief;
+        if (string.IsNullOrWhiteSpace(summary))
+        {
+            summary = rule.Description;
+            if (summary.Length > 50)
+            {
+                summary = summary[..50] + "...";
+            }
+        }
+
+        return $"{rule.Id}: {summary}";
     }
 }
