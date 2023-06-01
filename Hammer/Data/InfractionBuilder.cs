@@ -117,7 +117,8 @@ internal sealed class InfractionBuilder
             StaffMemberId = StaffMember.Id,
             Reason = Reason,
             IssuedAt = IssuedAt,
-            RuleId = Rule?.Id
+            RuleId = Rule?.Id,
+            RuleText = Rule?.Brief ?? Rule?.Description
         };
     }
 
