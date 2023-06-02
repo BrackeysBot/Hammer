@@ -18,21 +18,20 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
         IReadOnlyList<Rule> rules = ruleService.GetGuildRules(context.Guild);
 
         var result = new List<DiscordAutoCompleteChoice>();
-        string optionValue = context.OptionValue.ToString() ?? string.Empty;
+        string optionValue = context.OptionValue?.ToString() ?? string.Empty;
         bool hasOptionValue = !string.IsNullOrWhiteSpace(optionValue);
 
         foreach (Rule rule in rules)
         {
             string brief = rule.Brief ?? string.Empty;
             string description = rule.Description;
-            if (hasOptionValue &&
-                !brief.Contains(optionValue, StringComparison.OrdinalIgnoreCase) &&
-                !description.Contains(optionValue, StringComparison.OrdinalIgnoreCase))
+            if (!hasOptionValue ||
+                (int.TryParse(optionValue, out int ruleId) && rule.Id == ruleId) ||
+                brief.Equals(optionValue, StringComparison.OrdinalIgnoreCase) ||
+                description.Equals(optionValue, StringComparison.OrdinalIgnoreCase))
             {
-                continue;
+                result.Add(new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id.ToString()));
             }
-
-            result.Add(new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id.ToString()));
 
             if (result.Count >= 25)
             {
@@ -41,7 +40,6 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
             }
         }
 
-        result.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         return Task.FromResult<IEnumerable<DiscordAutoCompleteChoice>>(result);
     }
 
