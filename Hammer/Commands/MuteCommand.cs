@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.AutocompleteProviders;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
@@ -57,7 +58,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         [Option("user", "The user to mute")] DiscordUser user,
         [Option("reason", "The reason for the mute")] string? reason = null,
         [Option("duration", "The duration of the mute")] string? durationRaw = null,
-        [Option("rule", "The rule which was broken.")] long? ruleBroken = null)
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleSearch = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 
@@ -101,13 +102,27 @@ internal sealed class MuteCommand : ApplicationCommandModule
         var importantNotes = new List<string>();
 
         Rule? rule = null;
-        if (ruleBroken.HasValue)
+        if (!string.IsNullOrWhiteSpace(ruleSearch))
         {
-            var ruleId = (int) ruleBroken.Value;
-            if (_ruleService.GuildHasRule(context.Guild, ruleId))
-                rule = _ruleService.GetRuleById(context.Guild, ruleId);
+            if (int.TryParse(ruleSearch, out int ruleId))
+            {
+                if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                {
+                    rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                }
+                else
+                {
+                    importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
+            }
             else
-                importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+            {
+                rule = _ruleService.SearchForRule(context.Guild, ruleSearch);
+                if (rule is null)
+                {
+                    importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
+            }
         }
 
         Task<(Infraction, bool)> infractionTask;
