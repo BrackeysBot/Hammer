@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Infractions now cache the rule text they were issued with, which future-proofs against server rule changes.
 
+## [5.4.2] - 2023-06-02
+
+### Fixed
+- Fixed a bug with rule autocompletion (again)
+
 ## [5.4.1] - 2023-06-01
 
 ### Fixed

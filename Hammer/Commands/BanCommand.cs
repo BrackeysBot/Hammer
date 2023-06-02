@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
@@ -52,7 +52,7 @@ internal sealed class BanCommand : ApplicationCommandModule
         [Option("user", "The user to ban.")] DiscordUser user,
         [Option("reason", "The reason for the ban.")] string? reason = null,
         [Option("duration", "The duration of the ban.")] string? durationRaw = null,
-        [Option("rule", "The rule which was broken.", true), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleQuery = null,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleSearch = null,
         [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
@@ -104,23 +104,26 @@ internal sealed class BanCommand : ApplicationCommandModule
         var importantNotes = new List<string>();
 
         Rule? rule = null;
-        if (!string.IsNullOrWhiteSpace(ruleQuery))
+        if (!string.IsNullOrWhiteSpace(ruleSearch))
         {
-            if (int.TryParse(ruleQuery, out int ruleId))
+            if (int.TryParse(ruleSearch, out int ruleId))
             {
                 if (_ruleService.GuildHasRule(context.Guild, ruleId))
                 {
                     rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
                 }
+                else
+                {
+                    importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
             }
             else
             {
-                rule = _ruleService.SearchForRule(context.Guild, ruleQuery);
-            }
-
-            if (rule is null)
-            {
-                importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                rule = _ruleService.SearchForRule(context.Guild, ruleSearch);
+                if (rule is null)
+                {
+                    importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
+                }
             }
         }
 
