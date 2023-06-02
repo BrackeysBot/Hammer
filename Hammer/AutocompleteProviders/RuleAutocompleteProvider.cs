@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
 using Hammer.Services;
@@ -41,7 +41,6 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
             }
         }
 
-        result.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
         return Task.FromResult<IEnumerable<DiscordAutoCompleteChoice>>(result);
     }
 
