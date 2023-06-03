@@ -199,6 +199,38 @@ internal sealed class RuleService : BackgroundService
     }
 
     /// <summary>
+    ///     Gets a value indicating whether a rule matches a search query.
+    /// </summary>
+    /// <param name="rule">The rule to check.</param>
+    /// <param name="searchTerms">The search query.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="rule" /> matches <paramref name="searchTerms" />; otherwise,
+    ///     <see langword="false" />.
+    /// </returns>
+    public bool RuleMatches(Rule rule, IEnumerable<string> searchTerms)
+    {
+        foreach (string term in searchTerms)
+        {
+            if (!string.IsNullOrWhiteSpace(rule.Brief))
+            {
+                foreach (string word in rule.Brief.Split())
+                {
+                    if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+
+            foreach (string word in rule.Description.Split())
+            {
+                if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
     ///     Searches for a rule by a search query.
     /// </summary>
     /// <param name="guild">The guild whose rules to search.</param>
@@ -224,29 +256,6 @@ internal sealed class RuleService : BackgroundService
         }
 
         return matches.Count > 0 ? matches[0] : null;
-
-        static bool RuleMatches(Rule rule, IEnumerable<string> searchTerms)
-        {
-            foreach (string term in searchTerms)
-            {
-                if (!string.IsNullOrWhiteSpace(rule.Brief))
-                {
-                    foreach (string word in rule.Brief.Split())
-                    {
-                        if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
-                            return true;
-                    }
-                }
-
-                foreach (string word in rule.Description.Split())
-                {
-                    if (word.StartsWith(term, StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-            }
-
-            return false;
-        }
     }
 
     /// <summary>

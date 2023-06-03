@@ -20,15 +20,12 @@ internal sealed class RuleAutocompleteProvider : IAutocompleteProvider
         var result = new List<DiscordAutoCompleteChoice>();
         string optionValue = context.OptionValue?.ToString() ?? string.Empty;
         bool hasOptionValue = !string.IsNullOrWhiteSpace(optionValue);
+        string[] searchTerms = optionValue.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         foreach (Rule rule in rules)
         {
-            string brief = rule.Brief ?? string.Empty;
-            string description = rule.Description;
-            if (!hasOptionValue ||
-                (int.TryParse(optionValue, out int ruleId) && rule.Id == ruleId) ||
-                brief.Equals(optionValue, StringComparison.OrdinalIgnoreCase) ||
-                description.Equals(optionValue, StringComparison.OrdinalIgnoreCase))
+            if (!hasOptionValue || (int.TryParse(optionValue, out int ruleId) && rule.Id == ruleId) ||
+                ruleService.RuleMatches(rule, searchTerms))
             {
                 result.Add(new DiscordAutoCompleteChoice(GetRuleDescription(rule), rule.Id.ToString()));
             }
