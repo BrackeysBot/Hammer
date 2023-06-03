@@ -69,9 +69,10 @@ internal sealed class KickCommand : ApplicationCommandModule
         var importantNotes = new List<string>();
         DiscordMember member;
 
+        DiscordGuild guild = context.Guild;
         try
         {
-            member = await context.Guild.GetMemberAsync(user.Id).ConfigureAwait(false);
+            member = await guild.GetMemberAsync(user.Id).ConfigureAwait(false);
         }
         catch (NotFoundException)
         {
@@ -93,9 +94,9 @@ internal sealed class KickCommand : ApplicationCommandModule
             {
                 if (int.TryParse(ruleSearch, out int ruleId))
                 {
-                    if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                    if (_ruleService.GuildHasRule(guild, ruleId))
                     {
-                        rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                        rule = _ruleService.GetRuleById(guild, ruleId)!;
                     }
                     else
                     {
@@ -104,7 +105,7 @@ internal sealed class KickCommand : ApplicationCommandModule
                 }
                 else
                 {
-                    rule = _ruleService.SearchForRule(context.Guild, ruleSearch);
+                    rule = _ruleService.SearchForRule(guild, ruleSearch);
                     if (rule is null)
                     {
                         importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");

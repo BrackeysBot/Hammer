@@ -71,7 +71,8 @@ internal sealed class MuteCommand : ApplicationCommandModule
             if (!result) return;
         }
 
-        if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
+        DiscordGuild guild = context.Guild;
+        if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
         {
             DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
             await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
@@ -106,9 +107,9 @@ internal sealed class MuteCommand : ApplicationCommandModule
         {
             if (int.TryParse(ruleSearch, out int ruleId))
             {
-                if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                if (_ruleService.GuildHasRule(guild, ruleId))
                 {
-                    rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                    rule = _ruleService.GetRuleById(guild, ruleId)!;
                 }
                 else
                 {
@@ -117,7 +118,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
             }
             else
             {
-                rule = _ruleService.SearchForRule(context.Guild, ruleSearch);
+                rule = _ruleService.SearchForRule(guild, ruleSearch);
                 if (rule is null)
                 {
                     importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");

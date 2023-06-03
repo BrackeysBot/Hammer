@@ -66,7 +66,8 @@ internal sealed class BanCommand : ApplicationCommandModule
             if (!result) return;
         }
 
-        if (await _banService.IsUserBannedAsync(user, context.Guild).ConfigureAwait(false))
+        DiscordGuild guild = context.Guild;
+        if (await _banService.IsUserBannedAsync(user, guild).ConfigureAwait(false))
         {
             var responseBuilder = new DiscordWebhookBuilder();
             var embed = new DiscordEmbedBuilder();
@@ -108,9 +109,9 @@ internal sealed class BanCommand : ApplicationCommandModule
         {
             if (int.TryParse(ruleSearch, out int ruleId))
             {
-                if (_ruleService.GuildHasRule(context.Guild, ruleId))
+                if (_ruleService.GuildHasRule(guild, ruleId))
                 {
-                    rule = _ruleService.GetRuleById(context.Guild, ruleId)!;
+                    rule = _ruleService.GetRuleById(guild, ruleId)!;
                 }
                 else
                 {
@@ -119,7 +120,7 @@ internal sealed class BanCommand : ApplicationCommandModule
             }
             else
             {
-                rule = _ruleService.SearchForRule(context.Guild, ruleSearch);
+                rule = _ruleService.SearchForRule(guild, ruleSearch);
                 if (rule is null)
                 {
                     importantNotes.Add("The specified rule does not exist - it will be omitted from the infraction.");
