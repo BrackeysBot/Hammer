@@ -25,19 +25,20 @@ internal sealed class DatabaseService : BackgroundService
     }
 
     /// <inheritdoc />
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return CreateDatabaseAsync();
+        await CreateDatabaseAsync().ConfigureAwait(false);
     }
 
     private async Task CreateDatabaseAsync()
     {
-        Directory.CreateDirectory("data");
-
         await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
 
-        _logger.LogInformation("Creating database");
-        await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") != "1")
+        {
+            _logger.LogInformation("Creating database");
+            await context.Database.EnsureCreatedAsync().ConfigureAwait(false);
+        }
 
         _logger.LogInformation("Applying migrations");
         await context.Database.MigrateAsync().ConfigureAwait(false);

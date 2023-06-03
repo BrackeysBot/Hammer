@@ -20,7 +20,16 @@ internal sealed class MemberNoteConfiguration : IEntityTypeConfiguration<MemberN
         builder.Property(e => e.UserId);
         builder.Property(e => e.GuildId);
         builder.Property(e => e.AuthorId);
-        builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        {
+            builder.Property(e => e.CreationTimestamp).HasColumnType("DATETIME(6)");
+        }
+        else
+        {
+            builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+        }
+
         builder.Property(e => e.Content);
     }
 }

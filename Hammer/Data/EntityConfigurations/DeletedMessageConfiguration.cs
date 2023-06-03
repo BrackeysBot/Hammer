@@ -21,9 +21,18 @@ internal sealed class DeletedMessageConfiguration : IEntityTypeConfiguration<Del
         builder.Property(e => e.ChannelId);
         builder.Property(e => e.AuthorId);
         builder.Property(e => e.StaffMemberId);
-        builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
-        builder.Property(e => e.DeletionTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
         builder.Property(e => e.Content);
         builder.Property(e => e.Attachments).HasConversion<UriListToBytesConverter>();
+
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        {
+            builder.Property(e => e.CreationTimestamp).HasColumnType("DATETIME(6)");
+            builder.Property(e => e.DeletionTimestamp).HasColumnType("DATETIME(6)");
+        }
+        else
+        {
+            builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+            builder.Property(e => e.DeletionTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+        }
     }
 }

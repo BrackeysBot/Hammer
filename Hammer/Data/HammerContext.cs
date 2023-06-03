@@ -73,7 +73,22 @@ internal sealed class HammerContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        {
+            string host = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
+            string port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
+            string user = Environment.GetEnvironmentVariable("MYSQL_USER") ?? string.Empty;
+            string password = Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? string.Empty;
+            string database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "hammer";
+
+            var connectionString = $"Server={host};Port={port};Database={database};User={user};Password={password};";
+            ServerVersion version = ServerVersion.AutoDetect(connectionString);
+            optionsBuilder.UseMySql(connectionString, version, options => options.EnableRetryOnFailure());
+        }
+        else
+        {
+            optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+        }
     }
 
     /// <inheritdoc />

@@ -17,6 +17,13 @@ internal sealed class MuteConfiguration : IEntityTypeConfiguration<Mute>
 
         builder.Property(e => e.GuildId);
         builder.Property(e => e.UserId);
-        builder.Property(e => e.ExpiresAt).HasConversion<DateTimeOffsetToBytesConverter>();
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        {
+            builder.Property(e => e.ExpiresAt).HasColumnType("DATETIME(6)");
+        }
+        else
+        {
+            builder.Property(e => e.ExpiresAt).HasConversion<DateTimeOffsetToBytesConverter>();
+        }
     }
 }

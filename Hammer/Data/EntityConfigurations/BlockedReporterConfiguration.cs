@@ -18,6 +18,15 @@ internal sealed class BlockedReporterConfiguration : IEntityTypeConfiguration<Bl
         builder.Property(e => e.UserId);
         builder.Property(e => e.GuildId);
         builder.Property(e => e.StaffMemberId);
-        builder.Property(e => e.BlockedAt).HasConversion<DateTimeOffsetToBytesConverter>();
+
+        PropertyBuilder<DateTimeOffset> blockedAtProperty = builder.Property(e => e.BlockedAt);
+        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        {
+            blockedAtProperty.HasColumnType("DATETIME(6)");
+        }
+        else
+        {
+            blockedAtProperty.HasConversion<DateTimeOffsetToBytesConverter>();
+        }
     }
 }
