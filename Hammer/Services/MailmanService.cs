@@ -66,14 +66,15 @@ internal sealed class MailmanService
         string? description = infraction.Type.GetEmbedMessage();
         string reason = infraction.Reason.WithWhiteSpaceAlternative(Formatter.Italic("No reason given."));
         var embed = new DiscordEmbedBuilder();
+        string iconUrl = guild.GetIconUrl(ImageFormat.Png);
 
         embed.WithColor(0xFF0000);
         embed.WithTitle(infraction.Type.Humanize());
         embed.WithDescription(string.IsNullOrWhiteSpace(description)
             ? null
             : description.FormatSmart(new {user = member, guild}));
-        embed.WithThumbnail(guild.IconUrl);
-        embed.WithFooter(guild.Name, guild.IconUrl);
+        embed.WithThumbnail(iconUrl);
+        embed.WithFooter(guild.Name, iconUrl);
         embed.AddField("Reason", reason);
         embed.AddFieldIf(infraction.RuleId.HasValue, "Rule Broken", () => $"{infraction.RuleId} - {infraction.RuleText}", true);
 
