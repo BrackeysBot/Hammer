@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
-- Infractions now cache the rule text they were issued with, which future-proofs against server rule changes
+- Infractions now cache the rule text they were issued with, which future-proofs against server rule changes. This change requires
+a database migration.
 - Added support for MySQL and MariaDB databases
 
 ### Fixed
