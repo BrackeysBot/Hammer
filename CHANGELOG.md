@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.3] - 2023-06-05
+
+### Added
+- Added support for new usernames (#75)
+
 ## [5.4.2] - 2023-06-02
 
 ### Fixed
@@ -402,6 +407,8 @@ No substantial changes. Commit 3b8259a6cfb82ec0f5f51804c1ac7f1f5880d014 fixed an
 
 - Hammer is released.
 
+[5.4.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.3
+[5.4.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.2
 [5.4.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.1
 [5.4.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.0
 [5.3.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.3.1
