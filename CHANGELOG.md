@@ -15,6 +15,17 @@ a database migration.
 ### Fixed
 - Fixed a bug with rule autocompletion (hopefully for the last time) 
 
+## [5.5.1] - 2023-06-09
+
+### Fixed
+- Fixed an issue with the alt log embed mentioning the wrong user
+- Fixed an issue where the author of the alt embed was linked, rather than icon url'd
+
+## [5.5.0] - 2023-06-09
+
+### Added
+- Added `/alt` command
+
 ## [5.4.3] - 2023-06-05
 
 ### Added

@@ -62,13 +62,13 @@ internal sealed class AltAccountService : BackgroundService
         AltAccount[] altAccounts = context.AltAccounts.Where(a => a.AltId == user.Id).ToArray();
 
         var embed = new DiscordEmbedBuilder();
-        embed.WithAuthor(user.GetUsernameWithDiscriminator(), user.GetAvatarUrl(ImageFormat.Png));
+        embed.WithAuthor(user.GetUsernameWithDiscriminator(), iconUrl: user.GetAvatarUrl(ImageFormat.Png));
         embed.WithColor(DiscordColor.Green);
         embed.WithTitle("Alt account registered");
         embed.WithDescription("The following users have been registered as alts of each other.");
         embed.AddField("Main Account", user.Mention, true);
         embed.AddField($"Alt {"Account".ToQuantity(altAccounts.Length, ShowQuantityAs.None)}",
-            string.Join("\n", altAccounts.Select(a => MentionUtility.MentionUser(a.AltId))), true);
+            string.Join("\n", altAccounts.Select(a => MentionUtility.MentionUser(a.UserId))), true);
         embed.AddField("Staff Member", staffMember.Mention, true);
         await _discordLogService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
     }
@@ -131,7 +131,7 @@ internal sealed class AltAccountService : BackgroundService
         await context.SaveChangesAsync();
 
         var embed = new DiscordEmbedBuilder();
-        embed.WithAuthor(user.GetUsernameWithDiscriminator(), user.GetAvatarUrl(ImageFormat.Png));
+        embed.WithAuthor(user.GetUsernameWithDiscriminator(), iconUrl: user.GetAvatarUrl(ImageFormat.Png));
         embed.WithColor(DiscordColor.Orange);
         embed.WithTitle("Alt account unregistered");
         embed.WithDescription("The following users have been unregistered as alts of each other.");
