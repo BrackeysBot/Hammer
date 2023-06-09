@@ -15,6 +15,11 @@ a database migration.
 ### Fixed
 - Fixed a bug with rule autocompletion (hopefully for the last time) 
 
+## [5.5.2] - 2023-06-09
+
+### Added
+- Added a notice about infractions on alternate accounts
+
 ## [5.5.1] - 2023-06-09
 
 ### Fixed
