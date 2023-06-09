@@ -30,6 +30,7 @@ internal sealed class InfractionService : BackgroundService
     private readonly ILogger<InfractionService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
+    private readonly AltAccountService _altAccountService;
     private readonly ConfigurationService _configurationService;
     private readonly DiscordLogService _logService;
     private readonly InfractionCooldownService _cooldownService;
@@ -43,6 +44,7 @@ internal sealed class InfractionService : BackgroundService
         ILogger<InfractionService> logger,
         IDbContextFactory<HammerContext> dbContextFactory,
         DiscordClient discordClient,
+        AltAccountService altAccountService,
         ConfigurationService configurationService,
         DiscordLogService logService,
         InfractionCooldownService cooldownService,
@@ -53,6 +55,7 @@ internal sealed class InfractionService : BackgroundService
         _logger = logger;
         _dbContextFactory = dbContextFactory;
         _discordClient = discordClient;
+        _altAccountService = altAccountService;
         _configurationService = configurationService;
         _logService = logService;
         _cooldownService = cooldownService;
@@ -275,6 +278,15 @@ internal sealed class InfractionService : BackgroundService
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
         embed.WithAuthor(user);
+        IReadOnlyCollection<ulong> alts = _altAccountService.GetAltsFor(user.Id);
+        Infraction[] altInfractions = alts.SelectMany(alt => GetInfractions(alt, response.Guild.Id, searchOptions)).ToArray();
+        
+        if (response.StaffRequested && page == response.Pages - 1 && alts.Count > 0 && altInfractions.Length > 0)
+        {
+            string infractionNumber = "additional infraction".ToQuantity(altInfractions.Length);
+            string altNumber = "alt account".ToQuantity(alts.Count);
+            embed.WithFooter($"⚠️ This user has {infractionNumber} on {altNumber}.");
+        }
 
         const int infractionsPerPage = 10;
         page = (int) Math.Clamp(page, 0, MathF.Ceiling(infractions.Count / 10.0f));
@@ -598,6 +610,31 @@ internal sealed class InfractionService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
+        return GetInfractions(user.Id, guild.Id, searchOptions);
+    }
+
+    /// <summary>
+    ///     Returns all infractions for a user in the specified guild.
+    /// </summary>
+    /// <param name="user">The user whose infractions to return.</param>
+    /// <param name="guild">The guild whose infractions to search.</param>
+    /// <param name="searchOptions">A structure containing options to filter the search results.</param>
+    /// <returns>
+    ///     A read-only view of the list of <see cref="Infraction" /> objects issued to <paramref name="user" /> in
+    ///     <paramref name="guild" />.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <para><paramref name="user" /> is <see langword="null" /></para>
+    ///     -or-
+    ///     <para><paramref name="guild" /> is <see langword="null" />.</para>
+    /// </exception>
+    /// <exception cref="ArgumentException"><paramref name="searchOptions" /> contains invalid property values.</exception>
+    public IReadOnlyList<Infraction> GetInfractions(
+        ulong userId,
+        ulong guildId,
+        InfractionSearchOptions searchOptions = default
+    )
+    {
         switch (searchOptions)
         {
             case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
@@ -606,13 +643,12 @@ internal sealed class InfractionService : BackgroundService
                 throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
         }
 
-        if (!_infractionCache.TryGetValue(guild.Id, out List<Infraction>? cache))
+        if (!_infractionCache.TryGetValue(guildId, out List<Infraction>? cache))
             return ArraySegment<Infraction>.Empty;
 
         int count = cache.Count;
         var infractions = new Infraction[count];
         var resultIndex = 0;
-        ulong userId = user.Id;
 
         for (var index = 0; index < infractions.Length; index++)
         {
