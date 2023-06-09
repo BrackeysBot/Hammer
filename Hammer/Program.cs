@@ -42,6 +42,7 @@ await Host.CreateDefaultBuilder(args)
         services.AddHostedService<StaffReactionService>();
         services.AddHostedService<UserReactionService>();
 
+        services.AddHostedSingleton<AltAccountService>();
         services.AddHostedSingleton<BanService>();
         services.AddHostedSingleton<DiscordLogService>();
         services.AddHostedSingleton<InfractionService>();

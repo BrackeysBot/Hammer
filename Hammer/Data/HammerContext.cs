@@ -9,6 +9,12 @@ namespace Hammer.Data;
 internal sealed class HammerContext : DbContext
 {
     /// <summary>
+    ///     Gets the set of alt accounts.
+    /// </summary>
+    /// <value>The set of alt accounts.</value>
+    public DbSet<AltAccount> AltAccounts { get; private set; } = null!;
+
+    /// <summary>
     ///     Gets the set of users who are blocked from making reports.
     /// </summary>
     /// <value>The set of blocked reporters.</value>
@@ -81,6 +87,7 @@ internal sealed class HammerContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.ApplyConfiguration(new AltAccountConfiguration());
         modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration());
         modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration());
         modelBuilder.ApplyConfiguration(new InfractionConfiguration());
