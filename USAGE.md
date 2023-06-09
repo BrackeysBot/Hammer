@@ -69,6 +69,34 @@ Unblocks a user, so that their message reports are acknowledged.
 |:----------|:---------|:-------------------|:-----------------------------------|
 | user      | ✅ Yes    | User mention or ID | The user whose reports to unblock. |
 
+## Alt account management
+
+### `/alt add`
+
+Adds an alt account to a user's record.
+
+| Parameter | Required | Type               | Description                        |
+|:----------|:---------|:-------------------|:-----------------------------------|
+| user      | ✅ Yes    | User mention or ID | The user whose alt to add.         |
+| alt       | ✅ Yes    | User mention or ID | The user's alt account to add.     |
+
+### `/alt remove`
+
+Removes an alt account from a user's record.
+
+| Parameter | Required | Type               | Description                        |
+|:----------|:---------|:-------------------|:-----------------------------------|
+| user      | ✅ Yes    | User mention or ID | The user whose alt to remove.      |
+| alt       | ✅ Yes    | User mention or ID | The user's alt account to remove.  |
+
+### `/alt view`
+
+Views a user's alt accounts.
+
+| Parameter | Required | Type               | Description                        |
+|:----------|:---------|:-------------------|:-----------------------------------|
+| user      | ✅ Yes    | User mention or ID | The user whose alts to view.       |
+
 ## Issuing and revoking infractions
 
 ### `/ban`
