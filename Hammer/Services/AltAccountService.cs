@@ -68,7 +68,7 @@ internal sealed class AltAccountService : BackgroundService
         embed.WithDescription("The following users have been registered as alts of each other.");
         embed.AddField("Main Account", user.Mention, true);
         embed.AddField($"Alt {"Account".ToQuantity(altAccounts.Length, ShowQuantityAs.None)}",
-            string.Join("\n", altAccounts.Select(a => MentionUtility.MentionUser(a.AltId))), true);
+            string.Join("\n", altAccounts.Select(a => MentionUtility.MentionUser(a.UserId))), true);
         embed.AddField("Staff Member", staffMember.Mention, true);
         await _discordLogService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
     }
