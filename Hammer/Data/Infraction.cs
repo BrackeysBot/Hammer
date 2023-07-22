@@ -68,6 +68,12 @@ internal sealed class Infraction : IEquatable<Infraction>, IComparable<Infractio
     public int? RuleId { get; internal set; }
 
     /// <summary>
+    ///     Gets the text of the rule which was broken.
+    /// </summary>
+    /// <value>The broken rule text.</value>
+    public string? RuleText { get; internal set; }
+
+    /// <summary>
     ///     Gets the ID of the staff member who issued the infraction.
     /// </summary>
     /// <value>The ID of the staff member.</value>

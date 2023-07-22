@@ -28,17 +28,13 @@ internal sealed partial class InfractionCommand
         }
         else
         {
-            Rule? rule = null;
-            if (infraction.RuleId is { } ruleId)
-                rule = _ruleService.GetRuleById(context.Guild, ruleId);
-
             embed.WithColor(DiscordColor.Orange);
             embed.WithTitle($"Infraction {infraction.Id}");
             embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
             embed.AddField("Type", infraction.Type.Humanize(), true);
             embed.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
             embed.AddField("Issued", Formatter.Timestamp(infraction.IssuedAt), true);
-            embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+            embed.AddFieldIf(infraction.RuleId.HasValue, "Rule Broken", () => $"{infraction.RuleId} - {infraction.RuleText}", true);
             embed.AddFieldIf(infraction.Reason is not null, "Reason", () => infraction.Reason);
             embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", () => infraction.AdditionalInformation);
         }
