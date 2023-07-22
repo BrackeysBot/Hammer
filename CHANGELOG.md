@@ -7,13 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-### Added
-- Infractions now cache the rule text they were issued with, which future-proofs against server rule changes. This change requires
-a database migration.
-- Added support for MySQL and MariaDB databases
-
 ### Fixed
 - Fixed a bug with rule autocompletion (hopefully for the last time) 
+
+## [5.6.0] - 2023-07-22
+
+### Added
+- Infractions now store the rule text to avoid breaking changes to server rule list.
 
 ## [5.5.2] - 2023-06-09
 
