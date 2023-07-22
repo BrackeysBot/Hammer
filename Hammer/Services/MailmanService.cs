@@ -16,15 +16,13 @@ namespace Hammer.Services;
 internal sealed class MailmanService
 {
     private readonly DiscordClient _discordClient;
-    private readonly RuleService _ruleService;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MailmanService" /> class.
     /// </summary>
-    public MailmanService(DiscordClient discordClient, RuleService ruleService)
+    public MailmanService(DiscordClient discordClient)
     {
         _discordClient = discordClient;
-        _ruleService = ruleService;
     }
 
     /// <summary>
@@ -67,11 +65,6 @@ internal sealed class MailmanService
 
         string? description = infraction.Type.GetEmbedMessage();
         string reason = infraction.Reason.WithWhiteSpaceAlternative(Formatter.Italic("No reason given."));
-        Rule? rule = null;
-
-        if (infraction.RuleId.HasValue)
-            rule = _ruleService.GetRuleById(guild, infraction.RuleId.Value);
-
         var embed = new DiscordEmbedBuilder();
 
         embed.WithColor(0xFF0000);
@@ -82,7 +75,7 @@ internal sealed class MailmanService
         embed.WithThumbnail(guild.IconUrl);
         embed.WithFooter(guild.Name, guild.IconUrl);
         embed.AddField("Reason", reason);
-        embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
+        embed.AddFieldIf(infraction.RuleId.HasValue, "Rule Broken", () => $"{infraction.RuleId} - {infraction.RuleText}", true);
 
         switch (infraction.Type)
         {
