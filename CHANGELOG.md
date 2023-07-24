@@ -428,6 +428,10 @@ No substantial changes. Commit 3b8259a6cfb82ec0f5f51804c1ac7f1f5880d014 fixed an
 
 - Hammer is released.
 
+[5.6.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.6.0
+[5.5.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.5.2
+[5.5.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.5.1
+[5.5.0]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.5.0
 [5.4.3]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.3
 [5.4.2]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.2
 [5.4.1]: https://github.com/BrackeysBot/Hammer/releases/tag/v5.4.1
