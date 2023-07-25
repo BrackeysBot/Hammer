@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Fixed
-- Fixed a bug with rule autocompletion (hopefully for the last time) 
+- Fixed a bug with rule autocompletion (hopefully for the last time).
+- Fixed parsing of /gag duration.
 
 ## [5.6.1] - 2023-07-24
 
