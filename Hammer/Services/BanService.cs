@@ -57,7 +57,7 @@ internal sealed class BanService : BackgroundService
     /// <param name="temporaryBan">The temporary ban to add.</param>
     /// <returns>The <see cref="TemporaryBan" /> entity.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="temporaryBan" /> is <see langword="null" />.</exception>
-    public async Task<TemporaryBan> AddTemporaryBanAsync(TemporaryBan temporaryBan)
+    public TemporaryBan AddTemporaryBan(TemporaryBan temporaryBan)
     {
         ArgumentNullException.ThrowIfNull(temporaryBan);
         TemporaryBan? existingBan;
@@ -69,17 +69,17 @@ internal sealed class BanService : BackgroundService
                 return existingBan;
         }
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
 
-        existingBan = await context.TemporaryBans.FindAsync(temporaryBan.UserId, temporaryBan.GuildId).ConfigureAwait(false);
+        existingBan = context.TemporaryBans.Find(temporaryBan.UserId, temporaryBan.GuildId);
         if (existingBan is not null)
             return existingBan;
 
         lock (_temporaryBans)
             _temporaryBans.Add(temporaryBan);
 
-        temporaryBan = (await context.TemporaryBans.AddAsync(temporaryBan).ConfigureAwait(false)).Entity;
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        temporaryBan = context.TemporaryBans.Add(temporaryBan).Entity;
+        context.SaveChanges();
         return temporaryBan;
     }
 
@@ -385,7 +385,7 @@ internal sealed class BanService : BackgroundService
         };
 
         DiscordGuild guild = issuer.Guild;
-        await CreateTemporaryBanAsync(user, guild, options.ExpirationTime.Value).ConfigureAwait(false);
+        CreateTemporaryBan(user, guild, options.ExpirationTime.Value);
 
         (Infraction infraction, bool success) = await _infractionService
             .CreateInfractionAsync(InfractionType.TemporaryBan, user, issuer, options)
@@ -445,16 +445,17 @@ internal sealed class BanService : BackgroundService
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _timer.Start();
-        return UpdateFromDatabaseAsync();
+        Load();
+        return Task.CompletedTask;
     }
 
-    private async Task CreateTemporaryBanAsync(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
+    private void CreateTemporaryBan(DiscordUser user, DiscordGuild guild, DateTimeOffset expirationTime)
     {
         var temporaryBan = TemporaryBan.Create(user, guild, expirationTime);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        EntityEntry<TemporaryBan> entry = await context.TemporaryBans.AddAsync(temporaryBan).ConfigureAwait(false);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
+        EntityEntry<TemporaryBan> entry = context.TemporaryBans.Add(temporaryBan);
+        context.SaveChanges();
 
         temporaryBan = entry.Entity;
 
@@ -487,9 +488,9 @@ internal sealed class BanService : BackgroundService
         }
     }
 
-    private async Task UpdateFromDatabaseAsync()
+    private void Load()
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         lock (_temporaryBans)
         {
             _temporaryBans.Clear();
