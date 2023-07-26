@@ -1,5 +1,9 @@
-﻿using Hammer.Data.EntityConfigurations;
+using Hammer.Configuration;
+using Hammer.Data.EntityConfigurations;
+using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MuteConfiguration = Hammer.Data.EntityConfigurations.MuteConfiguration;
 
 namespace Hammer.Data;
 
@@ -8,6 +12,20 @@ namespace Hammer.Data;
 /// </summary>
 internal sealed class HammerContext : DbContext
 {
+    private readonly ILogger<HammerContext> _logger;
+    private readonly ConfigurationService _configurationService;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="HammerContext" /> class.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="configurationService">The configuration service.</param>
+    public HammerContext(ILogger<HammerContext> logger, ConfigurationService configurationService)
+    {
+        _logger = logger;
+        _configurationService = configurationService;
+    }
+
     /// <summary>
     ///     Gets the set of alt accounts.
     /// </summary>
@@ -79,21 +97,16 @@ internal sealed class HammerContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        DatabaseConfiguration databaseConfiguration = _configurationService.BotConfiguration.Database;
+        switch (databaseConfiguration.Provider)
         {
-            string host = Environment.GetEnvironmentVariable("MYSQL_HOST") ?? "localhost";
-            string port = Environment.GetEnvironmentVariable("MYSQL_PORT") ?? "3306";
-            string user = Environment.GetEnvironmentVariable("MYSQL_USER") ?? string.Empty;
-            string password = Environment.GetEnvironmentVariable("MYSQL_PASSWORD") ?? string.Empty;
-            string database = Environment.GetEnvironmentVariable("MYSQL_DATABASE") ?? "hammer";
+            case "sqlite":
+                _logger.LogTrace("Using SQLite database provider");
+                optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+                break;
 
-            var connectionString = $"Server={host};Port={port};Database={database};User={user};Password={password};";
-            ServerVersion version = ServerVersion.AutoDetect(connectionString);
-            optionsBuilder.UseMySql(connectionString, version, options => options.EnableRetryOnFailure());
-        }
-        else
-        {
-            optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+            default:
+                throw new InvalidOperationException("Invalid database provider.");
         }
     }
 
@@ -102,16 +115,16 @@ internal sealed class HammerContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new AltAccountConfiguration());
-        modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration());
-        modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new InfractionConfiguration());
-        modelBuilder.ApplyConfiguration(new MemberNoteConfiguration());
-        modelBuilder.ApplyConfiguration(new MuteConfiguration());
-        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration());
-        modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration());
-        modelBuilder.ApplyConfiguration(new RuleConfiguration());
+        modelBuilder.ApplyConfiguration(new AltAccountConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new InfractionConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new MemberNoteConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new MuteConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new RuleConfiguration(_configurationService));
     }
 }

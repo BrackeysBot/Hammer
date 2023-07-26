@@ -22,6 +22,12 @@ internal sealed class ConfigurationService
     }
 
     /// <summary>
+    ///     Gets the bot configuration.
+    /// </summary>
+    /// <value>The bot configuration.</value>
+    public BotConfiguration BotConfiguration => _configuration.Get<BotConfiguration>() ?? new BotConfiguration();
+
+    /// <summary>
     ///     Gets the bot configuration for the specified guild.
     /// </summary>
     /// <param name="guild">The guild whose configuration to retrieve.</param>

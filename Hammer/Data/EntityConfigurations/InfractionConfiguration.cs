@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Hammer.Configuration;
+using Hammer.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -9,10 +11,23 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infraction>
 {
+    private readonly ConfigurationService _configurationService;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InfractionConfiguration" /> class.
+    /// </summary>
+    /// <param name="configurationService">The configuration service.</param>
+    public InfractionConfiguration(ConfigurationService configurationService)
+    {
+        _configurationService = configurationService;
+    }
+
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Infraction> builder)
     {
-        builder.ToTable(nameof(Infraction));
+        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
+        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
+        builder.ToTable(tablePrefix + nameof(Infraction));
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);
@@ -21,13 +36,13 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
         builder.Property(e => e.StaffMemberId);
         builder.Property(e => e.Type);
 
-        if (Environment.GetEnvironmentVariable("USE_MYSQL") == "1")
+        if (_configurationService.BotConfiguration.Database.Provider == "sqlite")
         {
-            builder.Property(e => e.IssuedAt).HasColumnType("DATETIME(6)");
+            builder.Property(e => e.IssuedAt).HasConversion<DateTimeOffsetToBytesConverter>();
         }
         else
         {
-            builder.Property(e => e.IssuedAt).HasConversion<DateTimeOffsetToBytesConverter>();
+            builder.Property(e => e.IssuedAt).HasColumnType("DATETIME(6)");
         }
 
         builder.Property(e => e.Reason);

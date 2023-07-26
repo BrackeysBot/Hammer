@@ -1,4 +1,6 @@
-﻿using Hammer.Data.ValueConverters;
+﻿using Hammer.Configuration;
+using Hammer.Data.ValueConverters;
+using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,10 +11,23 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedMessage>
 {
+    private readonly ConfigurationService _configurationService;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ReportedMessageConfiguration" /> class.
+    /// </summary>
+    /// <param name="configurationService">The configuration service.</param>
+    public ReportedMessageConfiguration(ConfigurationService configurationService)
+    {
+        _configurationService = configurationService;
+    }
+
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<ReportedMessage> builder)
     {
-        builder.ToTable(nameof(ReportedMessage));
+        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
+        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
+        builder.ToTable(tablePrefix + nameof(ReportedMessage));
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);
