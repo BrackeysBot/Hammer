@@ -13,6 +13,8 @@ using Timer = System.Timers.Timer;
 
 namespace Hammer.Services;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 /// <summary>
 ///     Represents a service which handles infraction cooldowns, to prevent duplicate issues.
 /// </summary>

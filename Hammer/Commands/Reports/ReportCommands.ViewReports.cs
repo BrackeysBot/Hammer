@@ -9,6 +9,8 @@ using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Reports;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 internal sealed partial class ReportCommands
 {
     [SlashCommand("viewreports", "Views all reports made against this user.", false)]

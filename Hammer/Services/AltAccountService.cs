@@ -9,6 +9,8 @@ using X10D.DSharpPlus;
 
 namespace Hammer.Services;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 /// <summary>
 ///     Represents a service which manages alt accounts.
 /// </summary>

@@ -9,6 +9,8 @@ using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Reports;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 internal sealed partial class ReportCommands
 {
     [SlashCommand("viewsubmittedreports", "Views all reports submitted by a user.", false)]

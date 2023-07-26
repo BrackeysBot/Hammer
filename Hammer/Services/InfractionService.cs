@@ -19,6 +19,8 @@ using TimestampFormat = DSharpPlus.TimestampFormat;
 
 namespace Hammer.Services;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 /// <summary>
 ///     Represents a service which handles and manipulates infractions.
 /// </summary>

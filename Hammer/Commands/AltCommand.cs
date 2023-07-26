@@ -8,6 +8,8 @@ using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 [SlashCommandGroup("alt", "Commands for managing alt accounts.", false)]
 internal sealed class AltCommand : ApplicationCommandModule
 {

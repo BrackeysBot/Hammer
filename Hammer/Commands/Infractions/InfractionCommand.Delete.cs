@@ -6,6 +6,8 @@ using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Infractions;
 
+using MentionUtility = X10D.DSharpPlus.MentionUtility;
+
 internal sealed partial class InfractionCommand
 {
     [SlashCommand("delete", "Deletes an infraction.", false)]
