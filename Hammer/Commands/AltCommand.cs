@@ -29,7 +29,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         [Option("alt", "The alt account to add.")] DiscordUser alt)
     {
         await context.DeferAsync().ConfigureAwait(false);
-        await _altAccountService.AddAltAsync(user, alt, context.Member).ConfigureAwait(false);
+        _altAccountService.AddAlt(user, alt, context.Member);
 
         DiscordUser olderAccount = user.CreationTimestamp > alt.CreationTimestamp ? alt : user;
 
@@ -51,7 +51,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         [Option("alt", "The alt account to remove.")] DiscordUser alt)
     {
         await context.DeferAsync().ConfigureAwait(false);
-        await _altAccountService.RemoveAltAsync(user, alt, context.Member).ConfigureAwait(false);
+        _altAccountService.RemoveAlt(user, alt, context.Member);
 
         var embed = new DiscordEmbedBuilder();
         embed.WithAuthor(user.GetUsernameWithDiscriminator(), iconUrl: user.GetAvatarUrl(ImageFormat.Png));
