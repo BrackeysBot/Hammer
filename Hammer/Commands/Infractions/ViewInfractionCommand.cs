@@ -3,17 +3,30 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
+using Hammer.Services;
 using Humanizer;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Infractions;
 
-internal sealed partial class InfractionCommand
+internal sealed class ViewInfractionCommand : ApplicationCommandModule
 {
-    [SlashCommand("view", "Views an infraction.", false)]
+    private readonly InfractionService _infractionService;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ViewInfractionCommand" /> class.
+    /// </summary>
+    /// <param name="infractionService">The infraction service.</param>
+    public ViewInfractionCommand(InfractionService infractionService)
+    {
+        _infractionService = infractionService;
+    }
+
+    [SlashCommand("viewinfraction", "Views an infraction.", false)]
     [SlashRequireGuild]
-    public async Task ViewAsync(InteractionContext context,
-        [Option("infraction", "The infraction to view.")] long infractionId
+    public async Task ViewInfractionAsync(InteractionContext context,
+        [Option("infraction", "The infraction to view.")]
+        long infractionId
     )
     {
         await context.DeferAsync().ConfigureAwait(false);
@@ -34,9 +47,11 @@ internal sealed partial class InfractionCommand
             embed.AddField("Type", infraction.Type.Humanize(), true);
             embed.AddField("Staff Member", MentionUtility.MentionUser(infraction.StaffMemberId), true);
             embed.AddField("Issued", Formatter.Timestamp(infraction.IssuedAt), true);
-            embed.AddFieldIf(infraction.RuleId.HasValue, "Rule Broken", () => $"{infraction.RuleId} - {infraction.RuleText}", true);
+            embed.AddFieldIf(infraction.RuleId.HasValue, "Rule Broken", () => $"{infraction.RuleId} - {infraction.RuleText}",
+                true);
             embed.AddFieldIf(infraction.Reason is not null, "Reason", () => infraction.Reason);
-            embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", () => infraction.AdditionalInformation);
+            embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information",
+                () => infraction.AdditionalInformation);
         }
 
         var builder = new DiscordWebhookBuilder();

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Temporary ban DM no longer contains ModMail notice.
+- `/infraction view` subcommand has been moved to `/viewinfraction` root command to allow for more strict permissions on
+modification.
 
 ### Removed
 - Removed `/migrate` command.

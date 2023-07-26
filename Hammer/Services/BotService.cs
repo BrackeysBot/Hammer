@@ -93,6 +93,7 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<StaffHistoryCommand>();
         slashCommands.RegisterCommands<UnbanCommand>();
         slashCommands.RegisterCommands<UnmuteCommand>();
+        slashCommands.RegisterCommands<ViewInfractionCommand>();
         slashCommands.RegisterCommands<ViewMessageCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
         RegisterEvents();
