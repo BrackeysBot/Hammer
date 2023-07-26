@@ -98,7 +98,7 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<ViewMessageCommand>();
         slashCommands.RegisterCommands<WarnCommand>();
         RegisterEvents();
-        
+
         _logger.LogInformation("Connecting to Discord");
         await _discordClient.ConnectAsync().ConfigureAwait(false);
     }
@@ -127,7 +127,9 @@ internal sealed class BotService : BackgroundService
     {
         _logger.LogError(args.Exception, "An exception was thrown when performing autocomplete");
         if (args.Exception is DiscordException discordException)
+        {
             _logger.LogError("API response: {Response}", discordException.JsonMessage);
+        }
 
         return Task.CompletedTask;
     }
@@ -137,38 +139,48 @@ internal sealed class BotService : BackgroundService
         ContextMenuContext context = args.Context;
         if (args.Exception is ContextMenuExecutionChecksFailedException)
         {
-            context.CreateResponseAsync("You do not have permission to use this command.", true);
-            return Task.CompletedTask; // no need to log ChecksFailedException
+            // no need to log ChecksFailedException
+            return context.CreateResponseAsync("You do not have permission to use this command.", true);
         }
 
         string? name = context.Interaction.Data.Name;
         _logger.LogError(args.Exception, "An exception was thrown when executing context menu '{Name}'", name);
         if (args.Exception is DiscordException discordException)
-            _logger.LogError("API response: {Response}", discordException.JsonMessage);
+        {
+            _logger.LogError("API response: {Message}", discordException.JsonMessage);
+        }
 
         return Task.CompletedTask;
     }
 
     private Task OnContextMenuInvoked(SlashCommandsExtension _, ContextMenuInvokedEventArgs args)
     {
-        ContextMenuContext context = args.Context;
-        DiscordInteractionResolvedCollection? resolved = context.Interaction?.Data?.Resolved;
+        DiscordInteractionResolvedCollection? resolved = args.Context.Interaction?.Data?.Resolved;
         var properties = new List<string>();
-        if (resolved?.Attachments?.Count > 0)
-            properties.Add($"attachments: {string.Join(", ", resolved.Attachments.Select(a => a.Value.Url))}");
-        if (resolved?.Channels?.Count > 0)
-            properties.Add($"channels: {string.Join(", ", resolved.Channels.Select(c => c.Value.Name))}");
-        if (resolved?.Members?.Count > 0)
-            properties.Add($"members: {string.Join(", ", resolved.Members.Select(m => m.Value.Id))}");
-        if (resolved?.Messages?.Count > 0)
-            properties.Add($"messages: {string.Join(", ", resolved.Messages.Select(m => m.Value.Id))}");
-        if (resolved?.Roles?.Count > 0) properties.Add($"roles: {string.Join(", ", resolved.Roles.Select(r => r.Value.Id))}");
-        if (resolved?.Users?.Count > 0) properties.Add($"users: {string.Join(", ", resolved.Users.Select(r => r.Value.Id))}");
 
-        _logger.LogInformation("{User} invoked context menu {Command} with resolved {Properties}", context.User,
-            context.CommandName, string.Join("; ", properties));
+        AddProperty("attachments", resolved?.Attachments, a => a.Url);
+        AddProperty("channels", resolved?.Channels, c => c.Name);
+        AddProperty("members", resolved?.Members, m => m.Id);
+        AddProperty("messages", resolved?.Messages, m => m.Id);
+        AddProperty("roles", resolved?.Roles, r => r.Id);
+        AddProperty("users", resolved?.Users, u => u.Id);
+
+        DiscordUser user = args.Context.User;
+        string command = args.Context.CommandName;
+        string propertyString = string.Join("; ", properties);
+        _logger.LogInformation("{User} ran context menu '{Command}' with resolved {Properties}", user, command, propertyString);
 
         return Task.CompletedTask;
+
+        void AddProperty<T, TResult>(string name, IReadOnlyDictionary<ulong, T>? dictionary, Func<T, TResult> selector)
+        {
+            if (dictionary is null || dictionary.Count == 0)
+            {
+                return;
+            }
+
+            properties.Add($"{name}: {string.Join(", ", dictionary.Select(r => selector(r.Value)))}");
+        }
     }
 
     private Task OnSlashCommandErrored(SlashCommandsExtension _, SlashCommandErrorEventArgs args)
@@ -176,14 +188,16 @@ internal sealed class BotService : BackgroundService
         InteractionContext context = args.Context;
         if (args.Exception is SlashExecutionChecksFailedException)
         {
-            context.CreateResponseAsync("You do not have permission to use this command.", true);
-            return Task.CompletedTask; // no need to log SlashExecutionChecksFailedException
+            // no need to log SlashExecutionChecksFailedException
+            return context.CreateResponseAsync("You do not have permission to use this command.", true);
         }
 
         string? name = context.Interaction.Data.Name;
         _logger.LogError(args.Exception, "An exception was thrown when executing slash command '{Name}'", name);
         if (args.Exception is DiscordException discordException)
-            _logger.LogError("API response: {Response}", discordException.JsonMessage);
+        {
+            _logger.LogError("API response: {Message}", discordException.JsonMessage);
+        }
 
         return Task.CompletedTask;
     }
@@ -191,11 +205,14 @@ internal sealed class BotService : BackgroundService
     private Task OnSlashCommandInvoked(SlashCommandsExtension _, SlashCommandInvokedEventArgs args)
     {
         var optionsString = "";
-        InteractionContext context = args.Context;
-        if (context.Interaction?.Data?.Options is { } options)
+        if (args.Context.Interaction?.Data?.Options is { } options)
+        {
             optionsString = $" {string.Join(" ", options.Select(o => $"{o?.Name}: '{o?.Value}'"))}";
+        }
 
-        _logger.LogInformation("{User} ran slash command /{Command}{Options}", context.User, context.CommandName, optionsString);
+        DiscordUser user = args.Context.User;
+        string command = args.Context.CommandName;
+        _logger.LogInformation("{User} ran slash command /{Command}{Options}", user, command, optionsString);
         return Task.CompletedTask;
     }
 }
