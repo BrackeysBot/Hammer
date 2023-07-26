@@ -1,4 +1,5 @@
-﻿using Hammer.Services;
+﻿using Hammer.Configuration;
+using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -20,8 +21,10 @@ internal sealed class AltAccountConfiguration : IEntityTypeConfiguration<AltAcco
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<AltAccount> builder)
     {
-        builder.ToTable("AltAccount");
-        builder.HasKey(e => new {e.UserId, e.AltId});
+        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
+        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
+        builder.ToTable(tablePrefix + "AltAccount");
+        builder.HasKey(e => new { e.UserId, e.AltId });
 
         builder.Property(e => e.UserId);
         builder.Property(e => e.AltId);
