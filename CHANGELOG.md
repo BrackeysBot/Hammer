@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug with rule autocompletion (hopefully for the last time).
 - Fixed parsing of /gag duration.
 
+### Removed
+- Removed `/migrate` command.
+
 ## [5.6.1] - 2023-07-24
 
 ### Added

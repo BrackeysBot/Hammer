@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
@@ -84,7 +84,6 @@ internal sealed class BotService : BackgroundService
         slashCommands.RegisterCommands<KickCommand>();
         slashCommands.RegisterCommands<MessageCommand>();
         slashCommands.RegisterCommands<MessageHistoryCommand>();
-        slashCommands.RegisterCommands<MigrateCommand>();
         slashCommands.RegisterCommands<MuteCommand>();
         slashCommands.RegisterCommands<NoteCommand>();
         slashCommands.RegisterCommands<PruneInfractionsCommand>();
