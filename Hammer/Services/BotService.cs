@@ -10,7 +10,6 @@ using Hammer.Commands.Infractions;
 using Hammer.Commands.Notes;
 using Hammer.Commands.Reports;
 using Hammer.Commands.Rules;
-using Hammer.Commands.V3Migration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
