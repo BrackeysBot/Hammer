@@ -1,4 +1,4 @@
-using Hammer.Configuration;
+﻿using Hammer.Configuration;
 using Hammer.Data.ValueConverters;
 using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +28,7 @@ internal sealed class DeletedMessageConfiguration : IEntityTypeConfiguration<Del
     {
         DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + nameof(DeletedMessage));
+        builder.ToTable(tablePrefix + "DeletedMessage");
         builder.HasKey(e => e.MessageId);
 
         builder.Property(e => e.MessageId);

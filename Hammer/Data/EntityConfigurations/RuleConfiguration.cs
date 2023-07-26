@@ -26,7 +26,7 @@ internal sealed class RuleConfiguration : IEntityTypeConfiguration<Rule>
     {
         DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + nameof(Rule));
+        builder.ToTable(tablePrefix + "Rule");
         builder.HasKey(e => new {e.Id, e.GuildId});
 
         builder.Property(e => e.Id);

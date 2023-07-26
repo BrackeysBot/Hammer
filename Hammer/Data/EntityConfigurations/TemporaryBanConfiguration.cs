@@ -1,4 +1,4 @@
-using Hammer.Configuration;
+﻿using Hammer.Configuration;
 using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,7 +27,7 @@ internal sealed class TemporaryBanConfiguration : IEntityTypeConfiguration<Tempo
     {
         DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + nameof(TemporaryBan));
+        builder.ToTable(tablePrefix + "TemporaryBan");
         builder.HasKey(e => new {e.UserId, e.GuildId});
 
         builder.Property(e => e.GuildId);

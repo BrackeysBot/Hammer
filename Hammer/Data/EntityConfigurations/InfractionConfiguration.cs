@@ -1,4 +1,4 @@
-using Hammer.Configuration;
+﻿using Hammer.Configuration;
 using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,7 +27,7 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
     {
         DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + nameof(Infraction));
+        builder.ToTable(tablePrefix + "Infraction");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);
