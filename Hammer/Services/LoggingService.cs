@@ -1,9 +1,8 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using Hammer.Logging;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using NLog.Config;
-using NLog.LayoutRenderers;
 using NLog.Layouts;
 using LogLevel = NLog.LogLevel;
 
@@ -69,13 +68,16 @@ internal sealed class LoggingService : BackgroundService
     {
         LogFile.Directory?.Create();
 
-        LayoutRenderer.Register("TheTime", info => info.TimeStamp.ToString("HH:mm:ss"));
-        LayoutRenderer.Register("ServiceName", info => info.LoggerName);
+        LogManager.Setup(builder => builder.SetupExtensions(extensions =>
+        {
+            extensions.RegisterLayoutRenderer("TheTime", info => info.TimeStamp.ToString("HH:mm:ss"));
+            extensions.RegisterLayoutRenderer("ServiceName", info => info.LoggerName);
+        }));
 
         Layout? layout = Layout.FromString("[${TheTime} ${level:uppercase=true}] [${ServiceName}] ${message}");
         var config = new LoggingConfiguration();
-        var fileLogger = new LogFileTarget("FileLogger", this) {Layout = layout};
-        var consoleLogger = new ColorfulConsoleTarget("ConsoleLogger") {Layout = layout};
+        var fileLogger = new LogFileTarget("FileLogger", this) { Layout = layout };
+        var consoleLogger = new ColorfulConsoleTarget("ConsoleLogger") { Layout = layout };
 
 #if DEBUG
         LogLevel minLevel = LogLevel.Debug;
