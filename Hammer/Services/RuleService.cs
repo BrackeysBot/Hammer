@@ -54,10 +54,9 @@ internal sealed class RuleService : BackgroundService
     /// <summary>
     ///     Creates a "Rule Not Found" embed.
     /// </summary>
-    /// <param name="guild">The guild whose branding to display.</param>
     /// <param name="ruleId">The ID of the rule which wasn't found.</param>
     /// <returns>A <see cref="DiscordEmbed" /> stating the rule cannot be found.</returns>
-    public DiscordEmbed CreateRuleNotFoundEmbed(DiscordGuild guild, int ruleId)
+    public DiscordEmbed CreateRuleNotFoundEmbed(int ruleId)
     {
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(0xFF0000);
@@ -69,10 +68,9 @@ internal sealed class RuleService : BackgroundService
     /// <summary>
     ///     Creates a "Rule Not Found" embed.
     /// </summary>
-    /// <param name="guild">The guild whose branding to display.</param>
     /// <param name="searchQuery">The search query which failed.</param>
     /// <returns>A <see cref="DiscordEmbed" /> stating the rule cannot be found.</returns>
-    public DiscordEmbed CreateRuleNotFoundEmbed(DiscordGuild guild, string searchQuery)
+    public DiscordEmbed CreateRuleNotFoundEmbed(string searchQuery)
     {
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(0xFF0000);

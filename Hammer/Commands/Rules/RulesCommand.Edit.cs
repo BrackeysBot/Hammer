@@ -28,7 +28,7 @@ internal sealed partial class RulesCommand
 
         if (!_ruleService.GuildHasRule(guild, (int) ruleId))
         {
-            DiscordEmbed embed = _ruleService.CreateRuleNotFoundEmbed(guild, (int) ruleId);
+            DiscordEmbed embed = _ruleService.CreateRuleNotFoundEmbed((int) ruleId);
             await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
             return;
         }

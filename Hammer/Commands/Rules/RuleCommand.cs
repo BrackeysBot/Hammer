@@ -46,7 +46,7 @@ internal sealed class RuleCommand : ApplicationCommandModule
         {
             if (!_ruleService.GuildHasRule(guild, ruleId))
             {
-                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(guild, ruleId), true);
+                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(ruleId), true);
                 return;
             }
 
@@ -57,7 +57,7 @@ internal sealed class RuleCommand : ApplicationCommandModule
             rule = _ruleService.SearchForRule(guild, search);
             if (rule is null)
             {
-                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(guild, search), true);
+                await context.CreateResponseAsync(_ruleService.CreateRuleNotFoundEmbed(search), true);
                 return;
             }
         }
