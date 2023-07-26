@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Exceptions;

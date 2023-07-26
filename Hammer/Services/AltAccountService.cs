@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Hammer.Data;

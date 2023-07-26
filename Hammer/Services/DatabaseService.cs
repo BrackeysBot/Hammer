@@ -1,4 +1,4 @@
-﻿using Hammer.Data;
+using Hammer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

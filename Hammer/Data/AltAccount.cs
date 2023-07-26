@@ -1,4 +1,4 @@
-﻿namespace Hammer.Data;
+namespace Hammer.Data;
 
 /// <summary>
 ///     Represents an alt account record.

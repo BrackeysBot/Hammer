@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;

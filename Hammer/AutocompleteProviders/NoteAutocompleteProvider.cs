@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Configuration;

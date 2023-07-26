@@ -1,4 +1,4 @@
-﻿using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands;
 using Hammer.Services;
 
 namespace Hammer.Commands.Infractions;

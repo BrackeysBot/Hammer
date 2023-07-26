@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Microsoft.Extensions.Configuration;

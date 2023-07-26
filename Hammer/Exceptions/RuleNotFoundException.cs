@@ -1,4 +1,4 @@
-﻿namespace Hammer.Exceptions;
+namespace Hammer.Exceptions;
 
 /// <summary>
 ///     Represents an exception that is thrown when a specified rule could not be found.

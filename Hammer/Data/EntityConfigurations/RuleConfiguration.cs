@@ -1,4 +1,4 @@
-﻿using Hammer.Configuration;
+using Hammer.Configuration;
 using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
