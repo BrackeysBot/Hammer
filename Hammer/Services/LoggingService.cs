@@ -79,13 +79,23 @@ internal sealed class LoggingService : BackgroundService
         var fileLogger = new LogFileTarget("FileLogger", this) { Layout = layout };
         var consoleLogger = new ColorfulConsoleTarget("ConsoleLogger") { Layout = layout };
 
-#if DEBUG
-        LogLevel minLevel = LogLevel.Debug;
-#else
         LogLevel minLevel = LogLevel.Info;
-        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ENABLE_DEBUG_LOGGING")))
+        if (Environment.GetEnvironmentVariable("ENABLE_TRACE_LOGGING") == "1")
+        {
+            minLevel = LogLevel.Trace;
+        }
+        else
+        {
+#if DEBUG
             minLevel = LogLevel.Debug;
+#else
+            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ENABLE_DEBUG_LOGGING")))
+            {
+                minLevel = LogLevel.Debug;
+            }
 #endif
+        }
+
         config.AddRule(minLevel, LogLevel.Fatal, consoleLogger);
         config.AddRule(minLevel, LogLevel.Fatal, fileLogger);
 
