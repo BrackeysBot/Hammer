@@ -141,7 +141,7 @@ internal sealed class AltAccountService : BackgroundService
         _ = _discordLogService.LogAsync(staffMember.Guild, embed);
     }
 
-    /// <summary>
+    /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         UpdateFromDatabase();
