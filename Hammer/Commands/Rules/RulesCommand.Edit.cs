@@ -59,10 +59,10 @@ internal sealed partial class RulesCommand
             var changed = false;
 
             if (!string.Equals(oldBrief, newBrief) && (changed = true))
-                await _ruleService.SetRuleBriefAsync(rule, newBrief).ConfigureAwait(false);
+                _ruleService.SetRuleBrief(rule, newBrief);
 
             if (!string.Equals(oldDescription, newDescription) && (changed = true))
-                await _ruleService.SetRuleContentAsync(rule, newDescription!).ConfigureAwait(false);
+                _ruleService.SetRuleContent(rule, newDescription!);
 
             DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
 

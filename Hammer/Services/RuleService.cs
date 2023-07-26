@@ -34,20 +34,20 @@ internal sealed class RuleService : BackgroundService
     /// <param name="brief">The rule brief.</param>
     /// <returns>The newly-created rule.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="guild" /> is <see langword="null" />.</exception>
-    public async Task<Rule> AddRuleAsync(DiscordGuild guild, string description, string? brief = null)
+    public Rule AddRule(DiscordGuild guild, string description, string? brief = null)
     {
         ArgumentNullException.ThrowIfNull(guild);
 
         if (string.IsNullOrWhiteSpace(description)) throw new ArgumentNullException(nameof(description));
         if (!_guildRules.TryGetValue(guild.Id, out List<Rule>? rules)) _guildRules.Add(guild.Id, rules = new List<Rule>());
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
 
-        var rule = new Rule {Id = rules.Count + 1, GuildId = guild.Id, Description = description, Brief = brief};
-        EntityEntry<Rule> entry = await context.AddAsync(rule).ConfigureAwait(false);
+        var rule = new Rule { Id = rules.Count + 1, GuildId = guild.Id, Description = description, Brief = brief };
+        EntityEntry<Rule> entry = context.Add(rule);
         rules.Add(rule = entry.Entity);
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
         return rule;
     }
 
@@ -90,7 +90,7 @@ internal sealed class RuleService : BackgroundService
     /// <exception cref="ArgumentOutOfRangeException">
     ///     <paramref name="id" /> is less than 1, or greater than the count of the guild rules.
     /// </exception>
-    public async Task DeleteRuleAsync(DiscordGuild guild, int id)
+    public void DeleteRule(DiscordGuild guild, int id)
     {
         if (guild is null) throw new ArgumentNullException(nameof(guild));
         if (!GuildHasRule(guild, id)) return;
@@ -98,7 +98,7 @@ internal sealed class RuleService : BackgroundService
         Rule ruleToDelete = GetRuleById(guild, id)!;
         _guildRules[guild.Id].Remove(ruleToDelete);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         context.RemoveRange(context.Rules.Where(r => r.GuildId == guild.Id));
 
         // propagate IDs downwards
@@ -107,10 +107,10 @@ internal sealed class RuleService : BackgroundService
         {
             Rule rule = remainder[index];
             rule.Id = index + 1;
-            await context.AddAsync(rule).ConfigureAwait(false);
+            context.Add(rule);
         }
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
     }
 
     /// <summary>
@@ -264,11 +264,11 @@ internal sealed class RuleService : BackgroundService
     /// <param name="guild">The guild whose rules to modify.</param>
     /// <param name="ruleId">The ID of the rule to modify.</param>
     /// <param name="brief">The new rule brief.</param>
-    public async Task SetRuleBriefAsync(DiscordGuild guild, int ruleId, string? brief)
+    public void SetRuleBrief(DiscordGuild guild, int ruleId, string? brief)
     {
         if (!GuildHasRule(guild, ruleId)) return;
         Rule rule = GetRuleById(guild, ruleId)!;
-        await SetRuleBriefAsync(rule, brief).ConfigureAwait(false);
+        SetRuleBrief(rule, brief);
     }
 
     /// <summary>
@@ -276,14 +276,14 @@ internal sealed class RuleService : BackgroundService
     /// </summary>
     /// <param name="rule">The rule to modify.</param>
     /// <param name="brief">The new rule brief.</param>
-    public async Task SetRuleBriefAsync(Rule rule, string? brief)
+    public void SetRuleBrief(Rule rule, string? brief)
     {
         rule.Brief = brief;
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
     }
 
     /// <summary>
@@ -292,11 +292,11 @@ internal sealed class RuleService : BackgroundService
     /// <param name="guild">The guild whose rules to modify.</param>
     /// <param name="ruleId">The ID of the rule to modify.</param>
     /// <param name="content">The new rule content.</param>
-    public async Task SetRuleContentAsync(DiscordGuild guild, int ruleId, string content)
+    public void SetRuleContent(DiscordGuild guild, int ruleId, string content)
     {
         if (!GuildHasRule(guild, ruleId)) return;
         Rule rule = GetRuleById(guild, ruleId)!;
-        await SetRuleContentAsync(rule, content).ConfigureAwait(false);
+        SetRuleContent(rule, content);
     }
 
     /// <summary>
@@ -304,14 +304,14 @@ internal sealed class RuleService : BackgroundService
     /// </summary>
     /// <param name="rule">The rule to modify.</param>
     /// <param name="content">The new rule content.</param>
-    public async Task SetRuleContentAsync(Rule rule, string content)
+    public void SetRuleContent(Rule rule, string content)
     {
         rule.Description = content;
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
         context.Entry(rule).State = EntityState.Modified;
         context.Update(rule);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        context.SaveChanges();
     }
 
     /// <summary>
@@ -358,12 +358,13 @@ internal sealed class RuleService : BackgroundService
     /// <inheritdoc />
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        return LoadRulesAsync();
+        Load();
+        return Task.CompletedTask;
     }
 
-    private async Task LoadRulesAsync()
+    private void Load()
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        using HammerContext context = _dbContextFactory.CreateDbContext();
 
         foreach (IGrouping<ulong, Rule> guildRules in context.Rules.AsEnumerable().GroupBy(r => r.GuildId))
         {

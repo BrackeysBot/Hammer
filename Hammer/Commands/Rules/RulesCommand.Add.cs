@@ -38,8 +38,7 @@ internal sealed partial class RulesCommand
 
         if (response == DiscordModalResponse.Success)
         {
-            Rule rule = await _ruleService.AddRuleAsync(guild, description.Value!, brief.Value).ConfigureAwait(false);
-
+            Rule rule = _ruleService.AddRule(guild, description.Value!, brief.Value);
             DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
             embed.WithColor(DiscordColor.Green);
             embed.WithTitle($"Rule #{rule.Id} added");

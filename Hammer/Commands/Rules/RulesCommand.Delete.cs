@@ -32,7 +32,7 @@ internal sealed partial class RulesCommand
             return;
         }
 
-        await _ruleService.DeleteRuleAsync(guild, (int) ruleId).ConfigureAwait(false);
+        _ruleService.DeleteRule(guild, (int)ruleId);
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
         embed.WithColor(0x4CAF50);
