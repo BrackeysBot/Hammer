@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- `/message` now parses channel mentions from modal input.
+
 ### Fixed
 - Fixed a bug with rule autocompletion (hopefully for the last time).
 - Fixed parsing of /gag duration.

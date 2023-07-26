@@ -31,7 +31,8 @@ internal sealed class MessageCommand : ApplicationCommandModule
     )
     {
         var embed = new DiscordEmbedBuilder();
-        DiscordMember? member = await user.GetAsMemberOfAsync(context.Guild).ConfigureAwait(false);
+        DiscordGuild guild = context.Guild;
+        DiscordMember? member = await user.GetAsMemberOfAsync(guild).ConfigureAwait(false);
 
         if (member is null)
         {
@@ -52,7 +53,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
             if (response != DiscordModalResponse.Success)
                 return;
 
-            string? content = message.Value?.Trim();
+            string content = MentionUtility.ReplaceChannelMentions(guild, message.Value?.Trim() ?? string.Empty);
             var builder = new DiscordFollowupMessageBuilder();
             builder.AsEphemeral();
             
