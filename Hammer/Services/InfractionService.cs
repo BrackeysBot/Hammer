@@ -29,6 +29,7 @@ using MentionUtility = X10D.DSharpPlus.MentionUtility;
 internal sealed class InfractionService : BackgroundService
 {
     private readonly ConcurrentDictionary<ulong, List<Infraction>> _infractionCache = new();
+    private readonly ConcurrentDictionary<long, Infraction> _infractionIdCache = new();
     private readonly ILogger<InfractionService> _logger;
     private readonly IDbContextFactory<HammerContext> _dbContextFactory;
     private readonly DiscordClient _discordClient;
@@ -175,8 +176,15 @@ internal sealed class InfractionService : BackgroundService
         builder.WithReason(reason).WithStaffMember(staffMember);
         builder.WithRule(options.RuleBroken);
 
+        var additionalInfo = new List<string>();
+
         if (expirationTime.HasValue)
-            builder.WithAdditionalInformation($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
+            additionalInfo.Add($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
+        
+        if (!string.IsNullOrWhiteSpace(options.AdditionalInformation))
+            additionalInfo.Add(options.AdditionalInformation);
+
+        builder.WithAdditionalInformation(string.Join('\n', additionalInfo));
 
         Infraction infraction = AddInfraction(builder.Build(), guild);
 
@@ -463,6 +471,7 @@ internal sealed class InfractionService : BackgroundService
     /// <returns>The infraction with the specified ID, or <see langword="null" /> if no such infraction exists.</returns>
     public Infraction? GetInfraction(long infractionId)
     {
+        return _infractionIdCache.TryGetValue(infractionId, out Infraction? infraction) ? infraction : null;
         return _infractionCache.Values.SelectMany(i => i).FirstOrDefault(i => i.Id == infractionId);
     }
 
@@ -830,6 +839,11 @@ internal sealed class InfractionService : BackgroundService
 
         using HammerContext context = _dbContextFactory.CreateDbContext();
         cache.AddRange(context.Infractions.Where(i => i.GuildId == guild.Id));
+        
+        foreach (Infraction infraction in cache)
+        {
+            _infractionIdCache.AddOrUpdate(infraction.Id, infraction, (_, _) => infraction);
+        }
 
         _logger.LogInformation("Retrieved {Count} infractions for {Guild}", cache.Count, guild);
     }

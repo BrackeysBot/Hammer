@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Hammer.Data;
 using X10D.DSharpPlus;
 using X10D.Text;
@@ -31,13 +31,14 @@ internal sealed class WarningService
     /// <param name="issuer">The staff member who issued the warning.</param>
     /// <param name="reason">The reason for the warning.</param>
     /// <param name="ruleBroken">The rule broken, if any.</param>
+    /// <param name="additionalInfo">Additional information about the warning.</param>
     /// <returns>
     ///     A tuple containing the created infraction, and a boolean indicating whether the user was successfully DMd.
     /// </returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.
     /// </exception>
-    public async Task<(Infraction Infraction, bool DmSuccess)> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken)
+    public async Task<(Infraction Infraction, bool DmSuccess)> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken, string? additionalInfo = null)
     {
         if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("The reason cannot be empty", nameof(reason));
 
@@ -45,7 +46,8 @@ internal sealed class WarningService
         {
             NotifyUser = true,
             Reason = reason.AsNullIfWhiteSpace(),
-            RuleBroken = ruleBroken
+            RuleBroken = ruleBroken,
+            AdditionalInformation = additionalInfo.AsNullIfWhiteSpace()
         };
 
         (Infraction infraction, bool success) = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
@@ -66,6 +68,7 @@ internal sealed class WarningService
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", infraction.AdditionalInformation);
         embed.WithFooter($"Infraction {infraction.Id}");
 
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);

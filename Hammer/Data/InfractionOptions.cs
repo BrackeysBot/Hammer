@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 
 namespace Hammer.Data;
 
@@ -19,6 +19,12 @@ internal readonly struct InfractionOptions
         Reason = null;
         RuleBroken = null;
     }
+
+    /// <summary>
+    ///     Gets or initializes additional information about the infraction.
+    /// </summary>
+    /// <value>The additional information.</value>
+    public string? AdditionalInformation { get; init; }
 
     /// <summary>
     ///     Gets or initializes the duration of the infraction.

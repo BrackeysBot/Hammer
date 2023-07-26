@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `/message` now parses channel mentions from modal input.
+- Added `Warn For This` context menu which simultaneously deletes the message and warns the author.
 
 ### Fixed
 - Fixed a bug with rule autocompletion (hopefully for the last time).

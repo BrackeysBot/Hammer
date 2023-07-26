@@ -1,10 +1,18 @@
-﻿namespace Hammer.Configuration;
+﻿using Hammer.Commands;
+
+namespace Hammer.Configuration;
 
 /// <summary>
 ///     Represents a guild configuration.
 /// </summary>
 internal sealed class GuildConfiguration
 {
+    /// <summary>
+    ///     Gets or sets the default bad-message warning message when using the <see cref="BadMessageCommand" />.
+    /// </summary>
+    /// <value>The default bad-message warning message.</value>
+    public string DefaultBadMessageWarning { get; set; } = "Message violating server rules.";
+
     /// <summary>
     ///     Gets or sets the ID of the log channel.
     /// </summary>
