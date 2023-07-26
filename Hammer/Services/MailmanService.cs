@@ -96,7 +96,7 @@ internal sealed class MailmanService
 
         embed.AddField("Total Infractions", count, true);
 
-        if (infraction.Type is not InfractionType.Ban or InfractionType.TemporaryBan)
+        if (infraction.Type is not InfractionType.Ban and not InfractionType.TemporaryBan)
             embed.AddModMailNotice();
 
         return embed;
