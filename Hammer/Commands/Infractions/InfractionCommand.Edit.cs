@@ -77,6 +77,7 @@ internal sealed partial class InfractionCommand
             if (newRuleId is not null)
             {
                 i.RuleId = newRuleId;
+                i.RuleText = rule!.Brief ?? rule.Description;
                 embed.AddField("New Rule Broken", $"{rule!.Id} - {rule.Brief ?? rule.Description}");
             }
 
