@@ -5,6 +5,7 @@ using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
 using Hammer.Extensions;
 using Hammer.Services;
+using Humanizer;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
@@ -100,10 +101,16 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
         if (staffRequested)
         {
             int infractionCount = _infractionService.GetInfractionCount(user, guild);
-            int altCount = _altAccountService.GetAltsFor(user.Id).Count;
-
             embed.AddFieldIf(infractionCount > 0, "Infractions", infractionCount, true);
-            embed.AddFieldIf(altCount > 0, "Alt Accounts", altCount, true);
+
+            IReadOnlyCollection<ulong> altAccounts = _altAccountService.GetAltsFor(user.Id);
+            int altCount = altAccounts.Count;
+            embed.AddFieldIf(altCount > 0, "Alt Account".ToQuantity(altCount), () => altCount switch
+            {
+                1 => MentionUtility.MentionUser(altAccounts.First()),
+                <= 5 => string.Join("\n", altAccounts.Select(id => $"• {MentionUtility.MentionUser(id)} ({id})")),
+                _ => $"Use `/alt view user:{user.Id}` to view."
+            });
         }
 
         if (member is null)
