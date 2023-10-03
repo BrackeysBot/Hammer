@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.8.1] - 2023-10-03
 
+### Added
+- Display the number of infractions on alt accounts in /userinfo.
+
 ### Changed
 - If a user has 5 or fewer alt accounts, the users are mentioned in /userinfo directly. 
 

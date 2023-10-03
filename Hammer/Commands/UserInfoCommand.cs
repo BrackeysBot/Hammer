@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
+using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
@@ -100,10 +101,12 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
 
         if (staffRequested)
         {
-            int infractionCount = _infractionService.GetInfractionCount(user, guild);
-            embed.AddFieldIf(infractionCount > 0, "Infractions", infractionCount, true);
-
             IReadOnlyCollection<ulong> altAccounts = _altAccountService.GetAltsFor(user.Id);
+
+            int infractionCount = _infractionService.GetInfractionCount(user, guild);
+            int altInfractions = altAccounts.SelectMany(alt => _infractionService.GetInfractions(alt, guild.Id)).Count();
+            embed.AddFieldIf(infractionCount > 0, "Infractions", $"{infractionCount} (+ {altInfractions})", true);
+
             int altCount = altAccounts.Count;
             embed.AddFieldIf(altCount > 0, "Alt Account".ToQuantity(altCount), () => altCount switch
             {
