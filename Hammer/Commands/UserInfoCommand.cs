@@ -3,8 +3,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
+using Hammer.Data;
 using Hammer.Extensions;
 using Hammer.Services;
+using Humanizer;
 using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
@@ -99,11 +101,19 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
 
         if (staffRequested)
         {
-            int infractionCount = _infractionService.GetInfractionCount(user, guild);
-            int altCount = _altAccountService.GetAltsFor(user.Id).Count;
+            IReadOnlyCollection<ulong> altAccounts = _altAccountService.GetAltsFor(user.Id);
 
-            embed.AddFieldIf(infractionCount > 0, "Infractions", infractionCount, true);
-            embed.AddFieldIf(altCount > 0, "Alt Accounts", altCount, true);
+            int infractionCount = _infractionService.GetInfractionCount(user, guild);
+            int altInfractions = altAccounts.SelectMany(alt => _infractionService.GetInfractions(alt, guild.Id)).Count();
+            embed.AddFieldIf(infractionCount > 0, "Infractions", $"{infractionCount} (+ {altInfractions})", true);
+
+            int altCount = altAccounts.Count;
+            embed.AddFieldIf(altCount > 0, "Alt Account".ToQuantity(altCount), () => altCount switch
+            {
+                1 => MentionUtility.MentionUser(altAccounts.First()),
+                <= 5 => string.Join("\n", altAccounts.Select(id => $"• {MentionUtility.MentionUser(id)} ({id})")),
+                _ => $"Use `/alt view user:{user.Id}` to view."
+            });
         }
 
         if (member is null)
