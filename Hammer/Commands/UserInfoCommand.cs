@@ -108,11 +108,15 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
             embed.AddFieldIf(infractionCount > 0, "Infractions", $"{infractionCount} (+ {altInfractions})", true);
 
             int altCount = altAccounts.Count;
-            embed.AddFieldIf(altCount > 0, "Alt Account".ToQuantity(altCount), () => altCount switch
+            embed.AddFieldIf(altCount > 0, "Alt Account".ToQuantity(altCount), () =>
             {
-                1 => MentionUtility.MentionUser(altAccounts.First()),
-                <= 5 => string.Join("\n", altAccounts.Select(id => $"• {MentionUtility.MentionUser(id)} ({id})")),
-                _ => $"Use `/alt view user:{user.Id}` to view."
+                ulong firstAlt = altAccounts.First();
+                return altCount switch
+                {
+                    1 => $"{MentionUtility.MentionUser(firstAlt)} ({firstAlt})",
+                    <= 5 => string.Join("\n", altAccounts.Select(id => $"• {MentionUtility.MentionUser(id)} ({id})")),
+                    _ => $"Use `/alt view user:{user.Id}` to view."
+                };
             });
         }
 
