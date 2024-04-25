@@ -197,6 +197,48 @@ internal sealed class RuleService : BackgroundService
     }
 
     /// <summary>
+    ///     Updates the rules message, if there is any.
+    /// </summary>
+    public async Task ModifyRulesMessageAsync(DiscordMessage message)
+    {
+        DiscordColor color = DiscordColor.Orange;
+        DiscordChannel channel = message.Channel;
+        DiscordGuild guild = channel.Guild;
+        IReadOnlyList<Rule> rules = GetGuildRules(guild);
+        var builder = new DiscordMessageBuilder();
+        var index = 0;
+
+        if (_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
+            color = guildConfiguration.PrimaryColor;
+
+        foreach (Rule[] ruleChunk in rules.Chunk(25)) // embeds cannot have more than 25 fields
+        {
+            var embed = new DiscordEmbedBuilder();
+            embed.WithThumbnail(guild.IconUrl);
+            embed.WithAuthor(guild.Name, iconUrl: guild.IconUrl);
+            embed.WithTitle("Server Rules");
+            embed.WithColor(color);
+
+            if (index == 0)
+                embed.WithDescription($"Welcome to {channel.Guild.Name}!\n\n" +
+                                      "To ensure that every one of us here are all happy, please take note and follow these " +
+                                      "rules:");
+
+            foreach (Rule rule in ruleChunk)
+            {
+                string name = rule.Brief is { } brief ? $"#{rule.Id} - {brief}" : $"#{rule.Id}";
+                embed.AddField(name, rule.Description);
+            }
+
+            builder.AddEmbed(embed);
+
+            index++;
+        }
+
+        await message.ModifyAsync(builder);
+    }
+
+    /// <summary>
     ///     Gets a value indicating whether a rule matches a search query.
     /// </summary>
     /// <param name="rule">The rule to check.</param>

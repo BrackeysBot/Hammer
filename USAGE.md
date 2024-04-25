@@ -36,6 +36,12 @@ The default reaction equivalent is the 🔇️emoji (`:mute:`). The config key i
 The default reaction equivalent is the 🕓 emoji (`:clock4:`). The config key is `GUILD_ID.reactions.historyReaction`.k4: ). When
 this reaction is used, the history is instead sent as a DM to the staff member.
 
+### 👤 User > Apps > User Information
+
+**Public action.** Displays information about a user. This is identical to the `/userinfo` command, except that the response **is ephemeral**.
+
+There is no reaction equivalent for this action.
+
 # Slash Commands
 
 Below is an outline of every slash command currently implemented in Hammer, along with their descriptions and parameters.
@@ -69,7 +75,7 @@ Unblocks a user, so that their message reports are acknowledged.
 |:----------|:---------|:-------------------|:-----------------------------------|
 | user      | ✅ Yes    | User mention or ID | The user whose reports to unblock. |
 
-## Alt account management
+## User management
 
 ### `/alt add`
 
@@ -96,6 +102,14 @@ Views a user's alt accounts.
 | Parameter | Required | Type               | Description                        |
 |:----------|:---------|:-------------------|:-----------------------------------|
 | user      | ✅ Yes    | User mention or ID | The user whose alts to view.       |
+
+### `/userinfo`
+
+**Public command.** Displays information about a user.
+
+| Parameter | Required | Type               | Description                        |
+|:----------|:---------|:-------------------|:-----------------------------------|
+| user      | ✅ Yes    | User mention or ID | The user whose info to view.       |
 
 ## Issuing and revoking infractions
 
@@ -387,5 +401,6 @@ Below is a table outlining all the commands and whether or not they have ephemer
 | `/unmute`               | ✅ Yes                                             |
 | `/unban`                | ✅ Yes                                             |
 | `/unblockreports`       | ✅ Yes                                             |
+| `/userinfo`             | ❌ No                                              |
 | `/viewmessage`          | ❌ No                                              |
 | `/warn`                 | ✅ Yes                                             |
