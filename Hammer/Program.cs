@@ -19,49 +19,45 @@ Log.Logger = new LoggerConfiguration()
 #endif
     .CreateLogger();
 
-await Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration(builder => builder.AddJsonFile("data/config.json", true, true))
-    .ConfigureLogging(builder =>
-    {
-        builder.ClearProviders();
-        builder.AddSerilog();
-    })
-    .ConfigureServices(services =>
-    {
-        services.AddSingleton(new DiscordClient(new DiscordConfiguration
-        {
-            Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN"),
-            LoggerFactory = new SerilogLoggerFactory(),
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents
-        }));
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.AddJsonFile("data/config.json", true, true);
 
-        services.AddDbContextFactory<HammerContext>();
-        services.AddHostedSingleton<DatabaseService>();
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
 
-        services.AddSingleton<HttpClient>();
-        services.AddSingleton<ConfigurationService>();
-        services.AddSingleton<InfractionStatisticsService>();
-        services.AddSingleton<MailmanService>();
-        services.AddSingleton<MessageService>();
-        services.AddSingleton<MessageDeletionService>();
-        services.AddSingleton<WarningService>();
+builder.Services.AddSingleton(new DiscordClient(new DiscordConfiguration
+{
+    Token = Environment.GetEnvironmentVariable("DISCORD_TOKEN"),
+    LoggerFactory = new SerilogLoggerFactory(),
+    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers | DiscordIntents.MessageContents
+}));
 
-        services.AddHostedService<StaffReactionService>();
-        services.AddHostedService<UserReactionService>();
+builder.Services.AddDbContextFactory<HammerContext>();
+builder.Services.AddHostedSingleton<DatabaseService>();
 
-        services.AddHostedSingleton<AltAccountService>();
-        services.AddHostedSingleton<BanService>();
-        services.AddHostedSingleton<DiscordLogService>();
-        services.AddHostedSingleton<InfractionService>();
-        services.AddHostedSingleton<InfractionCooldownService>();
-        services.AddHostedSingleton<MemberNoteService>();
-        services.AddHostedSingleton<MessageReportService>();
-        services.AddHostedSingleton<MessageTrackingService>();
-        services.AddHostedSingleton<MuteService>();
-        services.AddHostedSingleton<RuleService>();
+builder.Services.AddSingleton<HttpClient>();
+builder.Services.AddSingleton<ConfigurationService>();
+builder.Services.AddSingleton<InfractionStatisticsService>();
+builder.Services.AddSingleton<MailmanService>();
+builder.Services.AddSingleton<MessageService>();
+builder.Services.AddSingleton<MessageDeletionService>();
+builder.Services.AddSingleton<WarningService>();
 
+builder.Services.AddHostedService<StaffReactionService>();
+builder.Services.AddHostedService<UserReactionService>();
 
-        services.AddHostedSingleton<BotService>();
-    })
-    .UseConsoleLifetime()
-    .RunConsoleAsync();
+builder.Services.AddHostedSingleton<AltAccountService>();
+builder.Services.AddHostedSingleton<BanService>();
+builder.Services.AddHostedSingleton<DiscordLogService>();
+builder.Services.AddHostedSingleton<InfractionService>();
+builder.Services.AddHostedSingleton<InfractionCooldownService>();
+builder.Services.AddHostedSingleton<MemberNoteService>();
+builder.Services.AddHostedSingleton<MessageReportService>();
+builder.Services.AddHostedSingleton<MessageTrackingService>();
+builder.Services.AddHostedSingleton<MuteService>();
+builder.Services.AddHostedSingleton<RuleService>();
+
+builder.Services.AddHostedSingleton<BotService>();
+
+IHost app = builder.Build();
+await app.RunAsync();
