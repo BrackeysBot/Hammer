@@ -1,14 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Timers;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
+using Hammer.Extensions;
 using Humanizer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using Timer = System.Timers.Timer;
 
 namespace Hammer.Services;

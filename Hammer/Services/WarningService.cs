@@ -1,6 +1,6 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Hammer.Data;
-using X10D.DSharpPlus;
+using Hammer.Extensions;
 using X10D.Text;
 
 namespace Hammer.Services;

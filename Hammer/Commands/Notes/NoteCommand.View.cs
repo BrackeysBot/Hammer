@@ -6,7 +6,6 @@ using Hammer.AutocompleteProviders;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
-using X10D.DSharpPlus;
 using PermissionLevel = Hammer.Data.PermissionLevel;
 
 namespace Hammer.Commands.Notes;

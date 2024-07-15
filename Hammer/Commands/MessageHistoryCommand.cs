@@ -1,9 +1,9 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Services;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
