@@ -32,15 +32,15 @@
         <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.9"/>
         <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.9"/>
         <PackageReference Include="Humanizer.Core" Version="2.14.1"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.9"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="NLog" Version="5.2.2"/>
         <PackageReference Include="NLog.Extensions.Logging" Version="5.3.2"/>
-        <PackageReference Include="SmartFormat.NET" Version="3.2.1"/>
+        <PackageReference Include="SmartFormat.NET" Version="3.4.0"/>
         <PackageReference Include="X10D" Version="3.2.2"/>
         <PackageReference Include="X10D.DSharpPlus" Version="3.2.2"/>
         <PackageReference Include="X10D.Hosting" Version="3.2.2"/>
