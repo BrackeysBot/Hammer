@@ -3,6 +3,7 @@ using Hammer.Data.EntityConfigurations;
 using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using MySqlConnector;
 using MuteConfiguration = Hammer.Data.EntityConfigurations.MuteConfiguration;
 
 namespace Hammer.Data;
@@ -100,13 +101,27 @@ internal sealed class HammerContext : DbContext
         DatabaseConfiguration databaseConfiguration = _configurationService.BotConfiguration.Database;
         switch (databaseConfiguration.Provider)
         {
-            case "sqlite":
-                _logger.LogTrace("Using SQLite database provider");
-                optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+            case "mysql":
+                _logger.LogTrace("Using MySQL/MariaDB database provider");
+                var connectionStringBuilder = new MySqlConnectionStringBuilder
+                {
+                    Server = databaseConfiguration.Host,
+                    Database = databaseConfiguration.Database,
+                    UserID = databaseConfiguration.Username,
+                    Password = databaseConfiguration.Password
+                };
+
+                var connectionString = connectionStringBuilder.ToString();
+                ServerVersion version = ServerVersion.AutoDetect(connectionString);
+
+                _logger.LogTrace("Server version is {Version}", version);
+                optionsBuilder.UseMySql(connectionString, version);
                 break;
 
             default:
-                throw new InvalidOperationException("Invalid database provider.");
+                _logger.LogTrace("Using SQLite database provider");
+                optionsBuilder.UseSqlite("Data Source='data/hammer.db'");
+                break;
         }
     }
 
