@@ -33,6 +33,7 @@ builder.Services.AddSingleton(new DiscordClient(new DiscordConfiguration
 }));
 
 builder.Services.AddDbContextFactory<HammerContext>();
+builder.Services.AddDbContextFactory<MigrationContext>();
 builder.Services.AddHostedSingleton<DatabaseService>();
 
 builder.Services.AddSingleton<HttpClient>();
