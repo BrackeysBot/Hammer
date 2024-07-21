@@ -106,6 +106,7 @@ internal sealed class HammerContext : DbContext
                 var connectionStringBuilder = new MySqlConnectionStringBuilder
                 {
                     Server = databaseConfiguration.Host,
+                    Port = (uint)(databaseConfiguration.Port ?? 3306),
                     Database = databaseConfiguration.Database,
                     UserID = databaseConfiguration.Username,
                     Password = databaseConfiguration.Password
