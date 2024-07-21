@@ -28,7 +28,7 @@ internal sealed class BlockedReporterConfiguration : IEntityTypeConfiguration<Bl
         DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
         builder.ToTable(tablePrefix + "BlockedReporter");
-        builder.HasKey(e => new {e.UserId, e.GuildId});
+        builder.HasKey(e => new { e.UserId, e.GuildId });
 
         builder.Property(e => e.UserId);
         builder.Property(e => e.GuildId);

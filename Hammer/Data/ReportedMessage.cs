@@ -36,7 +36,7 @@ internal sealed class ReportedMessage : IEquatable<ReportedMessage>, IEquatable<
         MessageId = message.Id;
         ReporterId = reporter.Id;
     }
-    
+
     private ReportedMessage()
     {
         Attachments = ArraySegment<Uri>.Empty;

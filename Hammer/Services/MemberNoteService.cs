@@ -105,7 +105,7 @@ internal sealed class MemberNoteService : BackgroundService
 
         MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
         if (note is null)
-            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
+            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new { id }), nameof(id));
 
         context.Remove(note);
         await context.SaveChangesAsync();
@@ -127,7 +127,7 @@ internal sealed class MemberNoteService : BackgroundService
 
         MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
         if (note is null)
-            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new {id}), nameof(id));
+            throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new { id }), nameof(id));
 
         if (!string.IsNullOrWhiteSpace(content))
             note.Content = content;

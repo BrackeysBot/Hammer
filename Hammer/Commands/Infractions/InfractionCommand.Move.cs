@@ -11,8 +11,10 @@ internal sealed partial class InfractionCommand
     [SlashCommand("move", "Moves all infractions from one user to another.", false)]
     [SlashRequireGuild]
     public async Task MoveAsync(InteractionContext context,
-        [Option("source", "The user whose infractions to move.")] DiscordUser source,
-        [Option("destination", "The user who will acquire the moved infractions.")] DiscordUser destination)
+        [Option("source", "The user whose infractions to move.")]
+        DiscordUser source,
+        [Option("destination", "The user who will acquire the moved infractions.")]
+        DiscordUser destination)
     {
         if (source == destination)
         {

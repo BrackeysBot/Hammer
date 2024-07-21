@@ -95,7 +95,7 @@ internal sealed class MessageDeletionService
 
         if (!staffMember.IsStaffMember(guildConfiguration))
         {
-            string exceptionMessage = ExceptionMessages.NotAStaffMember.FormatSmart(new {user = staffMember, guild});
+            string exceptionMessage = ExceptionMessages.NotAStaffMember.FormatSmart(new { user = staffMember, guild });
             throw new InvalidOperationException(exceptionMessage);
         }
 
@@ -103,7 +103,7 @@ internal sealed class MessageDeletionService
         {
             if (member.IsHigherLevelThan(staffMember, guildConfiguration))
             {
-                var formatObject = new {lower = staffMember, higher = member};
+                var formatObject = new { lower = staffMember, higher = member };
                 string exceptionMessage = ExceptionMessages.StaffIsHigherLevel.FormatSmart(formatObject);
                 throw new InvalidOperationException(exceptionMessage);
             }
@@ -136,7 +136,7 @@ internal sealed class MessageDeletionService
     }
 
     /// <summary>
-    ///     Returns a deleted message by its ID. 
+    ///     Returns a deleted message by its ID.
     /// </summary>
     /// <param name="id">The ID of the message to retrieve.</param>
     /// <returns>A <see cref="DeletedMessage" />, or <see langword="null" /> if no such message was found.</returns>
@@ -171,7 +171,7 @@ internal sealed class MessageDeletionService
         if (message.Interaction is not null)
             author = message.Interaction.User;
 
-        var formatObject = new {user = author, channel = message.Channel};
+        var formatObject = new { user = author, channel = message.Channel };
         string description = EmbedMessages.MessageDeletionDescription.FormatSmart(formatObject);
 
         bool hasContent = !string.IsNullOrWhiteSpace(message.Content);
@@ -212,8 +212,7 @@ internal sealed class MessageDeletionService
             .AddField("Author", mention, true)
             .AddField("Staff Member", staffMember.Mention, true)
             .AddField("Message ID", message.Id, true)
-            .AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime),
-                true);
+            .AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.ShortDateTime), true);
 
         if (hasContent)
         {

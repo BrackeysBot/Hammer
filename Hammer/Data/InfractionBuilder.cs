@@ -90,7 +90,7 @@ internal sealed class InfractionBuilder
     /// </exception>
     public InfractionType Type
     {
-        get => _type ?? (InfractionType) (-1);
+        get => _type ?? (InfractionType)(-1);
         set
         {
             if (!Enum.IsDefined(value)) throw new ArgumentOutOfRangeException(nameof(value));

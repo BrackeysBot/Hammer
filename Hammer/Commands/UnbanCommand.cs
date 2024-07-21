@@ -31,7 +31,8 @@ internal sealed class UnbanCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task UnbanAsync(InteractionContext context,
         [Option("user", "The user to unban.")] DiscordUser user,
-        [Option("reason", "The reason for the ban revocation.")] string? reason = null)
+        [Option("reason", "The reason for the ban revocation.")]
+        string? reason = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

@@ -50,10 +50,14 @@ internal sealed class BanCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task BanAsync(InteractionContext context,
         [Option("user", "The user to ban.")] DiscordUser user,
-        [Option("reason", "The reason for the ban.")] string? reason = null,
-        [Option("duration", "The duration of the ban.")] string? durationRaw = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleSearch = null,
-        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
+        [Option("reason", "The reason for the ban.")]
+        string? reason = null,
+        [Option("duration", "The duration of the ban.")]
+        string? durationRaw = null,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))]
+        string? ruleSearch = null,
+        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")]
+        bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

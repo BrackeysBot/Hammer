@@ -15,7 +15,8 @@ internal sealed partial class ReportCommands
     [SlashRequireGuild]
     public async Task ViewSubmittedReportsAsync(
         InteractionContext context,
-        [Option("user", "The user whose submitted reports to view.")] DiscordUser user
+        [Option("user", "The user whose submitted reports to view.")]
+        DiscordUser user
     )
     {
         await context.DeferAsync().ConfigureAwait(false);

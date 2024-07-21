@@ -15,7 +15,8 @@ internal sealed partial class NoteCommand
     [SlashCommand("view", "Views a note.", false)]
     [SlashRequireGuild]
     public async Task ViewAsync(InteractionContext context,
-        [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to view.")] long noteId)
+        [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to view.")]
+        long noteId)
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
@@ -31,7 +32,8 @@ internal sealed partial class NoteCommand
             // cannot view notes saved for other guilds
             note = null;
 
-        if (note?.Type == MemberNoteType.Staff && context.Member.GetPermissionLevel(guildConfiguration) < PermissionLevel.Moderator)
+        if (note?.Type == MemberNoteType.Staff &&
+            context.Member.GetPermissionLevel(guildConfiguration) < PermissionLevel.Moderator)
             // non-staff cannot see staff notes
             note = null;
 

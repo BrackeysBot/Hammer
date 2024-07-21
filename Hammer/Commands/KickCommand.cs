@@ -48,10 +48,14 @@ internal sealed class KickCommand : ApplicationCommandModule
     [SlashCommand("kick", "Kicks a member", false)]
     [SlashRequireGuild]
     public async Task KickAsync(InteractionContext context,
-        [Option("member", "The member to kick.")] DiscordUser user,
-        [Option("reason", "The reason for the kick.")] string? reason = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleSearch = null,
-        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")] bool clearMessageHistory = false)
+        [Option("member", "The member to kick.")]
+        DiscordUser user,
+        [Option("reason", "The reason for the kick.")]
+        string? reason = null,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))]
+        string? ruleSearch = null,
+        [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")]
+        bool clearMessageHistory = false)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

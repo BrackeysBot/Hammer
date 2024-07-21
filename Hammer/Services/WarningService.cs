@@ -38,7 +38,8 @@ internal sealed class WarningService
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="reason" /> is <see langword="null" />, empty, or consists of only whitespace.
     /// </exception>
-    public async Task<(Infraction Infraction, bool DmSuccess)> WarnAsync(DiscordUser user, DiscordMember issuer, string reason, Rule? ruleBroken, string? additionalInfo = null)
+    public async Task<(Infraction Infraction, bool DmSuccess)> WarnAsync(DiscordUser user, DiscordMember issuer, string reason,
+        Rule? ruleBroken, string? additionalInfo = null)
     {
         if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("The reason cannot be empty", nameof(reason));
 
@@ -50,7 +51,8 @@ internal sealed class WarningService
             AdditionalInformation = additionalInfo.AsNullIfWhiteSpace()
         };
 
-        (Infraction infraction, bool success) = await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
+        (Infraction infraction, bool success) = await _infractionService
+            .CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
             .ConfigureAwait(false);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
@@ -68,7 +70,8 @@ internal sealed class WarningService
         embed.AddFieldIf(infractionCount > 0, "Total User Infractions", infractionCount, true);
         embed.AddFieldIf(rule is not null, "Rule Broken", () => $"{rule!.Id} - {rule.Brief ?? rule.Description}", true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(options.Reason), "Reason", options.Reason);
-        embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information", infraction.AdditionalInformation);
+        embed.AddFieldIf(!string.IsNullOrWhiteSpace(infraction.AdditionalInformation), "Additional Information",
+            infraction.AdditionalInformation);
         embed.WithFooter($"Infraction {infraction.Id}");
 
         await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);

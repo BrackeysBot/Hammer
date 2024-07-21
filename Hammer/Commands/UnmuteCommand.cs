@@ -30,8 +30,10 @@ internal sealed class UnmuteCommand : ApplicationCommandModule
     [SlashCommand("unmute", "Unmutes a user.", false)]
     [SlashRequireGuild]
     public async Task UnmuteAsync(InteractionContext context,
-        [Option("user", "The user to unmute.")] DiscordUser user,
-        [Option("reason", "The reason for the mute revocation.")] string? reason = null)
+        [Option("user", "The user to unmute.")]
+        DiscordUser user,
+        [Option("reason", "The reason for the mute revocation.")]
+        string? reason = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

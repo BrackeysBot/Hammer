@@ -45,9 +45,9 @@ internal sealed class AltAccountService : BackgroundService
         if (staffMember is null) throw new ArgumentNullException(nameof(staffMember));
 
         using HammerContext context = _dbContextFactory.CreateDbContext();
-        var record = new AltAccount {StaffMemberId = staffMember.Id, RegisteredAt = DateTimeOffset.UtcNow};
-        context.AltAccounts.Add(record with {UserId = user.Id, AltId = alt.Id});
-        context.AltAccounts.Add(record with {UserId = alt.Id, AltId = user.Id});
+        var record = new AltAccount { StaffMemberId = staffMember.Id, RegisteredAt = DateTimeOffset.UtcNow };
+        context.AltAccounts.Add(record with { UserId = user.Id, AltId = alt.Id });
+        context.AltAccounts.Add(record with { UserId = alt.Id, AltId = user.Id });
         context.SaveChanges();
 
         HashSet<ulong> cache = _altAccountCache.GetOrAdd(user.Id, new HashSet<ulong>());

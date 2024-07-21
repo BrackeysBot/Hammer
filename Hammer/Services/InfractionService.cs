@@ -96,7 +96,7 @@ internal sealed class InfractionService : BackgroundService
             // in this case, we can set ID to 0 so that Sqlite generates a new sequential ID.
             // if the error is not 19, or if THIS operation fails, just rethrow because it's not our concern here.
 
-            if (exception.InnerException is not SqliteException {SqliteErrorCode: 19})
+            if (exception.InnerException is not SqliteException { SqliteErrorCode: 19 })
                 throw;
 
             infraction.Id = 0;
@@ -176,7 +176,7 @@ internal sealed class InfractionService : BackgroundService
 
         if (expirationTime.HasValue)
             additionalInfo.Add($"Duration: {(DateTimeOffset.UtcNow - expirationTime.Value).Humanize()}");
-        
+
         if (!string.IsNullOrWhiteSpace(options.AdditionalInformation))
             additionalInfo.Add(options.AdditionalInformation);
 
@@ -271,9 +271,9 @@ internal sealed class InfractionService : BackgroundService
 
         switch (searchOptions)
         {
-            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+            case { IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate } when afterDate > beforeDate:
                 throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
-            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+            case { IdAfter: { } afterId, IdBefore: { } beforeId } when afterId > beforeId:
                 throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
         }
 
@@ -286,7 +286,7 @@ internal sealed class InfractionService : BackgroundService
         embed.WithAuthor(user);
         IReadOnlyCollection<ulong> alts = _altAccountService.GetAltsFor(user.Id);
         Infraction[] altInfractions = alts.SelectMany(alt => GetInfractions(alt, response.Guild.Id, searchOptions)).ToArray();
-        
+
         if (response.StaffRequested && page == response.Pages - 1 && alts.Count > 0 && altInfractions.Length > 0)
         {
             string infractionNumber = "additional infraction".ToQuantity(altInfractions.Length);
@@ -295,7 +295,7 @@ internal sealed class InfractionService : BackgroundService
         }
 
         const int infractionsPerPage = 10;
-        page = (int) Math.Clamp(page, 0, MathF.Ceiling(infractions.Count / 10.0f));
+        page = (int)Math.Clamp(page, 0, MathF.Ceiling(infractions.Count / 10.0f));
 
         if (infractions.Count > 0)
         {
@@ -456,7 +456,8 @@ internal sealed class InfractionService : BackgroundService
         }
 
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
-        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false, Duration = duration.Value, ExpirationTime = gagUntil})
+        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember,
+                new InfractionOptions { NotifyUser = false, Duration = duration.Value, ExpirationTime = gagUntil })
             .ConfigureAwait(false);
     }
 
@@ -566,9 +567,9 @@ internal sealed class InfractionService : BackgroundService
 
         switch (searchOptions)
         {
-            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+            case { IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate } when afterDate > beforeDate:
                 throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
-            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+            case { IdAfter: { } afterId, IdBefore: { } beforeId } when afterId > beforeId:
                 throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
         }
 
@@ -644,9 +645,9 @@ internal sealed class InfractionService : BackgroundService
     {
         switch (searchOptions)
         {
-            case {IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate} when afterDate > beforeDate:
+            case { IssuedAfter: { } afterDate, IssuedBefore: { } beforeDate } when afterDate > beforeDate:
                 throw new ArgumentException(ExceptionMessages.MinDateGreaterThanMaxDate, nameof(searchOptions));
-            case {IdAfter: { } afterId, IdBefore: { } beforeId} when afterId > beforeId:
+            case { IdAfter: { } afterId, IdBefore: { } beforeId } when afterId > beforeId:
                 throw new ArgumentException(ExceptionMessages.MinIdGreaterThanMaxId, nameof(searchOptions));
         }
 
@@ -835,7 +836,7 @@ internal sealed class InfractionService : BackgroundService
 
         using HammerContext context = _dbContextFactory.CreateDbContext();
         cache.AddRange(context.Infractions.Where(i => i.GuildId == guild.Id));
-        
+
         foreach (Infraction infraction in cache)
         {
             _infractionIdCache.AddOrUpdate(infraction.Id, infraction, (_, _) => infraction);
@@ -863,7 +864,7 @@ internal sealed class InfractionService : BackgroundService
         if (updated.Count > 0)
         {
             _logger.LogInformation("Updating {Count} infraction rules for {Guild}", updated.Count, guild);
-            
+
             using HammerContext context = _dbContextFactory.CreateDbContext();
             context.UpdateRange(updated);
             context.SaveChanges();

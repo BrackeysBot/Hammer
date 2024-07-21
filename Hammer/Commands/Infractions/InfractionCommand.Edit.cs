@@ -12,7 +12,8 @@ internal sealed partial class InfractionCommand
     [SlashCommand("edit", "Edits an infraction.", false)]
     [SlashRequireGuild]
     public async Task EditAsync(InteractionContext context,
-        [Option("infraction", "The infraction to modify.")] long infractionId,
+        [Option("infraction", "The infraction to modify.")]
+        long infractionId,
         [Option("reason", "The new reason for the infraction. To remove the reason, enter a single hyphen ( - ).")]
         string? reason = null,
         [Autocomplete(typeof(RuleAutocompleteProvider))]
@@ -51,7 +52,7 @@ internal sealed partial class InfractionCommand
         Rule? rule = null;
         if (ruleId is not null)
         {
-            rule = _ruleService.GetRuleById(context.Guild, (int) ruleId.Value);
+            rule = _ruleService.GetRuleById(context.Guild, (int)ruleId.Value);
             if (rule is null)
             {
                 embed.WithColor(0xFF0000);
@@ -67,7 +68,7 @@ internal sealed partial class InfractionCommand
         // yeah, I hate it too.
         int? oldRuleId = infraction.RuleId;
         string? oldReason = infraction.Reason;
-        var newRuleId = (int?) ruleId;
+        var newRuleId = (int?)ruleId;
 
         embed.WithColor(DiscordColor.Green);
         _infractionService.ModifyInfraction(infraction, i =>

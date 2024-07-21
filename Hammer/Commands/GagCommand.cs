@@ -74,7 +74,8 @@ internal sealed class GagCommand : ApplicationCommandModule
     public async Task GagAsync(
         InteractionContext context,
         [Option("user", "The user to gag.")] DiscordUser user,
-        [Option("duration", "The duration of the gag. Defaults to 5 minutes")] string? duration = null
+        [Option("duration", "The duration of the gag. Defaults to 5 minutes")]
+        string? duration = null
     )
     {
         var builder = new DiscordEmbedBuilder();

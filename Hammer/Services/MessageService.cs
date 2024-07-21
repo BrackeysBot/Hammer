@@ -42,7 +42,7 @@ internal sealed class MessageService
     }
 
     /// <summary>
-    ///     Returns a staff message by its ID. 
+    ///     Returns a staff message by its ID.
     /// </summary>
     /// <param name="id">The ID of the message to retrieve.</param>
     /// <returns>A <see cref="StaffMessage" />, or <see langword="null" /> if no such message was found.</returns>
@@ -149,7 +149,7 @@ internal sealed class MessageService
         DiscordEmbedBuilder embedBuilder = guild.CreateDefaultEmbed(guildConfiguration);
 
         embedBuilder.WithTitle("Message");
-        embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new {user, guild}));
+        embedBuilder.WithDescription(EmbedMessages.MessageFromStaff.FormatSmart(new { user, guild }));
         embedBuilder.AddField("Message", message.Content);
         embedBuilder.AddModMailNotice();
 

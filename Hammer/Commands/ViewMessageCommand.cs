@@ -33,7 +33,8 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
     [SlashCommand("viewmessage", "Views a staff message, or deleted message, by its ID.", false)]
     public async Task ViewMessageAsync(
         InteractionContext context,
-        [Option("id", "The ID of the message to retrieve.")] string rawId
+        [Option("id", "The ID of the message to retrieve.")]
+        string rawId
     )
     {
         await context.DeferAsync().ConfigureAwait(false);
@@ -54,8 +55,8 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
             embed.AddField("Content", Formatter.BlockCode(staffMessage.Content));
         }
         else if (ulong.TryParse(rawId, out ulong deletedMessageId) &&
-            await _messageDeletionService.GetDeletedMessage(deletedMessageId) is { } deletedMessage &&
-            deletedMessage.GuildId == context.Guild.Id)
+                 await _messageDeletionService.GetDeletedMessage(deletedMessageId) is { } deletedMessage &&
+                 deletedMessage.GuildId == context.Guild.Id)
         {
             embed.WithColor(DiscordColor.Orange);
             embed.WithTitle($"Deleted Message {deletedMessage.MessageId}");
@@ -69,9 +70,11 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
             bool hasAttachments = deletedMessage.Attachments.Count > 0;
 
             string? content = hasContent ? Formatter.Sanitize(deletedMessage.Content) : null;
-            string? attachments = hasAttachments ? string.Join('\n', deletedMessage.Attachments.Select(a => a.AbsoluteUri)) : null;
-            
-            embed.AddFieldIf(hasContent, "Content", () => Formatter.BlockCode(content!.Length >= 1014 ? content[..1011] + "..." : content));
+            string? attachments =
+                hasAttachments ? string.Join('\n', deletedMessage.Attachments.Select(a => a.AbsoluteUri)) : null;
+
+            embed.AddFieldIf(hasContent, "Content",
+                () => Formatter.BlockCode(content!.Length >= 1014 ? content[..1011] + "..." : content));
             embed.AddFieldIf(hasAttachments, "Attachments", attachments);
         }
         else

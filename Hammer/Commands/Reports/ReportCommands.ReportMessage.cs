@@ -15,13 +15,13 @@ internal sealed partial class ReportCommands
 
         DiscordUser user = context.User;
         DiscordMessage message = context.Interaction.Data.Resolved.Messages.First().Value;
-        await _reportService.ReportMessageAsync(message, (DiscordMember) user).ConfigureAwait(false);
+        await _reportService.ReportMessageAsync(message, (DiscordMember)user).ConfigureAwait(false);
 
         var builder = new DiscordWebhookBuilder();
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Green);
         embed.WithTitle("Message Reported");
-        embed.WithDescription(EmbedMessages.MessageReportFeedback.FormatSmart(new {user}));
+        embed.WithDescription(EmbedMessages.MessageReportFeedback.FormatSmart(new { user }));
         embed.WithFooter("Reporting this message again will have no impact.");
         builder.AddEmbed(embed);
 

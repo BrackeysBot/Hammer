@@ -40,7 +40,7 @@ internal sealed class Rule : IEquatable<Rule>
     /// </returns>
     public static bool operator ==(Rule? left, Rule? right)
     {
-        return (bool) left?.Equals(right);
+        return (bool)left?.Equals(right);
     }
 
     /// <summary>

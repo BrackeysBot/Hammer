@@ -61,7 +61,7 @@ internal sealed class StaffReactionService : BackgroundService
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? configuration))
             return;
 
-        var staffMember = (DiscordMember) e.User;
+        var staffMember = (DiscordMember)e.User;
         if (!staffMember.IsStaffMember(configuration))
             return;
 

@@ -89,7 +89,7 @@ internal sealed class InfractionHistoryResponse
     {
         get
         {
-            var pages = (int) Math.Ceiling(InfractionCount / 10.0);
+            var pages = (int)Math.Ceiling(InfractionCount / 10.0);
             return pages < 1 ? 1 : pages;
         }
     }

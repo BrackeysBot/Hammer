@@ -11,7 +11,8 @@ internal sealed partial class InfractionCommand
     [SlashCommand("delete", "Deletes an infraction.", false)]
     [SlashRequireGuild]
     public async Task DeleteAsync(InteractionContext context,
-        [Option("infraction", "The infraction to delete.")] long infractionId
+        [Option("infraction", "The infraction to delete.")]
+        long infractionId
     )
     {
         await context.DeferAsync().ConfigureAwait(false);

@@ -16,7 +16,8 @@ internal sealed partial class RulesCommand
     [SlashCommand("edit", "Edits a rule.", false)]
     [SlashRequireGuild]
     public async Task EditAsync(InteractionContext context,
-        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")] long ruleId)
+        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")]
+        long ruleId)
     {
         DiscordGuild guild = context.Guild;
 
@@ -26,14 +27,14 @@ internal sealed partial class RulesCommand
             return;
         }
 
-        if (!_ruleService.GuildHasRule(guild, (int) ruleId))
+        if (!_ruleService.GuildHasRule(guild, (int)ruleId))
         {
-            DiscordEmbed embed = _ruleService.CreateRuleNotFoundEmbed((int) ruleId);
+            DiscordEmbed embed = _ruleService.CreateRuleNotFoundEmbed((int)ruleId);
             await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
             return;
         }
 
-        Rule rule = _ruleService.GetRuleById(guild, (int) ruleId);
+        Rule rule = _ruleService.GetRuleById(guild, (int)ruleId);
         string? oldBrief = rule.Brief?.AsNullIfWhiteSpace();
         string? oldDescription = rule.Description.AsNullIfWhiteSpace();
 

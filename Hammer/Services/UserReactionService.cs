@@ -56,7 +56,7 @@ internal sealed class UserReactionService : BackgroundService
         if (reaction == reactionConfiguration.ReportReaction)
         {
             await e.Message.DeleteReactionAsync(e.Emoji, e.User).ConfigureAwait(false);
-            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember) e.User).ConfigureAwait(false);
+            await _messageReportService.ReportMessageAsync(e.Message, (DiscordMember)e.User).ConfigureAwait(false);
         }
     }
 }

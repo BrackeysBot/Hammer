@@ -51,10 +51,14 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     [SlashCommand("history", "Views the infraction history for a user.", false)]
     [SlashRequireGuild]
     public async Task HistoryAsync(InteractionContext context,
-        [Option("user", "The user whose history to view.")] DiscordUser user,
-        [Option("before", "If set, limits to infractions before the specified date.")] string? beforeRaw = null,
-        [Option("after", "If set, limits to infractions after the specified date.")] string? afterRaw = null,
-        [Option("type", "If set, limits to infractions of the specified type.")] InfractionType? type = null
+        [Option("user", "The user whose history to view.")]
+        DiscordUser user,
+        [Option("before", "If set, limits to infractions before the specified date.")]
+        string? beforeRaw = null,
+        [Option("after", "If set, limits to infractions after the specified date.")]
+        string? afterRaw = null,
+        [Option("type", "If set, limits to infractions of the specified type.")]
+        InfractionType? type = null
     )
     {
         DateTimeOffset? afterDate = null;

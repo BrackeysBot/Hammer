@@ -29,7 +29,8 @@ internal sealed class StaffHistoryCommand : ApplicationCommandModule
     [SlashCommand("staffhistory", "Searches a staff member's history.", false)]
     [SlashRequireGuild]
     public async Task StaffHistoryAsync(InteractionContext context,
-        [Option("staffMember", "The staff member whose infractions to search.")] DiscordUser user)
+        [Option("staffMember", "The staff member whose infractions to search.")]
+        DiscordUser user)
     {
         IEnumerable<Infraction> infractions =
             _infractionService.GetInfractions(context.Guild).Where(i => i.StaffMemberId == user.Id);

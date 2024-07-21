@@ -12,8 +12,10 @@ internal sealed partial class NoteCommand
     [SlashCommand("editcontent", "Edits the content of a note.", false)]
     [SlashRequireGuild]
     public async Task EditContentAsync(InteractionContext context,
-        [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to edit.")] long noteId,
-        [Option("content", "The new content of the note.")] string content)
+        [Autocomplete(typeof(NoteAutocompleteProvider))] [Option("note", "The note to edit.")]
+        long noteId,
+        [Option("content", "The new content of the note.")]
+        string content)
     {
         var embed = new DiscordEmbedBuilder();
 

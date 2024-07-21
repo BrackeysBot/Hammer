@@ -27,7 +27,8 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
     [SlashCommand("messagehistory", "Views the message history for a user.", false)]
     public async Task MessageHistoryAsync(
         InteractionContext context,
-        [Option("user", "The user whose message history to view.")] DiscordUser user
+        [Option("user", "The user whose message history to view.")]
+        DiscordUser user
     )
     {
         ArgumentNullException.ThrowIfNull(user);
@@ -51,8 +52,8 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
         await foreach (DeletedMessage deletedMessage in _messageDeletionService.GetDeletedMessages(user, context.Guild))
         {
             deletedMessages.Add($"**ID: {deletedMessage.MessageId}** \u2022 " +
-                              $"Sent in {MentionUtility.MentionChannel(deletedMessage.ChannelId)} \u2022 " +
-                              Formatter.Timestamp(deletedMessage.CreationTimestamp));
+                                $"Sent in {MentionUtility.MentionChannel(deletedMessage.ChannelId)} \u2022 " +
+                                Formatter.Timestamp(deletedMessage.CreationTimestamp));
         }
 
         // GetStaffMessages and GetDeletedMessages yield messages in chronological order,

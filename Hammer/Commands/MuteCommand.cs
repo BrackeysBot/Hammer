@@ -55,9 +55,12 @@ internal sealed class MuteCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task MuteAsync(InteractionContext context,
         [Option("user", "The user to mute")] DiscordUser user,
-        [Option("reason", "The reason for the mute")] string? reason = null,
-        [Option("duration", "The duration of the mute")] string? durationRaw = null,
-        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))] string? ruleSearch = null)
+        [Option("reason", "The reason for the mute")]
+        string? reason = null,
+        [Option("duration", "The duration of the mute")]
+        string? durationRaw = null,
+        [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))]
+        string? ruleSearch = null)
     {
         await context.DeferAsync(true).ConfigureAwait(false);
 

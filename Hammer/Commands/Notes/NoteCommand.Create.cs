@@ -13,8 +13,10 @@ internal sealed partial class NoteCommand
     [SlashCommand("create", "Creates a new note", false)]
     [SlashRequireGuild]
     public async Task CreateAsync(InteractionContext context,
-        [Option("user", "The user for whom to create a note.")] DiscordUser user,
-        [Option("content", "The content of the note.")] string content)
+        [Option("user", "The user for whom to create a note.")]
+        DiscordUser user,
+        [Option("content", "The content of the note.")]
+        string content)
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {

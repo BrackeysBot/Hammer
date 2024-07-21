@@ -12,7 +12,8 @@ internal sealed partial class RulesCommand
     [SlashCommand("delete", "Deletes a rule.", false)]
     [SlashRequireGuild]
     public async Task DeleteAsync(InteractionContext context,
-        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")] long ruleId)
+        [Autocomplete(typeof(RuleAutocompleteProvider))] [Option("rule", "The rule to modify")]
+        long ruleId)
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
@@ -25,9 +26,9 @@ internal sealed partial class RulesCommand
         DiscordGuild guild = context.Guild;
         var builder = new DiscordWebhookBuilder();
 
-        if (!_ruleService.GuildHasRule(guild, (int) ruleId))
+        if (!_ruleService.GuildHasRule(guild, (int)ruleId))
         {
-            builder.AddEmbed(_ruleService.CreateRuleNotFoundEmbed((int) ruleId));
+            builder.AddEmbed(_ruleService.CreateRuleNotFoundEmbed((int)ruleId));
             await context.EditResponseAsync(builder);
             return;
         }

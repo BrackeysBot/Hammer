@@ -71,7 +71,7 @@ internal sealed class MailmanService
         embed.WithTitle(infraction.Type.Humanize());
         embed.WithDescription(string.IsNullOrWhiteSpace(description)
             ? null
-            : description.FormatSmart(new {user = member, guild}));
+            : description.FormatSmart(new { user = member, guild }));
         embed.WithThumbnail(iconUrl);
         embed.WithFooter(guild.Name, iconUrl);
         embed.AddField("Reason", reason);
