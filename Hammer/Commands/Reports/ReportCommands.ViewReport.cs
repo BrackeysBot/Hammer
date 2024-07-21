@@ -14,7 +14,7 @@ internal sealed partial class ReportCommands
     [SlashRequireGuild]
     public async Task ViewReportAsync(InteractionContext context, [Option("id", "The ID of the report to view.")] long id)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         var embed = new DiscordEmbedBuilder();
 
@@ -28,8 +28,8 @@ internal sealed partial class ReportCommands
 
             try
             {
-                DiscordChannel channel = await context.Client.GetChannelAsync(reportedMessage.ChannelId).ConfigureAwait(false);
-                DiscordMessage message = await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
+                DiscordChannel channel = await context.Client.GetChannelAsync(reportedMessage.ChannelId);
+                DiscordMessage message = await channel.GetMessageAsync(reportedMessage.MessageId);
                 embed.AddField("Message ID", Formatter.MaskedUrl(message.Id.ToString(), message.JumpLink), true);
                 embed.AddField("Message Time", Formatter.Timestamp(message.CreationTimestamp, TimestampFormat.LongDateTime),
                     true);
@@ -56,6 +56,6 @@ internal sealed partial class ReportCommands
             embed.WithDescription($"No report with the ID {id} could be found.");
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed)).ConfigureAwait(false);
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
     }
 }

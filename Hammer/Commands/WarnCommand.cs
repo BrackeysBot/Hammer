@@ -53,14 +53,14 @@ internal sealed class WarnCommand : ApplicationCommandModule
         [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))]
         string? ruleSearch = null)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
             _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
-            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
+            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction);
+            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed);
             if (!result) return;
         }
 
@@ -96,7 +96,7 @@ internal sealed class WarnCommand : ApplicationCommandModule
             }
 
             (infraction, bool dmSuccess) =
-                await _warningService.WarnAsync(user, context.Member, reason, rule).ConfigureAwait(false);
+                await _warningService.WarnAsync(user, context.Member, reason, rule);
 
             if (!dmSuccess)
                 importantNotes.Add("The warning was successfully issued, but the user could not be DM'd.");
@@ -123,6 +123,6 @@ internal sealed class WarnCommand : ApplicationCommandModule
             builder.WithFooter("See log for further details.");
         }
 
-        await context.EditResponseAsync(message.AddEmbed(builder)).ConfigureAwait(false);
+        await context.EditResponseAsync(message.AddEmbed(builder));
     }
 }

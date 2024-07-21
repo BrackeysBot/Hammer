@@ -33,14 +33,14 @@ internal sealed class MessageCommand : ApplicationCommandModule
     {
         var embed = new DiscordEmbedBuilder();
         DiscordGuild guild = context.Guild;
-        DiscordMember? member = await user.GetAsMemberOfAsync(guild).ConfigureAwait(false);
+        DiscordMember? member = await user.GetAsMemberOfAsync(guild);
 
         if (member is null)
         {
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("Not In Guild");
             embed.WithDescription($"User {user.Id} ({user.Mention}) was found, but is not in this guild.");
-            await context.CreateResponseAsync(embed, ephemeral: true).ConfigureAwait(false);
+            await context.CreateResponseAsync(embed, ephemeral: true);
         }
         else
         {
@@ -49,7 +49,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
             DiscordModalTextInput message = modal.AddInput("Message", isRequired: true, inputStyle: TextInputStyle.Paragraph);
 
             DiscordModalResponse response =
-                await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
+                await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5));
 
             if (response != DiscordModalResponse.Success)
                 return;
@@ -65,11 +65,11 @@ internal sealed class MessageCommand : ApplicationCommandModule
                 embed.WithAuthor(user);
                 embed.WithTitle("Message not sent");
                 embed.WithDescription($"An empty message cannot be sent to {user.Mention}");
-                await context.FollowUpAsync(builder.AddEmbed(embed)).ConfigureAwait(false);
+                await context.FollowUpAsync(builder.AddEmbed(embed));
                 return;
             }
 
-            bool success = await _messageService.MessageMemberAsync(member, context.Member, content).ConfigureAwait(false);
+            bool success = await _messageService.MessageMemberAsync(member, context.Member, content);
 
             if (success)
             {
@@ -77,7 +77,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
                 embed.WithAuthor(user);
                 embed.WithTitle("Message Sent");
                 embed.AddField("Content", content);
-                await context.FollowUpAsync(builder.AddEmbed(embed)).ConfigureAwait(false);
+                await context.FollowUpAsync(builder.AddEmbed(embed));
             }
             else
             {
@@ -87,7 +87,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
                 embed.WithDescription($"The message could not be sent to {user.Mention}. " +
                                       "This is likely due to DMs being disabled for this user.");
                 embed.AddField("Content", content);
-                await context.FollowUpAsync(builder.AddEmbed(embed)).ConfigureAwait(false);
+                await context.FollowUpAsync(builder.AddEmbed(embed));
             }
         }
     }

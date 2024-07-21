@@ -38,14 +38,14 @@ internal sealed class MailmanService
 
         if (!_discordClient.Guilds.TryGetValue(infraction.GuildId, out DiscordGuild? guild)) return null;
 
-        DiscordMember? member = await guild.GetMemberOrNullAsync(infraction.UserId).ConfigureAwait(false);
+        DiscordMember? member = await guild.GetMemberOrNullAsync(infraction.UserId);
         if (member is null) return null; // bots can only DM members
 
         try
         {
             DiscordEmbed? embed = CreatePrivateEmbed(infraction, infractionCount, options, member);
             if (embed is not null)
-                return await member.SendMessageAsync(embed).ConfigureAwait(false);
+                return await member.SendMessageAsync(embed);
 
             // user does not exist, or guild is invalid
             return null;

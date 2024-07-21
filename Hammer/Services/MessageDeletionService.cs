@@ -44,7 +44,7 @@ internal sealed class MessageDeletionService
     {
         ArgumentNullException.ThrowIfNull(guild);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
         return context.DeletedMessages.Count(m => m.GuildId == guild.Id);
     }
 
@@ -78,7 +78,7 @@ internal sealed class MessageDeletionService
         _logger.LogInformation("{Message} in channel {Channel} is requested to be deleted by {StaffMember}",
             message, message.Channel, staffMember);
 
-        message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
+        message = await message.Channel.GetMessageAsync(message.Id);
         DiscordGuild guild = message.Channel.Guild;
 
         if (guild is null)
@@ -91,7 +91,7 @@ internal sealed class MessageDeletionService
             throw new InvalidOperationException(ExceptionMessages.NoConfigurationForGuild);
 
         DiscordUser user = message.Author;
-        DiscordMember? member = await user.GetAsMemberOfAsync(guild).ConfigureAwait(false);
+        DiscordMember? member = await user.GetAsMemberOfAsync(guild);
 
         if (!staffMember.IsStaffMember(guildConfiguration))
         {
@@ -113,7 +113,7 @@ internal sealed class MessageDeletionService
                 try
                 {
                     DiscordEmbed toAuthorEmbed = CreateMessageDeletionToAuthorEmbed(message, guildConfiguration);
-                    await member.SendMessageAsync(toAuthorEmbed).ConfigureAwait(false);
+                    await member.SendMessageAsync(toAuthorEmbed);
                 }
                 catch
                 {
@@ -126,13 +126,13 @@ internal sealed class MessageDeletionService
         DiscordEmbed staffLogEmbed = CreateMessageDeletionToStaffLogEmbed(message, staffMember, guildConfiguration);
 
         var deletedMessage = DeletedMessage.Create(message, staffMember);
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await context.AddAsync(deletedMessage).ConfigureAwait(false);
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
+        await context.AddAsync(deletedMessage);
+        await context.SaveChangesAsync();
 
         _logger.LogInformation("{Message} in {Channel} was deleted by {StaffMember}", message, message.Channel, staffMember);
-        await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
-        await _logService.LogAsync(guild, staffLogEmbed).ConfigureAwait(false);
+        await message.DeleteAsync($"Deleted by {staffMember.GetUsernameWithDiscriminator()}");
+        await _logService.LogAsync(guild, staffLogEmbed);
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ internal sealed class MessageDeletionService
     /// <returns>A <see cref="DeletedMessage" />, or <see langword="null" /> if no such message was found.</returns>
     public async Task<DeletedMessage?> GetDeletedMessage(ulong id)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
         return await context.DeletedMessages.FirstOrDefaultAsync(m => m.MessageId == id);
     }
 
@@ -154,7 +154,7 @@ internal sealed class MessageDeletionService
     /// <returns>An asynchronously enumerable collection of <see cref="DeletedMessage" /> values.</returns>
     public async IAsyncEnumerable<DeletedMessage> GetDeletedMessages(DiscordUser author, DiscordGuild guild)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (DeletedMessage deletedMessage in
                  context.DeletedMessages.Where(m => m.AuthorId == author.Id && m.GuildId == guild.Id)

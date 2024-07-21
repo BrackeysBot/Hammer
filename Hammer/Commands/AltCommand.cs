@@ -30,7 +30,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         [Option("alt", "The alt account to add.")]
         DiscordUser alt)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         _altAccountService.AddAlt(user, alt, context.Member);
 
         DiscordUser olderAccount = user.CreationTimestamp > alt.CreationTimestamp ? alt : user;
@@ -43,7 +43,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         embed.AddField("Main Account", user.Mention + (olderAccount == user ? " (older)" : " (newer)"), true);
         embed.AddField("Alt Account", alt.Mention + (olderAccount == alt ? " (older)" : " (newer)"), true);
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build())).ConfigureAwait(false);
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
     }
 
     [SlashCommand("remove", "Removes an alt account from a user.", false)]
@@ -54,7 +54,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         [Option("alt", "The alt account to remove.")]
         DiscordUser alt)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         _altAccountService.RemoveAlt(user, alt, context.Member);
 
         var embed = new DiscordEmbedBuilder();
@@ -65,7 +65,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         embed.AddField("Main Account", user.Mention, true);
         embed.AddField("Alt Account", alt.Mention, true);
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build())).ConfigureAwait(false);
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
     }
 
     [SlashCommand("view", "Views the alt accounts for a user.", false)]
@@ -74,7 +74,7 @@ internal sealed class AltCommand : ApplicationCommandModule
         [Option("user", "The user to add an alt account to.")]
         DiscordUser user)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         IReadOnlyCollection<ulong> altAccounts = _altAccountService.GetAltsFor(user.Id);
 
         var embed = new DiscordEmbedBuilder();
@@ -99,6 +99,6 @@ internal sealed class AltCommand : ApplicationCommandModule
             embed.WithDescription("✅ No alt accounts are known for this user.");
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build())).ConfigureAwait(false);
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed.Build()));
     }
 }

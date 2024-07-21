@@ -34,7 +34,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
     {
         DiscordUser user = context.Interaction.Data.Resolved.Users.First().Value;
 
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         var builder = new DiscordWebhookBuilder();
         var response = new InfractionHistoryResponse(_infractionService, user, context.User, context.Guild, true);
@@ -45,7 +45,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
             builder.AddEmbed(embed);
         }
 
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 
     [SlashCommand("history", "Views the infraction history for a user.", false)]
@@ -118,7 +118,7 @@ internal sealed class HistoryCommand : ApplicationCommandModule
             Type = type
         };
 
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         var builder = new DiscordWebhookBuilder();
         var response = new InfractionHistoryResponse(_infractionService, user, context.User, context.Guild, true, searchOptions);
@@ -144,6 +144,6 @@ internal sealed class HistoryCommand : ApplicationCommandModule
             }
         }
 
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

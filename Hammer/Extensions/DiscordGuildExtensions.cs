@@ -56,7 +56,7 @@ internal static class DiscordGuildExtensions
             // so this method should hopefully clearly express that - and at least using exceptions for flow control *here*,
             // removes the need to do the same in consumer code.
             // god I hate this.
-            return await guild.GetMemberAsync(userId).ConfigureAwait(false);
+            return await guild.GetMemberAsync(userId);
         }
         catch (NotFoundException)
         {

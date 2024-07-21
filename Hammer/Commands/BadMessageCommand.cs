@@ -74,7 +74,7 @@ internal sealed class BadMessageCommand : ApplicationCommandModule
             maxLength: 250);
 
         DiscordModalResponse modalResponse =
-            await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
+            await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5));
 
         if (modalResponse != DiscordModalResponse.Success)
             return;
@@ -86,11 +86,11 @@ internal sealed class BadMessageCommand : ApplicationCommandModule
         }
 
         string reason = MentionUtility.ReplaceChannelMentions(guild, reasonInput.Value.WithWhiteSpaceAlternative(defaultReason));
-        await _messageDeletionService.DeleteMessageAsync(message, staffMember).ConfigureAwait(false);
+        await _messageDeletionService.DeleteMessageAsync(message, staffMember);
 
         var additionalInfo = $"Message {message.Id} in {message.Channel.Mention} (#{message.Channel.Name})";
-        (Infraction infraction, bool dmSuccess) = await _warningService.WarnAsync(user, staffMember, reason, rule, additionalInfo)
-            .ConfigureAwait(false);
+        (Infraction infraction, bool dmSuccess) =
+            await _warningService.WarnAsync(user, staffMember, reason, rule, additionalInfo);
 
         if (!dmSuccess)
             importantNotes.Add("The warning was successfully issued, but the user could not be DM'd.");
@@ -110,7 +110,7 @@ internal sealed class BadMessageCommand : ApplicationCommandModule
 
         var response = new DiscordFollowupMessageBuilder();
         response.AsEphemeral();
-        await context.FollowUpAsync(response.AddEmbed(builder)).ConfigureAwait(false);
+        await context.FollowUpAsync(response.AddEmbed(builder));
     }
 
     private bool TryGetRule(DiscordGuild guild, string? query, out Rule? rule)

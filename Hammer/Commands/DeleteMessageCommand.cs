@@ -26,7 +26,7 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task DeleteMessageAsync(ContextMenuContext context)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
         var builder = new DiscordWebhookBuilder();
         var embed = new DiscordEmbedBuilder();
 
@@ -37,13 +37,13 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
             embed.WithTitle("Deletion failed");
             embed.WithDescription("The specified message could not be retrieved.");
             builder.AddEmbed(embed);
-            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            await context.EditResponseAsync(builder);
             return;
         }
 
         try
         {
-            await _deletionService.DeleteMessageAsync(message, context.Member).ConfigureAwait(false);
+            await _deletionService.DeleteMessageAsync(message, context.Member);
         }
         catch (Exception exception)
         {
@@ -52,7 +52,7 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
             embed.WithTitle("Deletion failed");
             embed.WithDescription(exception.Message);
             builder.AddEmbed(embed);
-            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            await context.EditResponseAsync(builder);
             return;
         }
 
@@ -60,6 +60,6 @@ internal sealed class DeleteMessageCommand : ApplicationCommandModule
         embed.WithTitle("Message deleted");
         embed.WithDescription($"Message {message.Id} by {message.Author.Mention} deleted.");
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

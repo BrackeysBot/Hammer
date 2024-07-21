@@ -20,7 +20,7 @@ internal sealed partial class NoteCommand
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
@@ -28,7 +28,7 @@ internal sealed partial class NoteCommand
 
         try
         {
-            MemberNote note = await _noteService.CreateNoteAsync(user, context.Member, content).ConfigureAwait(false);
+            MemberNote note = await _noteService.CreateNoteAsync(user, context.Member, content);
 
             embed.WithColor(0x4CAF50);
             embed.WithTitle("Note Created");
@@ -49,6 +49,6 @@ internal sealed partial class NoteCommand
             embed.WithFooter("See log for more details.");
         }
 
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 }

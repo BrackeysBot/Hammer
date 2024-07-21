@@ -54,7 +54,7 @@ internal sealed class StaffReactionService : BackgroundService
         if (message.Author is null)
         {
             // not cached! fetch new message
-            message = await message.Channel.GetMessageAsync(message.Id).ConfigureAwait(false);
+            message = await message.Channel.GetMessageAsync(message.Id);
         }
 
         DiscordUser author = message.Author;
@@ -71,12 +71,12 @@ internal sealed class StaffReactionService : BackgroundService
 
         if (reaction == reactionConfiguration.GagReaction)
         {
-            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
-            await _infractionService.GagAsync(author, staffMember, message).ConfigureAwait(false);
+            await message.DeleteReactionAsync(emoji, staffMember);
+            await _infractionService.GagAsync(author, staffMember, message);
         }
         else if (reaction == reactionConfiguration.HistoryReaction)
         {
-            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
+            await message.DeleteReactionAsync(emoji, staffMember);
 
             var builder = new DiscordMessageBuilder();
             var response = new InfractionHistoryResponse(_infractionService, author, staffMember, guild, true);
@@ -87,12 +87,12 @@ internal sealed class StaffReactionService : BackgroundService
                 builder.AddEmbed(embed);
             }
 
-            await staffMember.SendMessageAsync(builder).ConfigureAwait(false);
+            await staffMember.SendMessageAsync(builder);
         }
         else if (reaction == reactionConfiguration.DeleteMessageReaction)
         {
-            await message.DeleteReactionAsync(emoji, staffMember).ConfigureAwait(false);
-            await _deletionService.DeleteMessageAsync(message, staffMember).ConfigureAwait(false);
+            await message.DeleteReactionAsync(emoji, staffMember);
+            await _deletionService.DeleteMessageAsync(message, staffMember);
         }
     }
 }

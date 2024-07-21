@@ -37,7 +37,7 @@ internal sealed class ViewMessageCommand : ApplicationCommandModule
         string rawId
     )
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         var embed = new DiscordEmbedBuilder();
 
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))

@@ -22,14 +22,14 @@ internal sealed partial class NoteCommand
         if (string.IsNullOrWhiteSpace(content))
             return;
 
-        MemberNote? note = await _noteService.GetNoteAsync(noteId).ConfigureAwait(false);
+        MemberNote? note = await _noteService.GetNoteAsync(noteId);
 
         if (note is null)
         {
             embed.WithColor(0xFF0000);
             embed.WithTitle("No Such Note");
             embed.WithDescription($"No note with the ID {noteId} could be found.");
-            await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+            await context.CreateResponseAsync(embed, true);
             return;
         }
 
@@ -38,6 +38,6 @@ internal sealed partial class NoteCommand
         embed.AddField("Note ID", note.Id);
         embed.AddField("Content", note.Content);
         embed.WithColor(0x4CAF50);
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 }

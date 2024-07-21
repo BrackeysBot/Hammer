@@ -21,7 +21,7 @@ internal sealed partial class InfractionCommand
         long? ruleId = null
     )
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         var embed = new DiscordEmbedBuilder();
         var builder = new DiscordWebhookBuilder();
 
@@ -32,7 +32,7 @@ internal sealed partial class InfractionCommand
             embed.WithTitle("Infraction not found");
             embed.WithDescription($"The infraction with the ID `{infractionId}` was not found.");
             builder.AddEmbed(embed);
-            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            await context.EditResponseAsync(builder);
             return;
         }
 
@@ -42,7 +42,7 @@ internal sealed partial class InfractionCommand
             embed.WithTitle("No Changes");
             embed.WithDescription("No changes were made to the infraction.");
             builder.AddEmbed(embed);
-            await context.EditResponseAsync(builder).ConfigureAwait(false);
+            await context.EditResponseAsync(builder);
             return;
         }
 
@@ -59,7 +59,7 @@ internal sealed partial class InfractionCommand
                 embed.WithTitle("Rule not found");
                 embed.WithDescription($"The rule with the ID `{ruleId}` was not found.");
                 builder.AddEmbed(embed);
-                await context.EditResponseAsync(builder).ConfigureAwait(false);
+                await context.EditResponseAsync(builder);
                 return;
             }
         }
@@ -89,7 +89,7 @@ internal sealed partial class InfractionCommand
 
         builder.Clear();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
 
         embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
@@ -101,6 +101,6 @@ internal sealed partial class InfractionCommand
         embed.AddFieldIf(newRuleId is not null, "New Rule", () => newRuleId!.Value, true);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason), "Old Reason", oldReason);
         embed.AddFieldIf(!string.IsNullOrWhiteSpace(reason), "New Reason", () => reason);
-        await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(context.Guild, embed);
     }
 }

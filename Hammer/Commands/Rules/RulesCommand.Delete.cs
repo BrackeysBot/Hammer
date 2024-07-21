@@ -17,11 +17,11 @@ internal sealed partial class RulesCommand
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         DiscordGuild guild = context.Guild;
         var builder = new DiscordWebhookBuilder();
@@ -41,6 +41,6 @@ internal sealed partial class RulesCommand
         embed.WithDescription("To view the new rules, use the `/rules` command.");
 
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

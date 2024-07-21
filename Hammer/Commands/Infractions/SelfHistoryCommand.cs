@@ -26,7 +26,7 @@ internal sealed class SelfHistoryCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task SelfHistoryAsync(InteractionContext context)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         var builder = new DiscordWebhookBuilder();
         var response = new InfractionHistoryResponse(_infractionService, context.User, context.User, context.Guild, false);
@@ -37,6 +37,6 @@ internal sealed class SelfHistoryCommand : ApplicationCommandModule
             builder.AddEmbed(embed);
         }
 
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

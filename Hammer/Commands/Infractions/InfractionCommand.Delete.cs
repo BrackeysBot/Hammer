@@ -15,7 +15,7 @@ internal sealed partial class InfractionCommand
         long infractionId
     )
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         var embed = new DiscordEmbedBuilder();
 
         Infraction? infraction = _infractionService.GetInfraction(infractionId);
@@ -36,7 +36,7 @@ internal sealed partial class InfractionCommand
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
 
         if (infraction is not null)
         {
@@ -47,7 +47,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("User", MentionUtility.MentionUser(infraction.UserId), true);
             embed.AddField("Type", infraction.Type, true);
             embed.AddField("Staff Member", context.Member.Mention, true);
-            await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
+            await _logService.LogAsync(context.Guild, embed);
         }
     }
 }

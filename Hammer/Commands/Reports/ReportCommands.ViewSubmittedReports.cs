@@ -19,7 +19,7 @@ internal sealed partial class ReportCommands
         DiscordUser user
     )
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         var list = new List<string>();
 
@@ -29,8 +29,8 @@ internal sealed partial class ReportCommands
 
             try
             {
-                DiscordChannel channel = await context.Client.GetChannelAsync(reportedMessage.ChannelId).ConfigureAwait(false);
-                DiscordMessage message = await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
+                DiscordChannel channel = await context.Client.GetChannelAsync(reportedMessage.ChannelId);
+                DiscordMessage message = await channel.GetMessageAsync(reportedMessage.MessageId);
                 id = Formatter.MaskedUrl(id, message.JumpLink);
             }
             catch (DiscordException)
@@ -58,6 +58,6 @@ internal sealed partial class ReportCommands
             embed.WithDescription(string.Join('\n', list));
         }
 
-        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed)).ConfigureAwait(false);
+        await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
     }
 }

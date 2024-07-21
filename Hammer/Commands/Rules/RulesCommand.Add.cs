@@ -19,7 +19,7 @@ internal sealed partial class RulesCommand
 
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
@@ -34,7 +34,7 @@ internal sealed partial class RulesCommand
             inputStyle: TextInputStyle.Paragraph);
 
         DiscordModalResponse response =
-            await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
+            await modal.Build().RespondToAsync(context.Interaction, TimeSpan.FromMinutes(5));
 
         if (response == DiscordModalResponse.Success)
         {
@@ -49,7 +49,7 @@ internal sealed partial class RulesCommand
 
             var webhook = new DiscordWebhookBuilder();
             webhook.AddEmbed(embed);
-            await context.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            await context.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(embed));
         }
     }
 }

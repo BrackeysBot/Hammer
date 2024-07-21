@@ -11,11 +11,11 @@ internal sealed partial class ReportCommands
     [ContextMenu(ApplicationCommandType.MessageContextMenu, "Report Message")]
     public async Task ReportMessageAsync(ContextMenuContext context)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         DiscordUser user = context.User;
         DiscordMessage message = context.Interaction.Data.Resolved.Messages.First().Value;
-        await _reportService.ReportMessageAsync(message, (DiscordMember)user).ConfigureAwait(false);
+        await _reportService.ReportMessageAsync(message, (DiscordMember)user);
 
         var builder = new DiscordWebhookBuilder();
         var embed = new DiscordEmbedBuilder();
@@ -25,6 +25,6 @@ internal sealed partial class ReportCommands
         embed.WithFooter("Reporting this message again will have no impact.");
         builder.AddEmbed(embed);
 
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

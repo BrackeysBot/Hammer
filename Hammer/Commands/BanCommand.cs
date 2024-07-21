@@ -59,19 +59,19 @@ internal sealed class BanCommand : ApplicationCommandModule
         [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")]
         bool clearMessageHistory = false)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
             _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
-            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
+            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction);
+            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed);
             if (!result) return;
         }
 
         DiscordGuild guild = context.Guild;
-        if (await _banService.IsUserBannedAsync(user, guild).ConfigureAwait(false))
+        if (await _banService.IsUserBannedAsync(user, guild))
         {
             var responseBuilder = new DiscordWebhookBuilder();
             var embed = new DiscordEmbedBuilder();
@@ -80,7 +80,7 @@ internal sealed class BanCommand : ApplicationCommandModule
             embed.WithDescription($"{user.Mention} ({user.Id:0}) is already banned. " +
                                   "If you are trying to replace a temporary ban with a permanent one, " +
                                   "please unban the member first before running `/ban` again.");
-            await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
+            await context.EditResponseAsync(responseBuilder.AddEmbed(embed));
             return;
         }
 
@@ -99,7 +99,7 @@ internal sealed class BanCommand : ApplicationCommandModule
                 embed.WithTitle("⚠️ Error parsing duration");
                 embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
                                       "Accepted format is `#y #mo #w #d #h #m #s #ms`");
-                await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
+                await context.EditResponseAsync(responseBuilder.AddEmbed(embed));
                 return;
             }
         }
@@ -137,7 +137,7 @@ internal sealed class BanCommand : ApplicationCommandModule
             : _banService.TemporaryBanAsync(user, context.Member!, reason, duration.Value, rule, clearMessageHistory);
         try
         {
-            (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
+            (infraction, bool dmSuccess) = await infractionTask;
 
             if (!dmSuccess)
                 importantNotes.Add("The ban was successfully issued, but the user could not be DM'd.");
@@ -176,6 +176,6 @@ internal sealed class BanCommand : ApplicationCommandModule
         }
 
         message.AddEmbed(builder);
-        await context.EditResponseAsync(message).ConfigureAwait(false);
+        await context.EditResponseAsync(message);
     }
 }

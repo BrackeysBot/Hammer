@@ -65,7 +65,7 @@ internal sealed class InfractionStatisticsService
         int usersMutedCount = GetDistinctMutedUsers(guild);
         int usersGaggedCount = GetDistinctGaggedUsers(guild);
         int usersWarnedCount = GetDistinctWarnedUsers(guild);
-        int totalMessagesDeletedCount = await GetTotalDeletedMessageCountAsync(guild).ConfigureAwait(false);
+        int totalMessagesDeletedCount = await GetTotalDeletedMessageCountAsync(guild);
 
         (int A, int B) banRatio = Ratio(permBanCount, tempBanCount);
         (int A, int B) muteRatio = Ratio(permMuteCount, tempMuteCount);
@@ -281,7 +281,7 @@ internal sealed class InfractionStatisticsService
     public async Task<int> GetTotalDeletedMessageCountAsync(DiscordGuild guild)
     {
         ArgumentNullException.ThrowIfNull(guild);
-        return await _messageDeletionService.CountMessageDeletionsAsync(guild).ConfigureAwait(false);
+        return await _messageDeletionService.CountMessageDeletionsAsync(guild);
     }
 
     /// <summary>

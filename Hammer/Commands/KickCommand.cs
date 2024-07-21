@@ -57,14 +57,14 @@ internal sealed class KickCommand : ApplicationCommandModule
         [Option("clearMessageHistory", "Clear the user's recent messages in text channels.")]
         bool clearMessageHistory = false)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
             _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
-            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
+            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction);
+            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed);
             if (!result) return;
         }
 
@@ -76,7 +76,7 @@ internal sealed class KickCommand : ApplicationCommandModule
         DiscordGuild guild = context.Guild;
         try
         {
-            member = await guild.GetMemberAsync(user.Id).ConfigureAwait(false);
+            member = await guild.GetMemberAsync(user.Id);
         }
         catch (NotFoundException)
         {
@@ -85,7 +85,7 @@ internal sealed class KickCommand : ApplicationCommandModule
             builder.WithTitle("⚠️ Not in guild");
             builder.WithDescription($"The user {user.Mention} is not in this guild.");
             message.AddEmbed(builder);
-            await context.EditResponseAsync(message).ConfigureAwait(false);
+            await context.EditResponseAsync(message);
 
             _logger.LogInformation("{StaffMember} attempted to kick non-member {User}", context.Member, user);
             return;
@@ -118,7 +118,7 @@ internal sealed class KickCommand : ApplicationCommandModule
             }
 
             (infraction, bool dmSuccess) =
-                await _banService.KickAsync(member, context.Member!, reason, rule, clearMessageHistory).ConfigureAwait(false);
+                await _banService.KickAsync(member, context.Member!, reason, rule, clearMessageHistory);
 
             if (!dmSuccess)
                 importantNotes.Add("The kick was successfully issued, but the user could not be DM'd.");
@@ -146,6 +146,6 @@ internal sealed class KickCommand : ApplicationCommandModule
         }
 
         message.AddEmbed(builder);
-        await context.EditResponseAsync(message).ConfigureAwait(false);
+        await context.EditResponseAsync(message);
     }
 }

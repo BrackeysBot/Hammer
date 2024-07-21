@@ -35,12 +35,12 @@ internal sealed class UnmuteCommand : ApplicationCommandModule
         [Option("reason", "The reason for the mute revocation.")]
         string? reason = null)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         var embed = new DiscordEmbedBuilder();
         try
         {
-            await _muteService.RevokeMuteAsync(user, context.Member!, reason).ConfigureAwait(false);
+            await _muteService.RevokeMuteAsync(user, context.Member!, reason);
 
             embed.WithAuthor(user);
             embed.WithColor(DiscordColor.SpringGreen);
@@ -62,6 +62,6 @@ internal sealed class UnmuteCommand : ApplicationCommandModule
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

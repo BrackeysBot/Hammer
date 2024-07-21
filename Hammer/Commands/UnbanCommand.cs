@@ -34,7 +34,7 @@ internal sealed class UnbanCommand : ApplicationCommandModule
         [Option("reason", "The reason for the ban revocation.")]
         string? reason = null)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         var embed = new DiscordEmbedBuilder();
         try
@@ -61,6 +61,6 @@ internal sealed class UnbanCommand : ApplicationCommandModule
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

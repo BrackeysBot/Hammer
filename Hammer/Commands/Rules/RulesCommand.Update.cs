@@ -20,21 +20,21 @@ internal sealed partial class RulesCommand
 
         if (!match.Success)
         {
-            await context.CreateResponseAsync("Invalid message link.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Invalid message link.", true);
             return;
         }
 
         ulong guildId = ulong.Parse(match.Groups[1].Value);
         if (guildId != context.Guild.Id)
         {
-            await context.CreateResponseAsync("Invalid message link.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Invalid message link.", true);
             return;
         }
 
         DiscordChannel channel = context.Guild.GetChannel(ulong.Parse(match.Groups[2].Value));
         if (channel is null)
         {
-            await context.CreateResponseAsync("Invalid message link.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Invalid message link.", true);
             return;
         }
 
@@ -42,21 +42,21 @@ internal sealed partial class RulesCommand
 
         try
         {
-            message = await channel.GetMessageAsync(ulong.Parse(match.Groups[3].Value)).ConfigureAwait(false);
+            message = await channel.GetMessageAsync(ulong.Parse(match.Groups[3].Value));
         }
         catch (NotFoundException)
         {
-            await context.CreateResponseAsync("Invalid message link.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Invalid message link.", true);
             return;
         }
 
         if (message.Author != context.Client.CurrentUser)
         {
-            await context.CreateResponseAsync("Invalid message link.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Invalid message link.", true);
             return;
         }
 
-        await context.CreateResponseAsync($"Sending rules to {channel.Mention}", true).ConfigureAwait(false);
+        await context.CreateResponseAsync($"Sending rules to {channel.Mention}", true);
         await _ruleService.ModifyRulesMessageAsync(message);
     }
 

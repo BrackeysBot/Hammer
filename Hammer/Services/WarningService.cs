@@ -51,9 +51,8 @@ internal sealed class WarningService
             AdditionalInformation = additionalInfo.AsNullIfWhiteSpace()
         };
 
-        (Infraction infraction, bool success) = await _infractionService
-            .CreateInfractionAsync(InfractionType.Warning, user, issuer, options)
-            .ConfigureAwait(false);
+        (Infraction infraction, bool success) =
+            await _infractionService.CreateInfractionAsync(InfractionType.Warning, user, issuer, options);
         int infractionCount = _infractionService.GetInfractionCount(user, issuer.Guild);
 
         Rule? rule = null;
@@ -74,7 +73,7 @@ internal sealed class WarningService
             infraction.AdditionalInformation);
         embed.WithFooter($"Infraction {infraction.Id}");
 
-        await _logService.LogAsync(issuer.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(issuer.Guild, embed);
         return (infraction, success);
     }
 }

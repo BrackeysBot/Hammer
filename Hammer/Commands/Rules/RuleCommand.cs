@@ -37,7 +37,7 @@ internal sealed class RuleCommand : ApplicationCommandModule
         DiscordGuild guild = context.Guild;
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
@@ -68,6 +68,6 @@ internal sealed class RuleCommand : ApplicationCommandModule
         embed.WithTitle(string.IsNullOrWhiteSpace(rule.Brief) ? $"Rule #{rule.Id}" : $"Rule #{rule.Id}. {rule.Brief}");
         embed.WithDescription(rule.Description);
 
-        await context.CreateResponseAsync(embed).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed);
     }
 }

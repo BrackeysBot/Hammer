@@ -84,8 +84,8 @@ internal sealed class InfractionCooldownService : BackgroundService
         var cancel = new DiscordButtonComponent(ButtonStyle.Danger, "infr-cancel", "Cancel");
         builder.AddComponents(proceed, cancel);
 
-        DiscordMessage message = await context.EditResponseAsync(builder).ConfigureAwait(false);
-        var result = await message.WaitForButtonAsync(TimeSpan.FromMinutes(1)).ConfigureAwait(false);
+        DiscordMessage message = await context.EditResponseAsync(builder);
+        var result = await message.WaitForButtonAsync(TimeSpan.FromMinutes(1));
 
         if (result.TimedOut)
         {
@@ -93,7 +93,7 @@ internal sealed class InfractionCooldownService : BackgroundService
             embed.WithColor(DiscordColor.Red);
             embed.WithTitle("Infraction cancelled");
             embed.WithDescription("Confirmation took too long. No action was performed on the user.");
-            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed)).ConfigureAwait(false);
+            await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
             return false;
         }
 
@@ -107,7 +107,7 @@ internal sealed class InfractionCooldownService : BackgroundService
                 embed.WithColor(DiscordColor.Red);
                 embed.WithTitle("Infraction cancelled");
                 embed.WithDescription("Infraction has been cancelled. No action was performed on the user.");
-                await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed)).ConfigureAwait(false);
+                await context.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed));
                 return false;
 
             default:

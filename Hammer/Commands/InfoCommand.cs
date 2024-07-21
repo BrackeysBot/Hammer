@@ -40,7 +40,7 @@ internal sealed class InfoCommand : ApplicationCommandModule
         }
 
         DiscordClient client = context.Client;
-        DiscordMember member = (await client.CurrentUser.GetAsMemberOfAsync(guild).ConfigureAwait(false))!;
+        DiscordMember member = (await client.CurrentUser.GetAsMemberOfAsync(guild))!;
         string hammerVersion = _botService.Version;
         DiscordColor embedColor = member.Color;
         if (embedColor.Value == 0)
@@ -66,6 +66,6 @@ internal sealed class InfoCommand : ApplicationCommandModule
 
         embed.AddField("Version", Formatter.BlockCode(builder.ToString()));
 
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 }

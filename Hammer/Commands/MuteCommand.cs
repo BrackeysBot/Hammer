@@ -62,14 +62,14 @@ internal sealed class MuteCommand : ApplicationCommandModule
         [Option("rule", "The rule which was broken."), Autocomplete(typeof(RuleAutocompleteProvider))]
         string? ruleSearch = null)
     {
-        await context.DeferAsync(true).ConfigureAwait(false);
+        await context.DeferAsync(true);
 
         if (_cooldownService.IsCooldownActive(user, context.Member) &&
             _cooldownService.TryGetInfraction(user, out Infraction? infraction))
         {
             _logger.LogInformation("{User} is on cooldown. Prompting for confirmation", user);
-            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed).ConfigureAwait(false);
+            DiscordEmbed embed = await _infractionService.CreateInfractionEmbedAsync(infraction);
+            bool result = await _cooldownService.ShowConfirmationAsync(context, user, infraction, embed);
             if (!result) return;
         }
 
@@ -77,7 +77,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
         if (!_configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
         {
             DiscordWebhookBuilder responseBuilder = new DiscordWebhookBuilder().WithContent("This guild is not configured.");
-            await context.EditResponseAsync(responseBuilder).ConfigureAwait(false);
+            await context.EditResponseAsync(responseBuilder);
             return;
         }
 
@@ -96,7 +96,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
                 embed.WithTitle("⚠️ Error parsing duration");
                 embed.WithDescription($"The duration `{durationRaw}` is not a valid duration. " +
                                       "Accepted format is `#y #mo #w #d #h #m #s #ms`");
-                await context.EditResponseAsync(responseBuilder.AddEmbed(embed)).ConfigureAwait(false);
+                await context.EditResponseAsync(responseBuilder.AddEmbed(embed));
                 return;
             }
         }
@@ -160,7 +160,7 @@ internal sealed class MuteCommand : ApplicationCommandModule
 
         try
         {
-            (infraction, bool dmSuccess) = await infractionTask.ConfigureAwait(false);
+            (infraction, bool dmSuccess) = await infractionTask;
 
             if (!dmSuccess)
                 importantNotes.Add("The mute was successfully issued, but the user could not be DM'd.");
@@ -198,6 +198,6 @@ internal sealed class MuteCommand : ApplicationCommandModule
         }
 
         message.AddEmbed(builder);
-        await context.EditResponseAsync(message).ConfigureAwait(false);
+        await context.EditResponseAsync(message);
     }
 }

@@ -102,7 +102,7 @@ internal sealed class BotService : BackgroundService
         RegisterEvents();
 
         _logger.LogInformation("Connecting to Discord");
-        await _discordClient.ConnectAsync().ConfigureAwait(false);
+        await _discordClient.ConnectAsync();
     }
 
     private void RegisterEvents()

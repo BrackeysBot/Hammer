@@ -74,12 +74,12 @@ internal sealed class MemberNoteService : BackgroundService
 
         var note = new MemberNote(noteType, user, author, guild, trimmedContent);
 
-        await using (HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false))
+        await using (HammerContext context = await _dbContextFactory.CreateDbContextAsync())
         {
-            EntityEntry<MemberNote> result = await context.AddAsync(note).ConfigureAwait(false);
+            EntityEntry<MemberNote> result = await context.AddAsync(note);
             note = result.Entity;
 
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync();
         }
 
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
@@ -101,9 +101,9 @@ internal sealed class MemberNoteService : BackgroundService
     /// <exception cref="ArgumentException"><paramref name="id" /> refers to a non-existing note.</exception>
     public async Task DeleteNoteAsync(long id)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
-        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
         if (note is null)
             throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new { id }), nameof(id));
 
@@ -123,9 +123,9 @@ internal sealed class MemberNoteService : BackgroundService
         if (string.IsNullOrWhiteSpace(content) && type is null)
             return;
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
-        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
+        MemberNote? note = await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
         if (note is null)
             throw new ArgumentException(ExceptionMessages.NoSuchNote.FormatSmart(new { id }), nameof(id));
 
@@ -149,8 +149,8 @@ internal sealed class MemberNoteService : BackgroundService
     /// </returns>
     public async Task<MemberNote?> GetNoteAsync(long id)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        return await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id).ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.MemberNotes.FirstOrDefaultAsync(n => n.Id == id);
     }
 
     /// <summary>
@@ -169,8 +169,8 @@ internal sealed class MemberNoteService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id).ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id);
     }
 
     /// <summary>
@@ -197,9 +197,8 @@ internal sealed class MemberNoteService : BackgroundService
         ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id && n.Type == type)
-            .ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
+        return await context.MemberNotes.CountAsync(n => n.UserId == user.Id && n.GuildId == guild.Id && n.Type == type);
     }
 
     /// <summary>
@@ -215,7 +214,7 @@ internal sealed class MemberNoteService : BackgroundService
     {
         ArgumentNullException.ThrowIfNull(guild);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (MemberNote note in context.MemberNotes.Where(n => n.GuildId == guild.Id))
             yield return note;
@@ -239,7 +238,7 @@ internal sealed class MemberNoteService : BackgroundService
         ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (MemberNote note in context.MemberNotes.Where(n => n.GuildId == guild.Id && n.Type == type))
             yield return note;
@@ -264,7 +263,7 @@ internal sealed class MemberNoteService : BackgroundService
         ArgumentNullException.ThrowIfNull(user);
         ArgumentNullException.ThrowIfNull(guild);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (MemberNote note in context.MemberNotes.Where(n => n.UserId == user.Id && n.GuildId == guild.Id))
             yield return note;
@@ -294,7 +293,7 @@ internal sealed class MemberNoteService : BackgroundService
         ArgumentNullException.ThrowIfNull(guild);
         if (!Enum.IsDefined(type)) throw new ArgumentOutOfRangeException(nameof(type));
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (MemberNote note in
                  context.MemberNotes.Where(n => n.UserId == user.Id && n.GuildId == guild.Id && n.Type == type))
@@ -304,7 +303,7 @@ internal sealed class MemberNoteService : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync(stoppingToken).ConfigureAwait(false);
-        await context.Database.EnsureCreatedAsync(stoppingToken).ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync(stoppingToken);
+        await context.Database.EnsureCreatedAsync(stoppingToken);
     }
 }

@@ -15,7 +15,7 @@ internal sealed partial class InfractionCommand
         [Option("user", "The user whose infractions to clear")]
         DiscordUser user)
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         IReadOnlyList<Infraction> infractions = _infractionService.GetInfractions(user, context.Guild);
         _infractionService.RemoveInfractions(infractions);
@@ -32,7 +32,7 @@ internal sealed partial class InfractionCommand
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
 
         if (differential > 0)
         {
@@ -42,7 +42,7 @@ internal sealed partial class InfractionCommand
             embed.AddField("User", user.Mention, true);
             embed.AddField("Count", differential, true);
             embed.AddField("Staff Member", context.Member.Mention, true);
-            await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
+            await _logService.LogAsync(context.Guild, embed);
         }
     }
 }

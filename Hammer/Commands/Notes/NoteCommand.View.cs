@@ -20,12 +20,12 @@ internal sealed partial class NoteCommand
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
         DiscordGuild guild = context.Guild!;
-        MemberNote? note = await _noteService.GetNoteAsync(noteId).ConfigureAwait(false);
+        MemberNote? note = await _noteService.GetNoteAsync(noteId);
         DiscordEmbedBuilder embed = guild.CreateDefaultEmbed(guildConfiguration, false);
 
         if (note?.GuildId != guild.Id)
@@ -42,12 +42,12 @@ internal sealed partial class NoteCommand
             embed.WithColor(0xFF0000);
             embed.WithTitle("No Such Note");
             embed.WithDescription($"No note with the ID {noteId} could be found.");
-            await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+            await context.CreateResponseAsync(embed, true);
             return;
         }
 
-        DiscordUser? author = await context.Client.GetUserAsync(note.AuthorId).ConfigureAwait(false);
-        DiscordUser? user = await context.Client.GetUserAsync(note.UserId).ConfigureAwait(false);
+        DiscordUser? author = await context.Client.GetUserAsync(note.AuthorId);
+        DiscordUser? user = await context.Client.GetUserAsync(note.UserId);
         string timestamp = Formatter.Timestamp(note.CreationTimestamp, TimestampFormat.ShortDateTime);
 
         embed.WithAuthor(user);
@@ -56,6 +56,6 @@ internal sealed partial class NoteCommand
         embed.AddField("Author", author.Mention, true);
         embed.AddField("Creation Time", timestamp, true);
         embed.AddField("Content", note.Content);
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 }

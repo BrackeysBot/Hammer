@@ -33,7 +33,7 @@ internal sealed class MessageHistoryCommand : ApplicationCommandModule
     {
         ArgumentNullException.ThrowIfNull(user);
 
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         var embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
         embed.WithTitle("Message History");

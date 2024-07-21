@@ -13,7 +13,7 @@ internal sealed partial class RulesCommand
         DiscordChannel? channel = null)
     {
         channel ??= context.Channel;
-        await context.CreateResponseAsync($"Sending rules to {channel.Mention}", true).ConfigureAwait(false);
+        await context.CreateResponseAsync($"Sending rules to {channel.Mention}", true);
         await _ruleService.SendRulesMessageAsync(channel);
     }
 }

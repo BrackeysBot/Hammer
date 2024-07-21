@@ -21,21 +21,21 @@ internal sealed partial class InfractionCommand
             embed.WithTitle("No infractions on record");
             embed.WithDescription("Statistics cannot be generated because there are no infractions on record.");
 
-            await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+            await context.CreateResponseAsync(embed, true);
             return;
         }
 
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("Guild is not configured!", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("Guild is not configured!", true);
             return;
         }
 
-        await context.DeferAsync().ConfigureAwait(false);
-        DiscordEmbed result = await _infractionStatisticsService.CreateStatisticsEmbedAsync(context.Guild).ConfigureAwait(false);
+        await context.DeferAsync();
+        DiscordEmbed result = await _infractionStatisticsService.CreateStatisticsEmbedAsync(context.Guild);
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(result);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

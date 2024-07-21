@@ -67,6 +67,6 @@ internal sealed class StaffHistoryCommand : ApplicationCommandModule
         }
 
         embed.WithDescription($"**Last 10 Infractions**\n{builder}");
-        await context.CreateResponseAsync(embed).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed);
     }
 }

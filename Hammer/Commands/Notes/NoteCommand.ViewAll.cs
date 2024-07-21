@@ -20,7 +20,7 @@ internal sealed partial class NoteCommand
     {
         if (!_configurationService.TryGetGuildConfiguration(context.Guild, out GuildConfiguration? guildConfiguration))
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
@@ -31,10 +31,10 @@ internal sealed partial class NoteCommand
             var builder = new StringBuilder();
 
             // guru can only retrieve guru notes
-            ConfiguredCancelableAsyncEnumerable<MemberNote> notes =
+            IAsyncEnumerable<MemberNote> notes =
                 context.Member.GetPermissionLevel(guildConfiguration) >= PermissionLevel.Moderator
-                    ? _noteService.GetNotesAsync(user, context.Guild).ConfigureAwait(false)
-                    : _noteService.GetNotesAsync(user, context.Guild, MemberNoteType.Guru).ConfigureAwait(false);
+                    ? _noteService.GetNotesAsync(user, context.Guild)
+                    : _noteService.GetNotesAsync(user, context.Guild, MemberNoteType.Guru);
 
             await foreach (MemberNote note in notes)
             {
@@ -59,6 +59,6 @@ internal sealed partial class NoteCommand
             embed.WithFooter("See log for more details.");
         }
 
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 }

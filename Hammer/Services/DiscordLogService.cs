@@ -54,7 +54,7 @@ internal sealed class DiscordLogService : BackgroundService
             if (embed.Timestamp is null)
                 embed = new DiscordEmbedBuilder(embed).WithTimestamp(DateTimeOffset.UtcNow);
 
-            await logChannel.SendMessageAsync(BuildMentionString(guild, notificationOptions), embed: embed).ConfigureAwait(false);
+            await logChannel.SendMessageAsync(BuildMentionString(guild, notificationOptions), embed: embed);
         }
     }
 
@@ -127,7 +127,7 @@ internal sealed class DiscordLogService : BackgroundService
 
         try
         {
-            DiscordChannel? channel = await _discordClient.GetChannelAsync(logChannel.Value).ConfigureAwait(false);
+            DiscordChannel? channel = await _discordClient.GetChannelAsync(logChannel.Value);
 
             if (channel is not null)
                 _logChannels[e.Guild] = channel;

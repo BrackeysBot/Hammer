@@ -72,10 +72,10 @@ internal sealed class MessageReportService : BackgroundService
             BlockedAt = DateTimeOffset.UtcNow
         };
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
-        blockedReporter = (await context.AddAsync(blockedReporter).ConfigureAwait(false)).Entity;
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        blockedReporter = (await context.AddAsync(blockedReporter)).Entity;
+        await context.SaveChangesAsync();
 
         _blockedReporters.Add(blockedReporter);
 
@@ -87,7 +87,7 @@ internal sealed class MessageReportService : BackgroundService
         embed.AddField("User", user.Mention, true);
         embed.AddField("User ID", user.Id, true);
         embed.AddField("Staff Member", staffMember.Mention, true);
-        await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(staffMember.Guild, embed);
     }
 
     /// <summary>
@@ -101,12 +101,12 @@ internal sealed class MessageReportService : BackgroundService
         ArgumentNullException.ThrowIfNull(message);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         var reportedMessage = new ReportedMessage(message, reporter);
-        EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage).ConfigureAwait(false);
+        EntityEntry<ReportedMessage> entry = await context.AddAsync(reportedMessage);
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        await context.SaveChangesAsync();
         reportedMessage = entry.Entity;
         _reportedMessages.Add(reportedMessage);
         return reportedMessage;
@@ -317,7 +317,7 @@ internal sealed class MessageReportService : BackgroundService
         DiscordUser author = message.Author;
         DiscordChannel channel = message.Channel;
         if (author is null)
-            message = await channel.GetMessageAsync(message.Id).ConfigureAwait(false);
+            message = await channel.GetMessageAsync(message.Id);
 
         MessageTrackState trackState = _messageTrackingService.GetMessageTrackState(message);
         if ((trackState & MessageTrackState.Deleted) != 0)
@@ -339,7 +339,7 @@ internal sealed class MessageReportService : BackgroundService
         }
 
         _logger.LogInformation("{Reporter} reported {Message} by {Author} in {Channel}", reporter, message, author, channel);
-        await CreateNewMessageReportAsync(message, reporter).ConfigureAwait(false);
+        await CreateNewMessageReportAsync(message, reporter);
 
         if (!_configurationService.TryGetGuildConfiguration(channel.Guild, out GuildConfiguration? guildConfiguration))
             return false;
@@ -354,8 +354,7 @@ internal sealed class MessageReportService : BackgroundService
         else
             notificationOptions = StaffNotificationOptions.Here;
 
-        await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions)
-            .ConfigureAwait(false);
+        await _logService.LogAsync(reporter.Guild, CreateStaffReportEmbed(message, reporter), notificationOptions);
         return true;
     }
 
@@ -398,11 +397,10 @@ internal sealed class MessageReportService : BackgroundService
 
         if (!IsUserBlocked(user, staffMember.Guild)) return;
 
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         BlockedReporter? blockedReporter =
-            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == staffMember.Guild.Id)
-                .ConfigureAwait(false);
+            await context.BlockedReporters.FirstOrDefaultAsync(r => r.UserId == user.Id && r.GuildId == staffMember.Guild.Id);
 
         if (blockedReporter is null)
             _logger.LogWarning("Could not unblock {User}: was allegedly blocked, but didn't find BlockedReporter entity!", user);
@@ -410,7 +408,7 @@ internal sealed class MessageReportService : BackgroundService
         {
             _blockedReporters.Remove(blockedReporter);
             context.Remove(blockedReporter);
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.SaveChangesAsync();
 
             var embed = new DiscordEmbedBuilder();
             embed.WithColor(DiscordColor.Green);
@@ -420,15 +418,15 @@ internal sealed class MessageReportService : BackgroundService
             embed.AddField("User", user.Mention, true);
             embed.AddField("User ID", user.Id, true);
             embed.AddField("Staff Member", staffMember.Mention, true);
-            await _logService.LogAsync(staffMember.Guild, embed).ConfigureAwait(false);
+            await _logService.LogAsync(staffMember.Guild, embed);
         }
     }
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
-        await context.Database.EnsureCreatedAsync(stoppingToken).ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
+        await context.Database.EnsureCreatedAsync(stoppingToken);
 
         _blockedReporters.Clear();
         _blockedReporters.AddRange(context.BlockedReporters);
@@ -439,7 +437,7 @@ internal sealed class MessageReportService : BackgroundService
 
     private async Task OnGuildAvailable(DiscordClient sender, GuildCreateEventArgs e)
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
 
         foreach (ReportedMessage reportedMessage in context.ReportedMessages.Where(r => r.GuildId == e.Guild.Id))
         {
@@ -452,7 +450,7 @@ internal sealed class MessageReportService : BackgroundService
             {
                 try
                 {
-                    await channel.GetMessageAsync(reportedMessage.MessageId).ConfigureAwait(false);
+                    await channel.GetMessageAsync(reportedMessage.MessageId);
                     _reportedMessages.Add(reportedMessage);
                 }
                 catch (NotFoundException)
@@ -462,7 +460,7 @@ internal sealed class MessageReportService : BackgroundService
             }
         }
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        await context.SaveChangesAsync();
     }
 
     private DiscordEmbed CreateStaffReportEmbed(DiscordMessage message, DiscordMember reporter)

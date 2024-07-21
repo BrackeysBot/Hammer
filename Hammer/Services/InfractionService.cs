@@ -194,7 +194,7 @@ internal sealed class InfractionService : BackgroundService
         if (type != InfractionType.Gag && options.NotifyUser)
         {
             int count = GetInfractionCount(user, staffMember.Guild);
-            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, count, options).ConfigureAwait(false);
+            DiscordMessage? dm = await _mailmanService.SendInfractionAsync(infraction, count, options);
             result &= dm is not null;
         }
 
@@ -214,7 +214,7 @@ internal sealed class InfractionService : BackgroundService
         DiscordUser? user;
         try
         {
-            user = await _discordClient.GetUserAsync(infraction.UserId).ConfigureAwait(false);
+            user = await _discordClient.GetUserAsync(infraction.UserId);
         }
         catch (NotFoundException)
         {
@@ -423,8 +423,8 @@ internal sealed class InfractionService : BackgroundService
 
         try
         {
-            DiscordMember member = await guild.GetMemberAsync(user.Id).ConfigureAwait(false);
-            await member.TimeoutAsync(gagUntil, $"Gagged by {staffMember.GetUsernameWithDiscriminator()}").ConfigureAwait(false);
+            DiscordMember member = await guild.GetMemberAsync(user.Id);
+            await member.TimeoutAsync(gagUntil, $"Gagged by {staffMember.GetUsernameWithDiscriminator()}");
         }
         catch (NotFoundException)
         {
@@ -455,10 +455,10 @@ internal sealed class InfractionService : BackgroundService
             embed.AddFieldIf(hasAttachments, "Attachments", attachments);
         }
 
-        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
-        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember,
-                new InfractionOptions { NotifyUser = false, Duration = duration.Value, ExpirationTime = gagUntil })
-            .ConfigureAwait(false);
+        await _logService.LogAsync(guild, embed);
+
+        var options = new InfractionOptions { NotifyUser = false, Duration = duration.Value, ExpirationTime = gagUntil };
+        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, options);
     }
 
     /// <summary>
@@ -688,8 +688,8 @@ internal sealed class InfractionService : BackgroundService
         ArgumentNullException.ThrowIfNull(guild);
         ArgumentNullException.ThrowIfNull(infraction);
 
-        DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction).ConfigureAwait(false);
-        await _logService.LogAsync(guild, embed).ConfigureAwait(false);
+        DiscordEmbed embed = await CreateInfractionEmbedAsync(infraction);
+        await _logService.LogAsync(guild, embed);
     }
 
     /// <summary>
@@ -728,7 +728,7 @@ internal sealed class InfractionService : BackgroundService
     /// </summary>
     public async Task<int> PruneStaleInfractionsAsync()
     {
-        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync().ConfigureAwait(false);
+        await using HammerContext context = await _dbContextFactory.CreateDbContextAsync();
         var idCache = new Dictionary<ulong, bool>();
         var pruneInfractions = new List<Infraction>();
 
@@ -740,7 +740,7 @@ internal sealed class InfractionService : BackgroundService
             {
                 try
                 {
-                    DiscordUser user = await _discordClient.GetUserAsync(userId).ConfigureAwait(false);
+                    DiscordUser user = await _discordClient.GetUserAsync(userId);
                     isStale = user is null;
                 }
                 catch (NotFoundException)
@@ -762,7 +762,7 @@ internal sealed class InfractionService : BackgroundService
             context.Remove(infraction);
         }
 
-        await context.SaveChangesAsync().ConfigureAwait(false);
+        await context.SaveChangesAsync();
         return pruneInfractions.Count;
     }
 

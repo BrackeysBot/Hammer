@@ -29,7 +29,7 @@ internal sealed class ViewInfractionCommand : ApplicationCommandModule
         long infractionId
     )
     {
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
         var embed = new DiscordEmbedBuilder();
 
         Infraction? infraction = _infractionService.GetInfraction(infractionId);
@@ -56,6 +56,6 @@ internal sealed class ViewInfractionCommand : ApplicationCommandModule
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
     }
 }

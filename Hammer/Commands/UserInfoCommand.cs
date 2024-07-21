@@ -42,7 +42,7 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
         GuildConfiguration? configuration = _configurationService.GetGuildConfiguration(guild);
         if (configuration is null)
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
@@ -50,7 +50,7 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
         DiscordMember? member = await user.GetAsMemberOfAsync(guild);
         DiscordEmbed embed = CreateUserInfoEmbed(user, member, staffRequested, guild);
 
-        await context.CreateResponseAsync(embed).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed);
     }
 
     [ContextMenu(ApplicationCommandType.UserContextMenu, "User Information")]
@@ -61,13 +61,13 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
         GuildConfiguration? configuration = _configurationService.GetGuildConfiguration(guild);
         if (configuration is null)
         {
-            await context.CreateResponseAsync("This guild is not configured.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("This guild is not configured.", true);
             return;
         }
 
         bool staffRequested = context.Member.IsStaffMember(configuration);
         DiscordEmbed embed = CreateUserInfoEmbed(context.TargetUser, context.TargetMember, staffRequested, guild);
-        await context.CreateResponseAsync(embed, true).ConfigureAwait(false);
+        await context.CreateResponseAsync(embed, true);
     }
 
     private DiscordEmbed CreateUserInfoEmbed(DiscordUser user, DiscordMember? member, bool staffRequested, DiscordGuild guild)

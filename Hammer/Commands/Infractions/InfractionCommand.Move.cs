@@ -18,11 +18,11 @@ internal sealed partial class InfractionCommand
     {
         if (source == destination)
         {
-            await context.CreateResponseAsync("You can't move infractions to the same user.", true).ConfigureAwait(false);
+            await context.CreateResponseAsync("You can't move infractions to the same user.", true);
             return;
         }
 
-        await context.DeferAsync().ConfigureAwait(false);
+        await context.DeferAsync();
 
         IEnumerable<Infraction> infractions = _infractionService.EnumerateInfractions(source, context.Guild);
         var count = 0;
@@ -40,7 +40,7 @@ internal sealed partial class InfractionCommand
 
         var builder = new DiscordWebhookBuilder();
         builder.AddEmbed(embed);
-        await context.EditResponseAsync(builder).ConfigureAwait(false);
+        await context.EditResponseAsync(builder);
 
         embed = new DiscordEmbedBuilder();
         embed.WithColor(DiscordColor.Orange);
@@ -49,6 +49,6 @@ internal sealed partial class InfractionCommand
         embed.AddField("To", destination.Mention, true);
         embed.AddField("Count", count, true);
         embed.AddField("Staff Member", context.Member.Mention, true);
-        await _logService.LogAsync(context.Guild, embed).ConfigureAwait(false);
+        await _logService.LogAsync(context.Guild, embed);
     }
 }
