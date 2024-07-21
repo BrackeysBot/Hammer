@@ -1,10 +1,10 @@
-﻿using System.Text;
+using System.Text;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.Extensions;
 using Hammer.Services;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
@@ -25,8 +25,10 @@ internal sealed class AltCommand : ApplicationCommandModule
     [SlashCommand("add", "Adds an alt account to a user.", false)]
     [SlashRequireGuild]
     public async Task AddAltAsync(InteractionContext context,
-        [Option("user", "The user to add an alt account to.")] DiscordUser user,
-        [Option("alt", "The alt account to add.")] DiscordUser alt)
+        [Option("user", "The user to add an alt account to.")]
+        DiscordUser user,
+        [Option("alt", "The alt account to add.")]
+        DiscordUser alt)
     {
         await context.DeferAsync().ConfigureAwait(false);
         await _altAccountService.AddAltAsync(user, alt, context.Member).ConfigureAwait(false);
@@ -47,8 +49,10 @@ internal sealed class AltCommand : ApplicationCommandModule
     [SlashCommand("remove", "Removes an alt account from a user.", false)]
     [SlashRequireGuild]
     public async Task RemoveAltAsync(InteractionContext context,
-        [Option("user", "The user to remove an alt account from.")] DiscordUser user,
-        [Option("alt", "The alt account to remove.")] DiscordUser alt)
+        [Option("user", "The user to remove an alt account from.")]
+        DiscordUser user,
+        [Option("alt", "The alt account to remove.")]
+        DiscordUser alt)
     {
         await context.DeferAsync().ConfigureAwait(false);
         await _altAccountService.RemoveAltAsync(user, alt, context.Member).ConfigureAwait(false);
@@ -67,7 +71,8 @@ internal sealed class AltCommand : ApplicationCommandModule
     [SlashCommand("view", "Views the alt accounts for a user.", false)]
     [SlashRequireGuild]
     public async Task ViewAltsAsync(InteractionContext context,
-        [Option("user", "The user to add an alt account to.")] DiscordUser user)
+        [Option("user", "The user to add an alt account to.")]
+        DiscordUser user)
     {
         await context.DeferAsync().ConfigureAwait(false);
         IReadOnlyCollection<ulong> altAccounts = _altAccountService.GetAltsFor(user.Id);

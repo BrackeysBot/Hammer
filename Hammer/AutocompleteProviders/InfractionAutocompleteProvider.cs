@@ -1,11 +1,11 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using X10D.DSharpPlus;
 
 namespace Hammer.AutocompleteProviders;
 

@@ -1,4 +1,4 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
@@ -7,7 +7,6 @@ using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartFormat;
-using X10D.DSharpPlus;
 
 namespace Hammer.Services;
 

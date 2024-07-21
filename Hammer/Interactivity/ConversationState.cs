@@ -1,4 +1,4 @@
-﻿namespace Hammer.Interactivity;
+namespace Hammer.Interactivity;
 
 /// <summary>
 ///     Represents a state of a <see cref="Conversation" />.

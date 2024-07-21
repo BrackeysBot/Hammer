@@ -1,12 +1,12 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Services;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using X10D.Text;
 
 namespace Hammer.Commands;

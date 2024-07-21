@@ -13,7 +13,6 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using X10D.Text;
 using TimestampFormat = DSharpPlus.TimestampFormat;
 
@@ -163,9 +162,8 @@ internal sealed class InfractionService : BackgroundService
         DiscordGuild guild = staffMember.Guild;
         DateTimeOffset? expirationTime = options.ExpirationTime;
 
-        if (type == InfractionType.Gag &&
-            _configurationService.TryGetGuildConfiguration(guild, out GuildConfiguration? guildConfiguration))
-            expirationTime = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(guildConfiguration.Mute.GagDuration);
+        if (type == InfractionType.Gag)
+            expirationTime = DateTimeOffset.UtcNow + options.Duration;
 
         var builder = new InfractionBuilder();
         builder.WithType(type);
@@ -450,7 +448,7 @@ internal sealed class InfractionService : BackgroundService
         }
 
         await _logService.LogAsync(guild, embed).ConfigureAwait(false);
-        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false})
+        return await CreateInfractionAsync(InfractionType.Gag, user, staffMember, new InfractionOptions {NotifyUser = false, Duration = duration.Value, ExpirationTime = gagUntil})
             .ConfigureAwait(false);
     }
 

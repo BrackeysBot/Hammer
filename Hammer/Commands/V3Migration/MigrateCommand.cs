@@ -1,4 +1,4 @@
-﻿using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Interactivity;
 

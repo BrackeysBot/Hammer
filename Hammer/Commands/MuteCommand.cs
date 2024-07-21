@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.AutocompleteProviders;
@@ -8,7 +8,6 @@ using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using X10D.Text;
 using X10D.Time;
 

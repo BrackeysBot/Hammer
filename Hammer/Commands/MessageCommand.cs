@@ -1,10 +1,10 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.Extensions;
 using Hammer.Interactivity;
 using Hammer.Services;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
@@ -27,7 +27,8 @@ internal sealed class MessageCommand : ApplicationCommandModule
     [SlashRequireGuild]
     public async Task MessageAsync(
         InteractionContext context,
-        [Option("member", "The member to message.")] DiscordUser user
+        [Option("member", "The member to message.")]
+        DiscordUser user
     )
     {
         var embed = new DiscordEmbedBuilder();
@@ -55,7 +56,7 @@ internal sealed class MessageCommand : ApplicationCommandModule
             string? content = message.Value?.Trim();
             var builder = new DiscordFollowupMessageBuilder();
             builder.AsEphemeral();
-            
+
             if (string.IsNullOrWhiteSpace(content))
             {
                 embed = new DiscordEmbedBuilder();

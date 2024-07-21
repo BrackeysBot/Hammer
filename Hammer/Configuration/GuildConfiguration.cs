@@ -1,4 +1,4 @@
-﻿namespace Hammer.Configuration;
+namespace Hammer.Configuration;
 
 /// <summary>
 ///     Represents a guild configuration.

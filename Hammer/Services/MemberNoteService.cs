@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Hammer.Configuration;
 using Hammer.Data;
 using Hammer.Extensions;
@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
 using SmartFormat;
-using X10D.DSharpPlus;
 using PermissionLevel = Hammer.Data.PermissionLevel;
 
 namespace Hammer.Services;

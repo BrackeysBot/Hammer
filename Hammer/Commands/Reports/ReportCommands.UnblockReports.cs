@@ -1,7 +1,7 @@
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
-using X10D.DSharpPlus;
+using Hammer.Extensions;
 
 namespace Hammer.Commands.Reports;
 
