@@ -24,9 +24,7 @@ internal sealed class StaffMessageConfiguration : IEntityTypeConfiguration<Staff
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<StaffMessage> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "StaffMessage");
+        builder.ToTable("StaffMessage");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);

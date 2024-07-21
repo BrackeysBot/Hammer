@@ -25,9 +25,7 @@ internal sealed class MuteConfiguration : IEntityTypeConfiguration<Mute>
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Mute> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "Mute");
+        builder.ToTable("Mute");
         builder.HasKey(e => new { e.UserId, e.GuildId });
 
         builder.Property(e => e.GuildId);

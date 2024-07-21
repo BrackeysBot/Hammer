@@ -26,9 +26,7 @@ internal sealed class TrackedMessageConfiguration : IEntityTypeConfiguration<Tra
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<TrackedMessage> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "TrackedMessages");
+        builder.ToTable("TrackedMessages");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);

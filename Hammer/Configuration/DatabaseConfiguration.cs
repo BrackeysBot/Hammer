@@ -36,12 +36,6 @@ internal sealed class DatabaseConfiguration
     public string? Provider { get; set; } = "sqlite";
 
     /// <summary>
-    ///     Gets or sets the table prefix.
-    /// </summary>
-    /// <value>The table prefix.</value>
-    public string TablePrefix { get; set; } = "Hammer_";
-
-    /// <summary>
     ///     Gets or sets the login username.
     /// </summary>
     /// <value>The login username.</value>

@@ -25,9 +25,7 @@ internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedM
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<ReportedMessage> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "ReportedMessage");
+        builder.ToTable("ReportedMessage");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);

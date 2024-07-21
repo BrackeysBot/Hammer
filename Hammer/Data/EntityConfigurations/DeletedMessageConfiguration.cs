@@ -26,9 +26,7 @@ internal sealed class DeletedMessageConfiguration : IEntityTypeConfiguration<Del
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<DeletedMessage> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "DeletedMessage");
+        builder.ToTable("DeletedMessage");
         builder.HasKey(e => e.MessageId);
 
         builder.Property(e => e.MessageId);

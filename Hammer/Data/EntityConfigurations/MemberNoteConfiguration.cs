@@ -25,7 +25,7 @@ internal sealed class MemberNoteConfiguration : IEntityTypeConfiguration<MemberN
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<MemberNote> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
+        builder.ToTable("MemberNote");
         string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
         builder.ToTable(tablePrefix + "MemberNote");
         builder.HasKey(e => e.Id);

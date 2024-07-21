@@ -25,9 +25,7 @@ internal sealed class InfractionConfiguration : IEntityTypeConfiguration<Infract
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Infraction> builder)
     {
-        DatabaseConfiguration configuration = _configurationService.BotConfiguration.Database;
-        string tablePrefix = configuration.Provider == "sqlite" ? string.Empty : configuration.TablePrefix;
-        builder.ToTable(tablePrefix + "Infraction");
+        builder.ToTable("Infraction");
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id);
