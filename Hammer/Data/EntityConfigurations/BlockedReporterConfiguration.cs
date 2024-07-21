@@ -1,5 +1,3 @@
-using Hammer.Configuration;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -11,15 +9,17 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class BlockedReporterConfiguration : IEntityTypeConfiguration<BlockedReporter>
 {
-    private readonly ConfigurationService _configurationService;
+    private readonly bool _isMySql;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="BlockedReporterConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public BlockedReporterConfiguration(ConfigurationService configurationService)
+    /// <param name="isMySql">
+    ///     <see langword="true" /> if this configuration should use MySQL configuration, otherwise <see langword="false" />.
+    /// </param>
+    public BlockedReporterConfiguration(bool isMySql)
     {
-        _configurationService = configurationService;
+        _isMySql = isMySql;
     }
 
     /// <inheritdoc />
@@ -33,13 +33,13 @@ internal sealed class BlockedReporterConfiguration : IEntityTypeConfiguration<Bl
         builder.Property(e => e.StaffMemberId);
 
         PropertyBuilder<DateTimeOffset> blockedAtProperty = builder.Property(e => e.BlockedAt);
-        if (_configurationService.BotConfiguration.Database.Provider == "sqlite")
+        if (_isMySql)
         {
-            blockedAtProperty.HasConversion<DateTimeOffsetToBytesConverter>();
+            blockedAtProperty.HasColumnType("DATETIME(6)");
         }
         else
         {
-            blockedAtProperty.HasColumnType("DATETIME(6)");
+            blockedAtProperty.HasConversion<DateTimeOffsetToBytesConverter>();
         }
     }
 }

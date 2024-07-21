@@ -1,5 +1,3 @@
-using Hammer.Configuration;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,15 +8,11 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class StaffMessageConfiguration : IEntityTypeConfiguration<StaffMessage>
 {
-    private readonly ConfigurationService _configurationService;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="StaffMessageConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public StaffMessageConfiguration(ConfigurationService configurationService)
+    public StaffMessageConfiguration()
     {
-        _configurationService = configurationService;
     }
 
     /// <inheritdoc />

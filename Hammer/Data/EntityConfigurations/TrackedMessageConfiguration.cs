@@ -1,6 +1,4 @@
-using Hammer.Configuration;
 using Hammer.Data.ValueConverters;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -12,15 +10,17 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class TrackedMessageConfiguration : IEntityTypeConfiguration<TrackedMessage>
 {
-    private readonly ConfigurationService _configurationService;
+    private readonly bool _isMySql;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="TrackedMessageConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public TrackedMessageConfiguration(ConfigurationService configurationService)
+    /// <param name="isMySql">
+    ///     <see langword="true" /> if this configuration should use MySQL configuration, otherwise <see langword="false" />.
+    /// </param>
+    public TrackedMessageConfiguration(bool isMySql)
     {
-        _configurationService = configurationService;
+        _isMySql = isMySql;
     }
 
     /// <inheritdoc />
@@ -37,15 +37,15 @@ internal sealed class TrackedMessageConfiguration : IEntityTypeConfiguration<Tra
         builder.Property(e => e.Content);
         builder.Property(e => e.Attachments).HasConversion<UriListToBytesConverter>();
 
-        if (_configurationService.BotConfiguration.Database.Provider == "sqlite")
-        {
-            builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
-            builder.Property(e => e.DeletionTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
-        }
-        else
+        if (_isMySql)
         {
             builder.Property(e => e.CreationTimestamp).HasColumnType("DATETIME(6)");
             builder.Property(e => e.DeletionTimestamp).HasColumnType("DATETIME(6)");
+        }
+        else
+        {
+            builder.Property(e => e.CreationTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
+            builder.Property(e => e.DeletionTimestamp).HasConversion<DateTimeOffsetToBytesConverter>();
         }
     }
 }

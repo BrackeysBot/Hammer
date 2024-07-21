@@ -1,6 +1,4 @@
-using Hammer.Configuration;
 using Hammer.Data.ValueConverters;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,15 +9,11 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal class ReportedMessageConfiguration : IEntityTypeConfiguration<ReportedMessage>
 {
-    private readonly ConfigurationService _configurationService;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="ReportedMessageConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public ReportedMessageConfiguration(ConfigurationService configurationService)
+    public ReportedMessageConfiguration()
     {
-        _configurationService = configurationService;
     }
 
     /// <inheritdoc />

@@ -1,5 +1,3 @@
-using Hammer.Configuration;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,15 +8,11 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class RuleConfiguration : IEntityTypeConfiguration<Rule>
 {
-    private readonly ConfigurationService _configurationService;
-
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuleConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public RuleConfiguration(ConfigurationService configurationService)
+    public RuleConfiguration()
     {
-        _configurationService = configurationService;
     }
 
     /// <inheritdoc />

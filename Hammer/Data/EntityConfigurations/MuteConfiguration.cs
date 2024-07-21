@@ -1,5 +1,3 @@
-using Hammer.Configuration;
-using Hammer.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -11,15 +9,17 @@ namespace Hammer.Data.EntityConfigurations;
 /// </summary>
 internal sealed class MuteConfiguration : IEntityTypeConfiguration<Mute>
 {
-    private readonly ConfigurationService _configurationService;
+    private readonly bool _isMySql;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="MuteConfiguration" /> class.
     /// </summary>
-    /// <param name="configurationService">The configuration service.</param>
-    public MuteConfiguration(ConfigurationService configurationService)
+    /// <param name="isMySql">
+    ///     <see langword="true" /> if this configuration should use MySQL configuration, otherwise <see langword="false" />.
+    /// </param>
+    public MuteConfiguration(bool isMySql)
     {
-        _configurationService = configurationService;
+        _isMySql = isMySql;
     }
 
     /// <inheritdoc />
@@ -31,13 +31,13 @@ internal sealed class MuteConfiguration : IEntityTypeConfiguration<Mute>
         builder.Property(e => e.GuildId);
         builder.Property(e => e.UserId);
 
-        if (_configurationService.BotConfiguration.Database.Provider == "sqlite")
+        if (_isMySql)
         {
-            builder.Property(e => e.ExpiresAt).HasConversion<DateTimeOffsetToBytesConverter>();
+            builder.Property(e => e.ExpiresAt).HasColumnType("DATETIME(6)");
         }
         else
         {
-            builder.Property(e => e.ExpiresAt).HasColumnType("DATETIME(6)");
+            builder.Property(e => e.ExpiresAt).HasConversion<DateTimeOffsetToBytesConverter>();
         }
     }
 }

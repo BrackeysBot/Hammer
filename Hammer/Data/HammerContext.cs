@@ -28,6 +28,12 @@ internal sealed class HammerContext : DbContext
     }
 
     /// <summary>
+    ///     Gets a value indicating whether this instance is using MySQL as its database provider.
+    /// </summary>
+    /// <value><see langword="true" /> if MySQL is being used; otherwise, <see langword="false" />.</value>
+    public bool IsMySql { get; private set; }
+
+    /// <summary>
     ///     Gets the set of alt accounts.
     /// </summary>
     /// <value>The set of alt accounts.</value>
@@ -102,6 +108,7 @@ internal sealed class HammerContext : DbContext
         switch (databaseConfiguration.Provider)
         {
             case "mysql":
+                IsMySql = true;
                 _logger.LogTrace("Using MySQL/MariaDB database provider");
                 var connectionStringBuilder = new MySqlConnectionStringBuilder
                 {
@@ -131,16 +138,16 @@ internal sealed class HammerContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.ApplyConfiguration(new AltAccountConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new InfractionConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new MemberNoteConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new MuteConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration(_configurationService));
-        modelBuilder.ApplyConfiguration(new RuleConfiguration(_configurationService));
+        modelBuilder.ApplyConfiguration(new AltAccountConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new BlockedReporterConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new DeletedMessageConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new InfractionConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new MemberNoteConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new MuteConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new StaffMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new ReportedMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new TemporaryBanConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new TrackedMessageConfiguration(IsMySql));
+        modelBuilder.ApplyConfiguration(new RuleConfiguration());
     }
 }
