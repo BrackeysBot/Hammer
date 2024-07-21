@@ -1,4 +1,4 @@
-﻿using DSharpPlus;
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
@@ -6,7 +6,6 @@ using Hammer.Configuration;
 using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 
@@ -112,8 +111,8 @@ internal sealed class UserInfoCommand : ApplicationCommandModule
                 ulong firstAlt = altAccounts.First();
                 return altCount switch
                 {
-                    1 => $"{X10D.DSharpPlus.MentionUtility.MentionUser(firstAlt)} ({firstAlt})",
-                    <= 5 => string.Join("\n", altAccounts.Select(id => $"• {X10D.DSharpPlus.MentionUtility.MentionUser(id)} ({id})")),
+                    1 => $"{MentionUtility.MentionUser(firstAlt)} ({firstAlt})",
+                    <= 5 => string.Join("\n", altAccounts.Select(id => $"• {MentionUtility.MentionUser(id)} ({id})")),
                     _ => $"Use `/alt view user:{user.Id}` to view."
                 };
             });

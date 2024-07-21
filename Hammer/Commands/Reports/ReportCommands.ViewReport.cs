@@ -4,11 +4,9 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
-using X10D.DSharpPlus;
+using Hammer.Extensions;
 
 namespace Hammer.Commands.Reports;
-
-using MentionUtility = X10D.DSharpPlus.MentionUtility;
 
 internal sealed partial class ReportCommands
 {

@@ -7,7 +7,6 @@ using Hammer.Resources;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SmartFormat;
-using X10D.DSharpPlus;
 
 namespace Hammer.Services;
 

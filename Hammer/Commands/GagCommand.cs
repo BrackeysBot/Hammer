@@ -2,9 +2,9 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Hammer.Extensions;
 using Hammer.Services;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using X10D.Time;
 
 namespace Hammer.Commands;

@@ -2,13 +2,11 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using Hammer.Configuration;
+using Hammer.Extensions;
 using Hammer.Resources;
 using Hammer.Services;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
-
-using MentionUtility = X10D.DSharpPlus.MentionUtility;
 
 /// <summary>
 ///     Represents a module which implements the <c>viewmessage</c> command.

@@ -2,14 +2,12 @@ using System.Collections.Concurrent;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Hammer.Data;
+using Hammer.Extensions;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
-using X10D.DSharpPlus;
 
 namespace Hammer.Services;
-
-using MentionUtility = X10D.DSharpPlus.MentionUtility;
 
 /// <summary>
 ///     Represents a service which manages alt accounts.

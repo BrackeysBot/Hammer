@@ -3,13 +3,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Data;
+using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands.Infractions;
-
-using MentionUtility = X10D.DSharpPlus.MentionUtility;
 
 internal sealed class ViewInfractionCommand : ApplicationCommandModule
 {

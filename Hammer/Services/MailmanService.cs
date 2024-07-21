@@ -5,7 +5,6 @@ using Hammer.Data;
 using Hammer.Extensions;
 using Humanizer;
 using SmartFormat;
-using X10D.DSharpPlus;
 using X10D.Text;
 
 namespace Hammer.Services;

@@ -5,15 +5,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using Hammer.Data;
+using Hammer.Extensions;
 using Humanizer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using Timer = System.Timers.Timer;
 
 namespace Hammer.Services;
-
-using MentionUtility = X10D.DSharpPlus.MentionUtility;
 
 /// <summary>
 ///     Represents a service which handles infraction cooldowns, to prevent duplicate issues.

@@ -4,9 +4,9 @@ using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
 using Hammer.Configuration;
+using Hammer.Extensions;
 using Hammer.Services;
 using Humanizer;
-using X10D.DSharpPlus;
 
 namespace Hammer.Commands;
 

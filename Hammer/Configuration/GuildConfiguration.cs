@@ -1,4 +1,4 @@
-﻿using Hammer.Commands;
+using Hammer.Commands;
 
 namespace Hammer.Configuration;
 

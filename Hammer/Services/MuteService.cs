@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using X10D.DSharpPlus;
 using X10D.Text;
 using PermissionLevel = Hammer.Data.PermissionLevel;
 using Timer = System.Timers.Timer;
